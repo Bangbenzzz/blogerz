@@ -1,0 +1,120 @@
+/* app/dashboard/write/write.module.css */
+
+.container {
+  min-height: 100vh;
+  background-color: var(--bg-main); /* Ikut tema */
+  color: var(--text-main);
+  max-width: 800px; /* Lebar tulisan enak dibaca */
+  margin: 0 auto;
+  position: relative;
+}
+
+/* --- HEADER MEWAH (GLASSMORPHISM) --- */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  
+  /* Efek Kaca Blur */
+  background: rgba(var(--bg-rgb), 0.8); /* Pastikan var rgb ada, atau pakai hex transparan manual */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  
+  border-bottom: 1px solid var(--border-color);
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+/* TOMBOL BATAL (CLEAN TEXT) */
+.btnCancel {
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-main);
+  padding: 8px 16px;
+  border-radius: 99px;
+  transition: background 0.2s;
+}
+.btnCancel:hover {
+  background: var(--bg-card); /* Efek hover halus */
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* TOMBOL PUBLISH ALA TWITTER (KAPSUL) */
+.btnPublish {
+  background: var(--text-main); /* Putih di Dark Mode / Hitam di Light Mode */
+  color: var(--bg-main);        /* Teks kebalikannya biar kontras */
+  border: none;
+  padding: 8px 24px;
+  border-radius: 99px; /* Bulat Kapsul */
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+}
+.btnPublish:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.btnPublish:active:not(:disabled) {
+  transform: scale(0.95); /* Efek tekan */
+}
+.btnPublish:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* --- AREA INPUT (BERSIH) --- */
+.content {
+  padding: 30px 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* INPUT JUDUL (BESAR & BOLD) */
+.inputTitle {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 36px; /* Font Judul Besar */
+  font-weight: 800;
+  padding: 0;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.2;
+}
+.inputTitle::placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* TEXTAREA ISI (LUAS) */
+.inputBody {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 18px; /* Font isi enak dibaca */
+  line-height: 1.6;
+  min-height: 60vh; 
+  outline: none;
+  resize: none; 
+  font-family: inherit;
+  padding-bottom: 100px; /* Space bawah biar gak mentok */
+}
+.inputBody::placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
+}

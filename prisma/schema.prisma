@@ -1,0 +1,87 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// TABEL USER / PROFIL
+model Profile {
+  id        String   @id
+  email     String   @unique
+  name      String?
+  
+  // -- KOLOM BARU UNTUK PROFIL SOSMED --
+  username  String?  @unique // Username unik ala Twitter (@budi01)
+  bio       String?  // Status / Bio singkat
+  avatarUrl String?  // Link foto profil
+  
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relasi ke tabel lain
+  posts     Post[]
+  comments  Comment[]
+  likes     Like[]
+}
+
+// TABEL POSTINGAN ARTIKEL
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // --- PERBAIKAN DI SINI ---
+  // Kita tambahkan @default(cuid()) agar data lama otomatis terisi
+  // Setelah push sukses, kamu boleh menghapus @default(cuid()) nanti jika mau
+  slug      String   @unique @default(cuid())
+
+  author    Profile  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  // -- RELASI BARU --
+  comments  Comment[]
+  likes     Like[]
+}
+
+// -- TABEL BARU: KOMENTAR --
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  
+  postId    String
+  authorId  String
+  
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    Profile  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+// -- TABEL BARU: LIKE --
+model Like {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  postId    String
+  authorId  String
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    Profile  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Pastikan 1 user cuma bisa like 1 kali per postingan
+  @@unique([postId, authorId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}

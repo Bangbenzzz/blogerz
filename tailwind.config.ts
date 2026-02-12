@@ -1,0 +1,18 @@
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      boxShadow: {
+        neon: "0 0 20px rgba(34,197,94,.35), 0 0 60px rgba(34,197,94,.18)",
+      },
+    },
+  },
+  plugins: [],
+};
+export default config;
