@@ -137,27 +137,32 @@
   letter-spacing: 1px;
 }
 
+/* --- LAYOUT TOMBOL SOSIAL (DEFAULT) --- */
 .socialButtons {
   display: flex;
-  gap: 15px;
+  justify-content: space-between; /* Kiri - Kanan */
+  align-items: center;
+  gap: 15px; /* Jarak antar tombol */
   width: 100%;
 }
 
+/* --- STYLE TOMBOL INDIVIDUAL --- */
 .btnSocial {
-  flex: 1;
+  flex: 1; /* Membuat kedua tombol sama besar dan memenuhi ruang */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
   background: transparent;
   border: 1px solid var(--border-color);
   color: var(--text-main);
-  padding: 12px;
-  font-size: 11px;
+  padding: 12px 10px;
+  font-size: 13px;
   font-weight: bold;
   cursor: pointer;
   transition: 0.3s;
   font-family: monospace;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
 }
 
 .btnSocial:hover {
@@ -188,9 +193,9 @@
 }
 
 /* =========================================
-   MOBILE RESPONSIVE (Maksimal lebar 768px)
+   MOBILE RESPONSIVE (Maksimal lebar 480px)
    ========================================= */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   .container {
     padding: 1.5rem;
   }
@@ -207,13 +212,16 @@
     gap: 20px;
   }
 
+  /* --- PERBAIKAN TOMBOL SOSIAL DI HP --- */
+  /* Paksa tetap Horizontal (Kiri-Kanan) */
   .socialButtons {
-    flex-direction: column; 
-    gap: 10px;
+    flex-direction: row !important; 
+    gap: 10px; /* Jarak diperkecil sedikit */
   }
 
+  /* Perkecil tombol agar muat di layar sempit */
   .btnSocial {
-    width: 100%;
-    padding: 14px;
+    padding: 10px 5px; /* Padding diperkecil */
+    font-size: 11px;   /* Font diperkecil */
   }
 }
