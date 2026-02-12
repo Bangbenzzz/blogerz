@@ -65,7 +65,7 @@ export default function OnboardingModal({ profile }: { profile: any }) {
                 fontSize: '20px', // Font judul diperkecil biar proporsional
                 fontWeight: '800'
             }}>
-                Selamat Datang! 👋
+                Selamat Datang!
             </h2>
             <p style={{
                 color: '#888', 

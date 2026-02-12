@@ -1,11 +1,12 @@
 /* app/home.module.css */
 
+/* --- CONTAINER UTAMA --- */
 .container {
   min-height: 100vh;
   background-color: transparent;
 }
 
-/* HEADER FULL LAYAR & KACA SUPER BURAM (ANTI BOCOR) */
+/* HEADER GLASSMORPHISM (ADAPTIF LIGHT/DARK MODE) */
 .header {
   position: sticky;
   top: 0;
@@ -13,19 +14,26 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 10%;
-  background: var(--bg-glass); 
+  padding: 20px 5%;
   
-  /* Blur dinaikkan gila-gilaan ke 64px dan saturate 300% agar teks di belakang lebur total */
-  backdrop-filter: blur(64px) saturate(300%);
-  -webkit-backdrop-filter: blur(64px) saturate(300%);
+  /* --- BACKGROUND ADAPTIF --- */
+  /* Menggunakan color-mix agar warna mengikuti tema (Hitam/Putih) tapi transparan 85% */
+  background: var(--bg-main);
+
+  /* Efek Blur */
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   
-  border-bottom: 1px solid rgba(150, 150, 150, 0.15); 
+  /* --- BORDER ADAPTIF --- */
+  border-bottom: 1px solid var(--border-color); 
+  
+  transition: all 0.3s ease;
 }
 
 .logo {
   font-weight: 800;
   font-size: 1.2rem;
+  color: var(--text-main);
 }
 
 .logo span {
@@ -38,7 +46,7 @@
   gap: 20px;
 }
 
-/* TOMBOL NAVIGASI UMUM (WARNA SOLID TETAP) */
+/* --- TOMBOL-TOMBOL --- */
 .btnAction {
   background: var(--accent); 
   border: 1px solid var(--accent);
@@ -57,7 +65,6 @@
   box-shadow: 0 0 15px rgba(20, 255, 0, 0.5); 
 }
 
-/* TOMBOL EXIT (LOGOUT) KHUSUS */
 .btnLogout {
   background: rgba(255, 68, 68, 0.05);
   border: 1px solid #ff4444;
@@ -78,9 +85,9 @@
   box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
 }
 
-/* HERO SECTION */
+/* --- HERO SECTION (LANDING PAGE) --- */
 .hero {
-  padding: 100px 10%;
+  padding: 100px 5%;
 }
 
 .hero label {
@@ -95,6 +102,7 @@
   line-height: 0.9;
   margin: 20px 0;
   text-transform: uppercase;
+  color: var(--text-main); /* Pastikan teks Hero adaptif */
 }
 
 .textOutline {
@@ -108,7 +116,6 @@
   line-height: 1.6;
 }
 
-/* TOMBOL JOIN COMMUNITY (WARNA SOLID TETAP) */
 .btnActionLarge {
   background: var(--accent); 
   border: 1px solid var(--accent);
@@ -130,12 +137,12 @@
   box-shadow: 0 0 25px rgba(20, 255, 0, 0.6); 
 }
 
-/* FEED SECTION */
-.feedSection {
-  padding: 0 10% 80px 10%;
+/* --- FEED SECTION KHUSUS TAMU --- */
+.feedSectionGuest {
+  padding: 0 5% 80px 5%;
 }
 
-.sectionTitle {
+.sectionTitleGuest {
   font-family: monospace;
   font-size: 12px;
   color: var(--text-muted);
@@ -144,27 +151,56 @@
   padding-bottom: 10px;
 }
 
-.emptyState {
-  padding: 40px 0;
+/* --- FEED SECTION KHUSUS MEMBER --- */
+.feedSectionFull {
+  width: 100%;
+  padding-bottom: 80px;
+  margin-top: 20px;
+}
+
+/* 1. Judul Full Width */
+.sectionTitleFull {
+  width: 100%;
+  border-bottom: 1px solid var(--border-color); 
+  margin-bottom: 30px;
+  padding-bottom: 10px;
+}
+
+/* 2. Teks Judul */
+.titleContent {
+  padding-left: 5%; 
   font-family: monospace;
-  color: var(--accent);
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: bold;
+  letter-spacing: 1px;
 }
 
-.postGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 30px;
+/* 3. Container Postingan */
+.timelineContainer {
+  padding-left: 5%; 
+  padding-right: 5%;
+  width: 100%;
 }
 
+.postListWrapper {
+  display: flex; 
+  flex-direction: column; 
+  gap: 20px; 
+  max-width: 700px; 
+  width: 100%;
+}
+
+/* --- STYLE KARTU POSTINGAN --- */
 .postCard {
-  background: var(--bg-card);
+  background: var(--bg-card); /* Gunakan variabel */
   border: 1px solid var(--border-color);
   padding: 25px;
   transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
 .postCard:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
   border-color: var(--accent);
 }
 
@@ -183,6 +219,7 @@
   font-size: 1.4rem;
   font-weight: 700;
   margin: 10px 0;
+  color: var(--text-main); /* FIX: Jangan putih, pakai text-main */
 }
 
 .postExcerpt {
@@ -205,11 +242,21 @@
   color: var(--text-muted);
 }
 
-/* =========================================
-   MOBILE RESPONSIVE (Maksimal lebar 768px)
-   ========================================= */
+.emptyState {
+  padding: 40px 0;
+  font-family: monospace;
+  color: var(--text-muted);
+}
+
+.postGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+/* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
-  .header, .hero, .feedSection {
+  .header, .hero, .feedSectionGuest, .titleContent, .timelineContainer {
     padding-left: 5%;
     padding-right: 5%;
   }
@@ -218,7 +265,6 @@
     gap: 10px;
   }
 
-  /* Sembunyikan email di HP agar tombol tidak bertumpuk */
   .emailStatus {
     display: none; 
   }
@@ -245,5 +291,9 @@
   .postGrid {
     grid-template-columns: 1fr; 
     gap: 20px;
+  }
+  
+  .postListWrapper {
+    max-width: 100%;
   }
 }

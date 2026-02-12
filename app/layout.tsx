@@ -1,7 +1,7 @@
 import "./globals.css";
-// Menggunakan ../ karena folder components ada selangkah di luar folder app
 import { ThemeProvider } from "../components/theme-provider"; 
-import Toast from "../components/Toast"; // <--- 1. IMPORT TOAST
+import Toast from "../components/Toast"; 
+import Footer from "../components/Footer"; 
 
 export const metadata = {
   title: "Cyber Blog",
@@ -11,12 +11,30 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body>
+      <body style={{ margin: 0, padding: 0 }}>
         <ThemeProvider>
-          {/* 2. PASANG TOAST DI SINI (Paling Atas) */}
-          <Toast />
           
-          {children}
+          {/* --- WRAPPER UTAMA (Flexbox dipindah ke sini) --- */}
+          {/* Ini menjamin layout tidak terputus oleh ThemeProvider */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100vh', /* Minimal setinggi layar */
+          }}>
+            
+            {/* Toast tetap di atas */}
+            <Toast />
+            
+            {/* Konten (Ambil sisa ruang) */}
+            <div style={{ flex: 1, width: '100%' }}>
+              {children}
+            </div>
+
+            {/* Footer (Akan terdorong ke bawah) */}
+            <Footer />
+            
+          </div>
+          
         </ThemeProvider>
       </body>
     </html>

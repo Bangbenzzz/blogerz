@@ -4,7 +4,7 @@ import Image from 'next/image'
 import LikeButton from './LikeButton'
 import CommentSection from './CommentSection'
 
-// Helper untuk format tanggal ala Twitter (dd/mm/yyyy)
+// Helper format tanggal
 const formatDate = (dateString: Date) => {
   const date = new Date(dateString)
   return date.toLocaleDateString('id-ID', { 
@@ -17,21 +17,22 @@ export default function PostCard({ post, currentUserId }: { post: any, currentUs
 
   return (
     <article style={{
-      background: 'rgba(255, 255, 255, 0.02)', // Background post lebih gelap/transparan
-      borderBottom: '1px solid var(--border-color)', // Garis pemisah tipis di bawah
-      padding: '20px 0', // Padding vertikal agak lega
+      /* GANTI BACKGROUND BIAR ADAPTIF */
+      background: 'transparent', 
+      borderBottom: '1px solid var(--border-color)', 
+      padding: '20px 0', 
       display: 'flex',
-      gap: '15px' // Jarak antara foto dan konten
+      gap: '15px' 
     }}>
       
-      {/* --- BAGIAN KIRI: FOTO PROFIL ALA TWITTER (CLEAN) --- */}
+      {/* --- BAGIAN KIRI: FOTO PROFIL --- */}
       <Link href={`/user/${post.author.username}`} style={{flexShrink: 0}}>
         <div style={{
-          width: '48px', height: '48px', // Ukuran standar Twitter
+          width: '48px', height: '48px', 
           borderRadius: '50%', overflow: 'hidden',
-          background: '#333', // Fallback color
-          // HAPUS BORDER NEON DISINI. Ganti dengan border sangat tipis atau hapus sama sekali.
-          border: '1px solid rgba(255,255,255,0.08)' 
+          /* GANTI BACKGROUND Placeholder biar gak hitam pekat di light mode */
+          background: 'var(--bg-card)', 
+          border: '1px solid var(--border-color)' 
         }}>
           {hasAvatar ? (
              <Image 
@@ -42,11 +43,14 @@ export default function PostCard({ post, currentUserId }: { post: any, currentUs
                unoptimized
              />
           ) : (
-            // Placeholder kalau gak ada foto (Inisial Nama)
+            // Placeholder Inisial
             <div style={{
               width: '100%', height: '100%', 
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '20px', fontWeight: 'bold', color: '#888', background: '#222'
+              fontSize: '20px', fontWeight: 'bold', 
+              /* GANTI WARNA BIAR ADAPTIF */
+              color: 'var(--text-muted)', 
+              background: 'var(--bg-secondary)' // atau transparent
             }}>
               {post.author.name?.[0]?.toUpperCase() || '?'}
             </div>
@@ -58,21 +62,33 @@ export default function PostCard({ post, currentUserId }: { post: any, currentUs
       <div style={{flexGrow: 1}}>
         {/* Header: Nama, Username, Tanggal */}
         <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap'}}>
-          <Link href={`/user/${post.author.username}`} style={{textDecoration: 'none', color: '#fff', fontWeight: 'bold', fontSize: '15px'}}>
+          
+          {/* NAMA USER: DULU ERROR DI LIGHT MODE, SEKARANG FIXED */}
+          <Link href={`/user/${post.author.username}`} style={{
+              textDecoration: 'none', 
+              color: 'var(--text-main)', /* <--- SUDAH DIGANTI */
+              fontWeight: 'bold', 
+              fontSize: '15px'
+          }}>
               {post.author.name}
           </Link>
+          
           <span style={{color: 'var(--text-muted)', fontSize: '14px'}}>
             @{post.author.username} · {formatDate(post.createdAt)}
           </span>
         </div>
 
-        {/* Isi Postingan */}
+        {/* JUDUL POSTINGAN */}
         <h3 style={{
           fontSize: '16px', fontWeight: 'normal', margin: '0 0 10px 0', 
-          color: '#fff', lineHeight: '1.5', whiteSpace: 'pre-wrap'
+          /* GANTI JADI TEXT-MAIN */
+          color: 'var(--text-main)', 
+          lineHeight: '1.5', whiteSpace: 'pre-wrap'
         }}>
           {post.title}
         </h3>
+
+        {/* ISI KONTEN */}
         {post.content && (
            <p style={{fontSize:'15px', color:'var(--text-muted)', lineHeight:'1.5', margin:'0 0 15px 0', whiteSpace: 'pre-wrap'}}>
              {post.content}
@@ -89,7 +105,7 @@ export default function PostCard({ post, currentUserId }: { post: any, currentUs
            </div>
         </div>
         
-        {/* Bagian Komentar (Accordion) */}
+        {/* Bagian Komentar */}
         <CommentSection post={post} currentUserId={currentUserId} />
       </div>
     </article>
