@@ -19,18 +19,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
-    /* DEFAULT: Padding Standar (Untuk Dashboard) */
-    padding: 15px 20px; 
-    
+    padding: 15px 20px;
     margin-bottom: 30px;
     border-bottom: 1px solid var(--border-color);
-    
-    /* Sticky Effect */
     position: sticky;
     top: 0;
     background: var(--bg-main);
-    z-index: 50; 
+    z-index: 50;
     backdrop-filter: blur(10px);
   }
   
@@ -71,7 +66,6 @@
     transition: 0.2s;
     cursor: pointer;
     white-space: nowrap;
-  
     background: transparent;
     border: 1px solid var(--border-color);
     color: var(--text-main);
@@ -82,8 +76,6 @@
     border-color: var(--text-muted);
   }
   
-  /* Style untuk tombol aksi umum (misal di halaman profil) */
-  /* Agar tombol Home di profil punya border */
   .btnAction {
     background: transparent;
     border: 1px solid var(--border-color);
@@ -226,10 +218,10 @@
   
   .profileCard {
     background: transparent;
-    border: none; 
+    border: none;
     padding: 0;
     margin-bottom: 40px;
-    max-width: 600px; 
+    max-width: 600px;
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -303,10 +295,10 @@
   
   .inputGroup input,
   .inputGroup textarea {
-    background: var(--bg-main); 
+    background: var(--bg-main);
     border: 1px solid var(--border-color);
     color: var(--text-main);
-    padding: 8px 12px; 
+    padding: 8px 12px;
     border-radius: 6px;
     font-size: 14px;
     outline: none;
@@ -341,14 +333,13 @@
     color: var(--text-main);
     margin-bottom: 15px;
     padding-bottom: 0;
-    border-bottom: none; 
+    border-bottom: none;
   }
   
   /* =========================================
      6. KOMPONEN LAIN (SEARCH, CROPPER, MODAL)
      ========================================= */
   
-  /* SEARCH BAR */
   .searchContainer { position: relative; display: flex; align-items: center; }
   .searchInputWrapper {
     display: flex; align-items: center;
@@ -356,7 +347,7 @@
     border: 1px solid var(--border-color);
     border-radius: 999px;
     padding: 0 12px;
-    width: 200px; height: 32px; 
+    width: 200px; height: 32px;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .searchIcon { font-size: 13px; color: var(--text-muted); cursor: pointer; flex-shrink: 0; }
@@ -371,7 +362,6 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
   
-  /* CROPPER MODAL */
   .cropperOverlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.85);
@@ -403,7 +393,6 @@
   .btnCancelCrop { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
   .btnSaveCrop { background: var(--text-main); border: none; color: var(--bg-main); }
   
-  /* CONFIRMATION MODAL */
   .confirmOverlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.6);
@@ -434,13 +423,11 @@
   .btnConfirmDelete { background: #f4212e; color: white; }
   .btnConfirmDelete:hover { background: #d4000d; }
   
-  /* ANIMASI */
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes scaleUp { from { transform: scale(0.95); } to { transform: scale(1); } }
   
   .postListContainer { display: flex; flex-direction: column; gap: 15px; }
   
-  /* POST CARDS DI DASHBOARD */
   .postCard {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -460,7 +447,6 @@
   .postMeta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
   .dot { font-size: 8px; opacity: 0.5; }
   
-  /* STATUS BADGES */
   .statusPending {
     border: 1px solid #ff8800; color: #ff8800;
     padding: 2px 8px; border-radius: 99px;
@@ -489,30 +475,30 @@
   .btnDeletePost:hover { background: #ff4444; color: white; }
   
   /* =========================================
-     7. HALAMAN PROFIL PUBLIK (PERBAIKAN)
+     7. HALAMAN PROFIL PUBLIK (PERBAIKAN FULL SCREEN)
      ========================================= */
   
-  /* 1. Override Header Utama agar Garis Full Layar */
   .profilePageHeader {
-    /* Hapus padding default header */
-    padding: 0 !important; 
-    /* Jadikan vertikal agar tidak bertumpuk di mobile */
-    flex-direction: column; 
-    align-items: flex-start; 
+    max-width: none !important;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 0 !important;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 0;
+    margin-bottom: 0 !important;
   }
   
-  /* 2. Pembungkus Konten Header (Inner) */
   .profileHeaderInner {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 5%; /* Padding ada di sini, jadi teks rapi, garis full */
+    padding: 20px 5%;
     box-sizing: border-box;
   }
   
-  /* 3. Judul Profil */
   .profileHeaderTitle {
     display: flex;
     flex-direction: column;
@@ -533,23 +519,21 @@
     color: var(--text-main);
   }
   
-  /* 4. Area Tombol */
   .profileActions {
     display: flex;
     align-items: center;
     gap: 15px;
   }
   
-  /* 5. Konten Utama Profil */
   .profileContent {
     max-width: 800px;
     margin: 0 auto;
     width: 100%;
     padding: 0 5%;
     box-sizing: border-box;
+    margin-top: 30px;
   }
   
-  /* 6. Kartu Identitas */
   .profileIdentityCard {
     display: flex;
     flex-direction: column;
@@ -588,86 +572,66 @@
      ========================================= */
   
   @media (max-width: 768px) {
-    /* Header Dashboard */
     .header {
       padding: 15px 12px;
     }
   
-    /* User Menu di HP */
-    .userInfoDesktop {
-      display: none !important;
-    }
-    .userMenuTrigger {
-      padding: 0;
-      gap: 0;
-      border: none;
-    }
-    .userMenuTrigger:hover {
-      background: transparent;
-    }
-    .dropdownMenu {
-      right: -10px;
-      width: 180px;
-    }
+    .userInfoDesktop { display: none !important; }
+    .userMenuTrigger { padding: 0; gap: 0; border: none; }
+    .userMenuTrigger:hover { background: transparent; }
+    .dropdownMenu { right: -10px; width: 180px; }
   
-    /* Layout Form di HP */
-    .profileCard {
-      flex-direction: column;
-      align-items: center;
-      max-width: 100%; 
-    }
+    .profileCard { flex-direction: column; align-items: center; max-width: 100%; }
     .avatarSection { margin-bottom: 15px; }
     .btnSave { align-self: center; width: 100%; }
   
-    /* Search Bar di HP */
-    .searchContainer:not(.expanded) .searchInputWrapper {
-      width: 32px; height: 32px; padding: 0; justify-content: center;
-      background: transparent; border: none;
-    }
+    .searchContainer:not(.expanded) .searchInputWrapper { width: 32px; height: 32px; padding: 0; justify-content: center; background: transparent; border: none; }
     .searchContainer:not(.expanded) .searchInput { display: none; }
     .searchContainer:not(.expanded) .searchIcon { font-size: 18px; color: var(--text-main); }
   
     .searchContainer.expanded { position: static; }
-    .searchContainer.expanded .searchInputWrapper {
-      position: absolute; top: 10px; left: 10px; right: 10px; width: auto; height: 45px;
-      z-index: 999; background: var(--bg-main); border: 1px solid var(--accent);
-      padding: 0 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-    }
+    .searchContainer.expanded .searchInputWrapper { position: absolute; top: 10px; left: 10px; right: 10px; width: auto; height: 45px; z-index: 999; background: var(--bg-main); border: 1px solid var(--accent); padding: 0 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
     .searchContainer.expanded .searchInput { display: block; font-size: 16px; }
-    .searchContainer.expanded .searchDropdown {
-      width: 95vw; left: 50%; transform: translateX(-50%); top: 65px; position: fixed;
-    }
+    .searchContainer.expanded .searchDropdown { width: 95vw; left: 50%; transform: translateX(-50%); top: 65px; position: fixed; }
   }
   
-  @media (max-width: 480px) {
-    .container {
-      padding: 0 12px 80px 12px;
+  @media (max-width: 390px) {
+    .container { padding: 0 12px 80px 12px; }
+    .title h1 { font-size: 16px; }
+    .headerActions { gap: 6px; }
+    .btnBack, .btnNew { padding: 0 10px; height: 28px; font-size: 11px; }
+  
+    /* --- PERBAIKAN TOTAL HEADER PROFIL DI HP --- */
+    
+    /* 1. Paksa Container Header ke Vertikal */
+    .profileHeaderInner {
+      display: flex !important;
+      flex-direction: column !important; /* Tumpuk vertikal */
+      align-items: flex-start !important; /* Rata kiri */
+      gap: 15px !important;
+      padding: 15px 5% !important;
     }
   
-    .title h1 { font-size: 16px; }
+    /* 2. Paksa Tombol ke Baris Baru */
+    .profileActions {
+      display: flex !important;
+      flex-direction: row !important; /* Tombol tetap horizontal */
+      width: 100% !important;
+      justify-content: flex-start !important;
+      gap: 10px !important;
+    }
   
-    .headerActions { gap: 6px; }
-  
-    .btnBack, .btnNew {
-      padding: 0 10px; 
-      height: 28px;    
-      font-size: 11px; 
+    /* 3. Perkecil Judul */
+    .profileHeaderTitle h1 {
+      font-size: 1.2rem !important;
     }
     
-    /* Penyesuaian Header Profil di Mobile */
-    .profileHeaderInner {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 15px;
-      padding: 15px 5%;
-    }
-  
-    .profileActions {
-      width: 100%;
-      justify-content: flex-start;
-    }
-  
-    .profileHeaderTitle h1 {
-      font-size: 1.2rem;
+    /* 4. Perkecil Ukuran Tombol di HP */
+    .profileActions .btnBack,
+    .profileActions .btnAction,
+    .profileActions .userMenuContainer {
+       padding: 0 12px;
+       height: 28px;
+       font-size: 11px;
     }
   }
