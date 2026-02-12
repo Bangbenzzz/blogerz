@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import PostCard from '@/components/PostCard'
 import UserMenu from '@/components/UserMenu'
-import styles from '@/app/dashboard/dashboard.module.css' 
+import styles from '@/app/dashboard/dashboard.module.css'
 
 export default async function PublicProfile({ params }: { params: Promise<{ username: string }> }) {
   // AWAIT PARAMS (Wajib di Next.js terbaru)
@@ -53,57 +53,83 @@ export default async function PublicProfile({ params }: { params: Promise<{ user
 
   return (
     <div className={styles.container}>
-      {/* HEADER KHUSUS PROFIL PUBLIK */}
-      <header className={styles.header}>
-        <div className={styles.title}>
-          <span>PROFILE VIEW</span>
-          <h1>@{targetUser.username?.toUpperCase()}</h1>
-        </div>
+      
+      {/* --- HEADER PROFIL (GARIS FULL WIDTH) --- */}
+      <header className={`${styles.header} ${styles.profilePageHeader}`}>
         
-        <div className={styles.headerActions}>
-          {/* HAPUS SIMBOL < */}
-          <Link href="/" className={styles.btnBack}>Home</Link>
-          {currentUser ? (
-            <div style={{marginLeft: '15px'}}>
+        {/* Pembungkus baru: Konten diatur padding 5% biar sejajar dengan postingan, 
+            tapi garis header tetap full layar */}
+        <div className={styles.profileHeaderInner}>
+          
+          {/* Bagian Kiri: Judul */}
+          <div className={styles.profileHeaderTitle}>
+            <span>PROFILE VIEW</span>
+            <h1>@{targetUser.username?.toUpperCase()}</h1>
+          </div>
+          
+          {/* Bagian Kanan: Aksi */}
+          <div className={styles.profileActions}>
+            <Link href="/" className={styles.btnAction}>
+               Home
+            </Link>
+            
+            {currentUser ? (
                <UserMenu userEmail={currentUser.email} avatarUrl={myProfile?.avatarUrl} />
-            </div>
-          ) : (
-            <Link href="/login" className={styles.btnNew}>Login</Link>
-          )}
+            ) : (
+               <Link href="/login" className={styles.btnAction}>
+                 Login
+               </Link>
+            )}
+          </div>
+          
         </div>
       </header>
 
-      <main className={styles.content}>
+      {/* --- KONTEN UTAMA --- */}
+      <main className={styles.profileContent}>
         
-        {/* KARTU IDENTITAS USER LAIN */}
-        <div className={styles.profileCard} style={{marginBottom: '50px', alignItems: 'center'}}>
-          <div className={styles.avatarSection}>
-            {/* HAPUS BORDER NEON DISINI (Cukup border radius saja) */}
-            <div className={styles.avatarWrapper} style={{ border: 'none' }}> 
-              {targetUser.avatarUrl ? (
-                <img src={targetUser.avatarUrl} alt="avatar" style={{width:'100%', height:'100%', objectFit:'cover'}} />
-              ) : (
-                <div className={styles.avatarPlaceholder}>{targetUser.name?.[0]}</div>
-              )}
-            </div>
+        {/* KARTU IDENTITAS USER */}
+        <div className={styles.profileIdentityCard}>
+          <div className={styles.avatarWrapper} style={{ border: 'none', width: '100px', height: '100px' }}> 
+            {targetUser.avatarUrl ? (
+              <img 
+                src={targetUser.avatarUrl} 
+                alt="avatar" 
+                style={{width: '100%', height: '100%', objectFit:'cover'}} 
+              />
+            ) : (
+              <div className={styles.avatarPlaceholder} style={{
+                width: '100%', 
+                height: '100%', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                fontSize: '40px',
+                background: 'var(--bg-secondary)',
+                color: 'var(--text-muted)'
+              }}>
+                {targetUser.name?.[0]}
+              </div>
+            )}
           </div>
           
-          <div className={styles.infoSection}>
-            <h2 style={{fontSize: '24px', margin: 0}}>{targetUser.name}</h2>
-            <div style={{color: 'var(--accent)', fontFamily: 'monospace', marginBottom: '10px'}}>
-              @{targetUser.username}
-            </div>
-            <p style={{color: 'var(--text-muted)', lineHeight: '1.6'}}>
-              {targetUser.bio || "User ini belum menulis bio apapun."}
-            </p>
-            <div style={{marginTop: '10px', fontSize: '12px', fontWeight: 'bold', color: 'gray'}}>
-              BERGABUNG SEJAK: {new Date(targetUser.createdAt).toLocaleDateString()}
-            </div>
+          <h2>{targetUser.name}</h2>
+          
+          <div style={{color: 'var(--accent)', fontFamily: 'monospace', marginTop: '5px', fontSize: '14px'}}>
+            @{targetUser.username}
+          </div>
+          
+          <p className={styles.profileBio}>
+            {targetUser.bio || "User ini belum menulis bio apapun."}
+          </p>
+          
+          <div style={{marginTop: '15px', fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)', fontFamily: 'monospace'}}>
+            BERGABUNG SEJAK: {new Date(targetUser.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
           </div>
         </div>
 
         {/* DAFTAR TULISAN MEREKA */}
-        <div className={styles.sectionTitle}>
+        <div className={styles.sectionTitle} style={{padding: 0, border: 'none'}}>
            KARYA PUBLIK ({userPosts.length})
         </div>
         
@@ -112,7 +138,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ user
             <p>User ini belum menerbitkan artikel apapun.</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '20px' }}>
             {userPosts.map((post) => (
               <PostCard key={post.id} post={post} currentUserId={currentUser?.id} />
             ))}

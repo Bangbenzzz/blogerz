@@ -19,7 +19,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 0;
+    
+    /* DEFAULT: Padding Standar (Untuk Dashboard) */
+    padding: 15px 20px; 
+    
     margin-bottom: 30px;
     border-bottom: 1px solid var(--border-color);
     
@@ -79,8 +82,33 @@
     border-color: var(--text-muted);
   }
   
+  /* Style untuk tombol aksi umum (misal di halaman profil) */
+  /* Agar tombol Home di profil punya border */
+  .btnAction {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0 16px;
+    height: 32px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  
+  .btnAction:hover {
+    background: var(--bg-card);
+    border-color: var(--text-muted);
+  }
+  
   /* =========================================
-     4. USER MENU (AVATAR & DROPDOWN) - INTI FITUR
+     4. USER MENU (AVATAR & DROPDOWN)
      ========================================= */
   
   .userMenuContainer {
@@ -90,13 +118,12 @@
     margin-left: 5px;
   }
   
-  /* TRIGGER (Area yang diklik) */
   .userMenuTrigger {
     display: flex;
     align-items: center;
-    gap: 8px; /* Jarak foto ke teks */
+    gap: 8px;
     cursor: pointer;
-    padding: 4px 8px 4px 4px; /* Padding sedikit agar enak dihover */
+    padding: 4px 8px 4px 4px;
     border-radius: 99px;
     transition: background 0.2s;
     border: 1px solid transparent;
@@ -107,14 +134,13 @@
     border-color: var(--border-color);
   }
   
-  /* FOTO PROFIL KECIL (Selalu Muncul) */
   .avatarWrapperSmall {
     width: 34px;
     height: 34px;
     border-radius: 50%;
     overflow: hidden;
     border: 1px solid var(--border-color);
-    flex-shrink: 0; /* Jangan gepeng */
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -133,8 +159,6 @@
     color: var(--text-main);
   }
   
-  /* TEXT CONTAINER (Hanya Desktop) */
-  /* Class ini akan kita sembunyikan di HP via Media Query di bawah */
   .userInfoDesktop {
     display: flex;
     align-items: center;
@@ -145,16 +169,15 @@
   .userEmailText {
     font-size: 13px;
     font-weight: 600;
-    max-width: 120px; /* Batasi panjang nama */
+    max-width: 120px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   
-  /* DROPDOWN MENU */
   .dropdownMenu {
     position: absolute;
-    top: 120%; /* Muncul di bawah trigger */
+    top: 120%;
     right: 0;
     width: 200px;
     background: var(--bg-main);
@@ -182,7 +205,7 @@
   .dropdownItem {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Untuk toggle tema */
+    justify-content: space-between;
     padding: 10px 12px;
     font-size: 13px;
     font-weight: 500;
@@ -322,79 +345,20 @@
   }
   
   /* =========================================
-     6. MEDIA QUERIES (RESPONSIF HP)
-     ========================================= */
-  
-  @media (max-width: 768px) {
-    /* --- LOGIKA PENTING HEADER HP --- */
-    
-    /* 1. Sembunyikan Nama & Email di HP agar muat */
-    .userInfoDesktop {
-      display: none !important;
-    }
-  
-    /* 2. Reset padding trigger karena isinya cuma foto */
-    .userMenuTrigger {
-      padding: 0;
-      gap: 0;
-      border: none;
-    }
-    
-    .userMenuTrigger:hover {
-      background: transparent;
-    }
-  
-    /* 3. Geser dropdown sedikit ke kiri agar tidak terpotong layar */
-    .dropdownMenu {
-      right: -10px;
-      width: 180px;
-    }
-  
-    /* --- Layout Form di HP --- */
-    .profileCard {
-      flex-direction: column;
-      align-items: center;
-      max-width: 100%; 
-    }
-    
-    .avatarSection { margin-bottom: 15px; }
-    .btnSave { align-self: center; width: 100%; }
-  }
-  
-  @media (max-width: 480px) {
-    .container {
-      padding: 0 12px 80px 12px;
-    }
-  
-    .title h1 { font-size: 16px; }
-  
-    .headerActions { gap: 6px; }
-  
-    .btnBack, .btnNew {
-      padding: 0 10px; 
-      height: 28px;    
-      font-size: 11px; 
-    }
-  }
-  
-  /* =========================================
-     7. KOMPONEN LAIN (SEARCH, CROPPER)
+     6. KOMPONEN LAIN (SEARCH, CROPPER, MODAL)
      ========================================= */
   
   /* SEARCH BAR */
   .searchContainer { position: relative; display: flex; align-items: center; }
-  
   .searchInputWrapper {
     display: flex; align-items: center;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 999px;
     padding: 0 12px;
-    width: 200px; 
-    height: 32px; 
+    width: 200px; height: 32px; 
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
   .searchIcon { font-size: 13px; color: var(--text-muted); cursor: pointer; flex-shrink: 0; }
   .searchInput {
     background: transparent; border: none; color: var(--text-main);
@@ -405,26 +369,6 @@
     background: var(--bg-main); border: 1px solid var(--border-color);
     border-radius: 12px; z-index: 100; overflow: hidden;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  }
-  
-  @media (max-width: 768px) {
-    .searchContainer:not(.expanded) .searchInputWrapper {
-      width: 32px; height: 32px; padding: 0; justify-content: center;
-      background: transparent; border: none;
-    }
-    .searchContainer:not(.expanded) .searchInput { display: none; }
-    .searchContainer:not(.expanded) .searchIcon { font-size: 18px; color: var(--text-main); }
-  
-    .searchContainer.expanded { position: static; }
-    .searchContainer.expanded .searchInputWrapper {
-      position: absolute; top: 10px; left: 10px; right: 10px; width: auto; height: 45px;
-      z-index: 999; background: var(--bg-main); border: 1px solid var(--accent);
-      padding: 0 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-    }
-    .searchContainer.expanded .searchInput { display: block; font-size: 16px; }
-    .searchContainer.expanded .searchDropdown {
-      width: 95vw; left: 50%; transform: translateX(-50%); top: 65px; position: fixed;
-    }
   }
   
   /* CROPPER MODAL */
@@ -458,167 +402,272 @@
   }
   .btnCancelCrop { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
   .btnSaveCrop { background: var(--text-main); border: none; color: var(--bg-main); }
-
-  /* --- CONFIRMATION MODAL (Pengganti Alert Chrome) --- */
-.confirmOverlay {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.6); /* Lebih gelap biar fokus */
-  display: flex; align-items: center; justify-content: center;
-  z-index: 99999; backdrop-filter: blur(3px);
-  animation: fadeIn 0.2s ease-out;
-}
-
-.confirmBox {
-  background: var(--bg-main);
-  border: 1px solid var(--border-color);
-  width: 90%; max-width: 320px; /* Kecil saja cukup */
-  padding: 25px;
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-  animation: scaleUp 0.2s ease-out;
-}
-
-.confirmTitle {
-  font-size: 16px; font-weight: 800; color: var(--text-main);
-  margin-bottom: 8px;
-}
-
-.confirmDesc {
-  font-size: 13px; color: var(--text-muted);
-  margin-bottom: 20px; line-height: 1.5;
-}
-
-.confirmActions {
-  display: flex; gap: 10px; justify-content: center;
-}
-
-.btnCancel, .btnConfirmDelete {
-  flex: 1; padding: 10px; border-radius: 99px;
-  font-size: 13px; font-weight: 700; cursor: pointer;
-  border: none; transition: 0.2s;
-}
-
-.btnCancel {
-  background: transparent; border: 1px solid var(--border-color); color: var(--text-main);
-}
-.btnCancel:hover { background: var(--bg-card); }
-
-.btnConfirmDelete {
-  background: #f4212e; color: white; /* Merah untuk bahaya */
-}
-.btnConfirmDelete:hover { background: #d4000d; }
-
-/* Animasi Halus */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes scaleUp { from { transform: scale(0.95); } to { transform: scale(1); } }
-
-.postListContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.postCard {
-  background: var(--bg-card); /* Latar agak terang dikit dari main */
-  border: 1px solid var(--border-color);
-  padding: 15px 20px;
-  border-radius: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.2s;
-}
-
-.postCard:hover {
-  border-color: var(--text-muted);
-}
-
-.postInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.postTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-main);
-  text-decoration: none;
-}
-.postTitle:hover {
-  text-decoration: underline;
-}
-
-.postMeta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.dot { font-size: 8px; opacity: 0.5; }
-
-/* --- STATUS BADGES --- */
-
-/* PENDING (ORANGE) - Menunggu ACC */
-.statusPending {
-  border: 1px solid #ff8800; /* Orange Menyala */
-  color: #ff8800;
-  padding: 2px 8px;
-  border-radius: 99px;
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: rgba(255, 136, 0, 0.1); /* Latar Orange Transparan */
-  box-shadow: 0 0 8px rgba(255, 136, 0, 0.2); /* Efek Glow Orange */
-}
-
-/* PUBLISHED (BIRU) - Sudah di ACC Admin */
-.statusPublished {
-  border: 1px solid #00d2ff; /* Biru Cyan Neon */
-  color: #00d2ff;
-  padding: 2px 8px;
-  border-radius: 99px;
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: rgba(0, 210, 255, 0.1); /* Latar Biru Transparan */
-  box-shadow: 0 0 8px rgba(0, 210, 255, 0.2); /* Efek Glow Biru */
-}
-
-/* TOMBOL AKSI DI LIST (Edit) */
-.btnEditPost {
-  padding: 6px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-main);
-  font-size: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: 0.2s;
-}
-.btnEditPost:hover {
-  background: var(--text-main);
-  color: var(--bg-main);
-}
-
-.btnDeletePost {
-  padding: 6px 12px;
-  border: 1px solid #ff4444;
-  border-radius: 8px;
-  background: transparent;
-  color: #ff4444;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.btnDeletePost:hover {
-  background: #ff4444;
-  color: white;
-}
+  
+  /* CONFIRMATION MODAL */
+  .confirmOverlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 99999; backdrop-filter: blur(3px);
+    animation: fadeIn 0.2s ease-out;
+  }
+  .confirmBox {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    width: 90%; max-width: 320px;
+    padding: 25px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    animation: scaleUp 0.2s ease-out;
+  }
+  .confirmTitle { font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+  .confirmDesc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+  .confirmActions { display: flex; gap: 10px; justify-content: center; }
+  .btnCancel, .btnConfirmDelete {
+    flex: 1; padding: 10px; border-radius: 99px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    border: none; transition: 0.2s;
+  }
+  .btnCancel { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+  .btnCancel:hover { background: var(--bg-card); }
+  .btnConfirmDelete { background: #f4212e; color: white; }
+  .btnConfirmDelete:hover { background: #d4000d; }
+  
+  /* ANIMASI */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleUp { from { transform: scale(0.95); } to { transform: scale(1); } }
+  
+  .postListContainer { display: flex; flex-direction: column; gap: 15px; }
+  
+  /* POST CARDS DI DASHBOARD */
+  .postCard {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 15px 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+  }
+  .postCard:hover { border-color: var(--text-muted); }
+  .postInfo { display: flex; flex-direction: column; gap: 5px; }
+  .postTitle {
+    font-size: 16px; font-weight: 700; color: var(--text-main); text-decoration: none;
+  }
+  .postTitle:hover { text-decoration: underline; }
+  .postMeta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+  .dot { font-size: 8px; opacity: 0.5; }
+  
+  /* STATUS BADGES */
+  .statusPending {
+    border: 1px solid #ff8800; color: #ff8800;
+    padding: 2px 8px; border-radius: 99px;
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    background: rgba(255, 136, 0, 0.1); box-shadow: 0 0 8px rgba(255, 136, 0, 0.2);
+  }
+  .statusPublished {
+    border: 1px solid #00d2ff; color: #00d2ff;
+    padding: 2px 8px; border-radius: 99px;
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    background: rgba(0, 210, 255, 0.1); box-shadow: 0 0 8px rgba(0, 210, 255, 0.2);
+  }
+  
+  .btnEditPost {
+    padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 8px;
+    background: transparent; color: var(--text-main); font-size: 12px; font-weight: 600;
+    text-decoration: none; transition: 0.2s;
+  }
+  .btnEditPost:hover { background: var(--text-main); color: var(--bg-main); }
+  
+  .btnDeletePost {
+    padding: 6px 12px; border: 1px solid #ff4444; border-radius: 8px;
+    background: transparent; color: #ff4444; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: 0.2s;
+  }
+  .btnDeletePost:hover { background: #ff4444; color: white; }
+  
+  /* =========================================
+     7. HALAMAN PROFIL PUBLIK (PERBAIKAN)
+     ========================================= */
+  
+  /* 1. Override Header Utama agar Garis Full Layar */
+  .profilePageHeader {
+    /* Hapus padding default header */
+    padding: 0 !important; 
+    /* Jadikan vertikal agar tidak bertumpuk di mobile */
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 0;
+  }
+  
+  /* 2. Pembungkus Konten Header (Inner) */
+  .profileHeaderInner {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%; /* Padding ada di sini, jadi teks rapi, garis full */
+    box-sizing: border-box;
+  }
+  
+  /* 3. Judul Profil */
+  .profileHeaderTitle {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .profileHeaderTitle span {
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+  
+  .profileHeaderTitle h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text-main);
+  }
+  
+  /* 4. Area Tombol */
+  .profileActions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  /* 5. Konten Utama Profil */
+  .profileContent {
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 5%;
+    box-sizing: border-box;
+  }
+  
+  /* 6. Kartu Identitas */
+  .profileIdentityCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 40px 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 30px;
+  }
+  
+  .profileIdentityCard .avatarWrapper {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background: var(--bg-secondary);
+  }
+  
+  .profileIdentityCard h2 {
+    font-size: 24px;
+    margin: 0;
+    color: var(--text-main);
+  }
+  
+  .profileBio {
+    color: var(--text-muted);
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 500px;
+  }
+  
+  /* =========================================
+     8. MEDIA QUERIES (RESPONSIF HP)
+     ========================================= */
+  
+  @media (max-width: 768px) {
+    /* Header Dashboard */
+    .header {
+      padding: 15px 12px;
+    }
+  
+    /* User Menu di HP */
+    .userInfoDesktop {
+      display: none !important;
+    }
+    .userMenuTrigger {
+      padding: 0;
+      gap: 0;
+      border: none;
+    }
+    .userMenuTrigger:hover {
+      background: transparent;
+    }
+    .dropdownMenu {
+      right: -10px;
+      width: 180px;
+    }
+  
+    /* Layout Form di HP */
+    .profileCard {
+      flex-direction: column;
+      align-items: center;
+      max-width: 100%; 
+    }
+    .avatarSection { margin-bottom: 15px; }
+    .btnSave { align-self: center; width: 100%; }
+  
+    /* Search Bar di HP */
+    .searchContainer:not(.expanded) .searchInputWrapper {
+      width: 32px; height: 32px; padding: 0; justify-content: center;
+      background: transparent; border: none;
+    }
+    .searchContainer:not(.expanded) .searchInput { display: none; }
+    .searchContainer:not(.expanded) .searchIcon { font-size: 18px; color: var(--text-main); }
+  
+    .searchContainer.expanded { position: static; }
+    .searchContainer.expanded .searchInputWrapper {
+      position: absolute; top: 10px; left: 10px; right: 10px; width: auto; height: 45px;
+      z-index: 999; background: var(--bg-main); border: 1px solid var(--accent);
+      padding: 0 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    }
+    .searchContainer.expanded .searchInput { display: block; font-size: 16px; }
+    .searchContainer.expanded .searchDropdown {
+      width: 95vw; left: 50%; transform: translateX(-50%); top: 65px; position: fixed;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      padding: 0 12px 80px 12px;
+    }
+  
+    .title h1 { font-size: 16px; }
+  
+    .headerActions { gap: 6px; }
+  
+    .btnBack, .btnNew {
+      padding: 0 10px; 
+      height: 28px;    
+      font-size: 11px; 
+    }
+    
+    /* Penyesuaian Header Profil di Mobile */
+    .profileHeaderInner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 15px 5%;
+    }
+  
+    .profileActions {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  
+    .profileHeaderTitle h1 {
+      font-size: 1.2rem;
+    }
+  }

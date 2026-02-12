@@ -6,7 +6,7 @@
   background-color: transparent;
 }
 
-/* HEADER GLASSMORPHISM (ADAPTIF LIGHT/DARK MODE) */
+/* --- HEADER UTAMA (DEFAULT) --- */
 .header {
   position: sticky;
   top: 0;
@@ -14,26 +14,74 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  
+  /* DEFAULT: Padding standar 5%. Ini aman untuk Home/Dashboard. 
+     Kita akan override khusus untuk Profil di bawah. */
   padding: 20px 5%;
   
-  /* --- BACKGROUND ADAPTIF --- */
-  /* Menggunakan color-mix agar warna mengikuti tema (Hitam/Putih) tapi transparan 85% */
   background: var(--bg-main);
-
-  /* Efek Blur */
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   
-  /* --- BORDER ADAPTIF --- */
   border-bottom: 1px solid var(--border-color); 
   
   transition: all 0.3s ease;
 }
 
+/* --- KHUSUS HEADER PROFIL (FULL WIDTH LINE) --- */
+/* Class ini dipakai di page.tsx bersamaan dengan .header */
+/* Misal: className={`${styles.header} ${styles.profilePageHeader}`} */
+.profilePageHeader {
+  padding: 0; /* HAPUS padding header agar garis full */
+  padding-top: 20px; 
+  padding-bottom: 20px;
+  height: auto; /* Tinggi otomatis menyesuaikan konten */
+  flex-wrap: wrap; /* Jika sempit, konten turun dengan rapi */
+}
+
+/* Pembungkus dalam header profil untuk mengatur jarak teks */
+.profileHeaderInner {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5%; /* Memberi jarak 5% untuk konten di dalam */
+  box-sizing: border-box;
+}
+
+.profileHeaderTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profileHeaderTitle span {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.profileHeaderTitle h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.profileActions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* --- STYLE UMUM LAINNYA --- */
+
 .logo {
   font-weight: 800;
   font-size: 1.2rem;
   color: var(--text-main);
+  /* Tidak perlu padding lagi karena .header sudah punya padding 5% */
 }
 
 .logo span {
@@ -44,6 +92,7 @@
   display: flex;
   align-items: center;
   gap: 20px;
+  /* Tidak perlu padding lagi */
 }
 
 /* --- TOMBOL-TOMBOL --- */
@@ -57,6 +106,7 @@
   text-transform: uppercase;
   text-decoration: none;
   transition: all 0.3s ease;
+  white-space: nowrap; /* Cegah teks tombol turun ke bawah */
 }
 
 .btnAction:hover {
@@ -85,7 +135,7 @@
   box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
 }
 
-/* --- HERO SECTION (LANDING PAGE) --- */
+/* --- HERO SECTION --- */
 .hero {
   padding: 100px 5%;
 }
@@ -102,7 +152,7 @@
   line-height: 0.9;
   margin: 20px 0;
   text-transform: uppercase;
-  color: var(--text-main); /* Pastikan teks Hero adaptif */
+  color: var(--text-main);
 }
 
 .textOutline {
@@ -137,7 +187,7 @@
   box-shadow: 0 0 25px rgba(20, 255, 0, 0.6); 
 }
 
-/* --- FEED SECTION KHUSUS TAMU --- */
+/* --- FEED SECTION --- */
 .feedSectionGuest {
   padding: 0 5% 80px 5%;
 }
@@ -151,24 +201,22 @@
   padding-bottom: 10px;
 }
 
-/* --- FEED SECTION KHUSUS MEMBER --- */
 .feedSectionFull {
   width: 100%;
   padding-bottom: 80px;
   margin-top: 20px;
 }
 
-/* 1. Judul Full Width */
 .sectionTitleFull {
   width: 100%;
   border-bottom: 1px solid var(--border-color); 
   margin-bottom: 30px;
   padding-bottom: 10px;
+  padding-left: 5%;
+  box-sizing: border-box;
 }
 
-/* 2. Teks Judul */
 .titleContent {
-  padding-left: 5%; 
   font-family: monospace;
   font-size: 12px;
   color: var(--text-muted);
@@ -176,26 +224,28 @@
   letter-spacing: 1px;
 }
 
-/* 3. Container Postingan */
 .timelineContainer {
-  padding-left: 5%; 
-  padding-right: 5%;
   width: 100%;
+  padding: 0 5%;
+  box-sizing: border-box;
 }
 
 .postListWrapper {
   display: flex; 
   flex-direction: column; 
   gap: 20px; 
-  max-width: 700px; 
   width: 100%;
+  max-width: 100%;
 }
 
-/* --- STYLE KARTU POSTINGAN --- */
+/* --- KARTU POSTINGAN --- */
 .postCard {
-  background: var(--bg-card); /* Gunakan variabel */
-  border: 1px solid var(--border-color);
-  padding: 25px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  padding: 25px 0;
   transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
@@ -219,7 +269,7 @@
   font-size: 1.4rem;
   font-weight: 700;
   margin: 10px 0;
-  color: var(--text-main); /* FIX: Jangan putih, pakai text-main */
+  color: var(--text-main);
 }
 
 .postExcerpt {
@@ -248,17 +298,37 @@
   color: var(--text-muted);
 }
 
-.postGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 30px;
+/* --- PROFIL CONTENT --- */
+.profileContent {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 5%;
+  box-sizing: border-box;
 }
 
-/* MOBILE RESPONSIVE */
+.profileIdentityCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 30px;
+}
+
+.profileBio {
+  color: var(--text-muted);
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+/* --- RESPONSIVE MOBILE --- */
 @media (max-width: 768px) {
-  .header, .hero, .feedSectionGuest, .titleContent, .timelineContainer {
-    padding-left: 5%;
-    padding-right: 5%;
+  .header {
+    padding: 15px 5%; /* Mobile tetap aman pakai padding */
   }
 
   .userNav {
@@ -288,12 +358,18 @@
     margin: 15px 0;
   }
 
-  .postGrid {
-    grid-template-columns: 1fr; 
-    gap: 20px;
+  .postCard {
+    padding: 20px 0; 
   }
   
-  .postListWrapper {
-    max-width: 100%;
+  /* Responsive Header Profil di Mobile */
+  .profileHeaderTitle h1 {
+    font-size: 1.2rem;
+  }
+  
+  .profileHeaderInner {
+    /* Jika layar sempit, biarkan header profil menyesuaikan secara vertikal jika perlu */
+    flex-wrap: wrap; 
+    gap: 10px;
   }
 }
