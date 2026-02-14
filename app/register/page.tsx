@@ -3,8 +3,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '../../lib/supabase' 
-import styles from '../login/login.module.css' // <-- KITA PINJAM CSS LOGIN!
+import { createClient } from '../../lib/supabase'
 import Link from 'next/link'
 import { syncUserToPrisma } from './actions'
 
@@ -57,21 +56,35 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <main className={styles.mainContent}>
-        <div className={styles.welcomeLabel}>// New Recruit</div>
+    /* Container Utama - Tailwind CSS */
+    <div className="flex flex-col min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-sans items-center justify-center p-8 bg-[image:radial-gradient(circle_at_center,var(--bg-card)_0%,var(--bg-main)_100%)]">
+      
+      {/* Main Content */}
+      <div className="flex flex-col items-center text-center w-full max-w-md">
         
-        <h1 className={styles.title}>INITIALIZE</h1>
-        <h1 className={styles.titleOutline}>ACCOUNT.</h1>
+        <div className="text-[var(--accent)] font-mono text-[11px] tracking-widest mb-4 uppercase">
+          // New Recruit
+        </div>
 
-        <form onSubmit={handleRegister} className={styles.form}>
+        {/* Judul */}
+        <h1 className="text-[clamp(2.5rem,8vw,4rem)] font-extrabold leading-[0.9] tracking-[-2px] uppercase m-0">
+          INITIALIZE
+        </h1>
+        <h1 className="text-[clamp(2.5rem,8vw,4rem)] font-extrabold leading-none tracking-[-2px] uppercase m-0 mb-10 text-transparent [-webkit-text-stroke:1px_var(--text-muted)]">
+          ACCOUNT.
+        </h1>
+
+        {/* Form */}
+        <form onSubmit={handleRegister} className="flex flex-col gap-8 w-full">
           
-          {/* INPUT NAMA */}
-          <div className={styles.inputGroup}>
-            <label className={styles.inputLabel}>Full Name</label>
+          {/* Input Nama */}
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[var(--accent)] text-left">
+            <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
+              Full Name
+            </label>
             <input 
               type="text" 
-              className={styles.input} 
+              className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center"
               placeholder="Your Name" 
               value={name} 
               onChange={(e) => setName(e.target.value)} 
@@ -79,11 +92,14 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div className={styles.inputGroup}>
-            <label className={styles.inputLabel}>Email Address</label>
+          {/* Input Email */}
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[var(--accent)] text-left">
+            <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
+              Email Address
+            </label>
             <input 
               type="email" 
-              className={styles.input} 
+              className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center"
               placeholder="name@email.com" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
@@ -91,11 +107,14 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div className={styles.inputGroup}>
-            <label className={styles.inputLabel}>Password</label>
+          {/* Input Password */}
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[var(--accent)] text-left">
+            <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
+              Password
+            </label>
             <input 
               type="password" 
-              className={styles.input} 
+              className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center"
               placeholder="••••••••" 
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
@@ -104,19 +123,25 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* PESAN ERROR ATAU SUKSES */}
-          {errorMsg && <div className={styles.error}>[!] {errorMsg}</div>}
-          {successMsg && <div style={{color: 'var(--accent)', fontSize: '11px', fontFamily: 'monospace'}}>{successMsg}</div>}
+          {/* Pesan Error/Sukses */}
+          {errorMsg && <div className="text-red-500 text-[11px] font-mono -mt-4 text-center">[!] {errorMsg}</div>}
+          {successMsg && <div className="text-[var(--accent)] text-[11px] font-mono -mt-4 text-center">{successMsg}</div>}
 
-          <button type="submit" className={styles.btnPrimary} disabled={loading}>
+          {/* Tombol Submit */}
+          <button 
+            type="submit" 
+            className="bg-[var(--accent)] text-black py-3 px-10 font-bold text-xs uppercase transition-all tracking-widest w-full mt-2 hover:bg-[var(--text-main)] hover:shadow-[0_0_25px_rgba(20,255,0,0.3)] disabled:opacity-50"
+            disabled={loading}
+          >
             {loading ? 'Processing...' : 'Create Account'}
           </button>
         </form>
 
-        <div className={styles.footerLink}>
-          Already have an account? <Link href="/login">Sign In here</Link>
+        {/* Footer Link */}
+        <div className="mt-10 text-[11px] text-[var(--text-muted)] font-mono">
+          Already have an account? <Link href="/login" className="text-[var(--accent)] no-underline font-bold ml-1 hover:underline">Sign In here</Link>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

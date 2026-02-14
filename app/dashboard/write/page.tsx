@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import styles from './write.module.css'
 import { submitNewPost, getPostById, updatePost } from './actions'
 import { showToast } from '@/components/Toast'
 
@@ -12,24 +11,19 @@ function Editor() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  // PERBAIKAN: Tangkap parameter 'id' (bukan 'edit') agar sesuai tombol Dashboard
   const editId = searchParams.get('id') 
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  
-  // State fetching untuk mode edit
   const [isFetching, setIsFetching] = useState(false) 
 
-  // 1. EFEK: Cek Mode Edit saat halaman dibuka
   useEffect(() => {
     if (editId) {
       setIsEditing(true)
-      setIsFetching(true) // Mulai loading data
+      setIsFetching(true)
       
-      // Ambil data artikel lama berdasarkan ID
       getPostById(editId).then((post) => {
         if (post) {
           setTitle(post.title)
@@ -38,7 +32,7 @@ function Editor() {
           showToast("Artikel tidak ditemukan.", "error")
           router.push('/dashboard')
         }
-        setIsFetching(false) // Selesai loading
+        setIsFetching(false)
       }).catch(err => {
         console.error(err)
         setIsFetching(false)
@@ -46,7 +40,6 @@ function Editor() {
     }
   }, [editId, router])
 
-  // 2. HANDLE SUBMIT (Simpan Baru / Update)
   const handlePublish = async () => {
     if (!title) return showToast("Judul wajib diisi!", "error")
 
@@ -55,8 +48,6 @@ function Editor() {
       let res;
       
       if (isEditing && editId) {
-        // --- MODE UPDATE ---
-        // Panggil server action updatePost
         res = await updatePost(editId, title, content)
         
         if (res?.success) {
@@ -65,8 +56,6 @@ function Editor() {
           throw new Error("Gagal update")
         }
       } else {
-        // --- MODE BARU ---
-        // Panggil server action submitNewPost
         res = await submitNewPost(title, content)
         
         if (res?.success) {
@@ -76,10 +65,9 @@ function Editor() {
         }
       }
 
-      // Redirect balik ke dashboard setelah sukses
       setTimeout(() => {
         router.push('/dashboard')
-        router.refresh() // Refresh agar data terbaru muncul
+        router.refresh()
       }, 1000)
 
     } catch (error) {
@@ -89,34 +77,33 @@ function Editor() {
     }
   }
 
-  // Tampilan Loading saat mengambil data edit
   if (isFetching) {
     return (
-        <div className={styles.container}>
-            <div style={{padding:'40px', color:'var(--text-muted)', textAlign:'center'}}>
-                Memuat artikel...
-            </div>
+        <div className="min-h-screen bg-[var(--bg-main)] flex items-center justify-center text-[var(--text-muted)]">
+            Memuat artikel...
         </div>
     )
   }
 
   return (
-    <div className={styles.container}>
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] max-w-3xl mx-auto relative px-4 py-6">
       
       {/* HEADER EDITOR */}
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
-            {/* Tombol Batal */}
-            <Link href="/dashboard" className={styles.btnCancel}>
+      <header className="sticky top-0 z-50 flex justify-between items-center py-4 px-4 md:px-0 bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)] mb-8">
+        <div className="flex items-center gap-2">
+            <Link href="/dashboard" className="text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors flex items-center gap-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+              </svg>
               Batal
             </Link>
         </div>
 
-        <div className={styles.headerRight}>
-             {/* Tombol Simpan / Kirim */}
+        <div className="flex items-center gap-2">
              <button 
                onClick={handlePublish} 
-               className={styles.btnPublish} 
+               className="bg-[var(--accent)] text-black px-6 py-2 text-sm font-bold rounded-full hover:bg-white transition-all disabled:opacity-50" 
                disabled={loading || !title}
              >
                {loading 
@@ -128,20 +115,19 @@ function Editor() {
       </header>
 
       {/* AREA MENULIS */}
-      <main className={styles.content}>
+      <main className="flex flex-col gap-6">
         <input 
           type="text" 
-          className={styles.inputTitle} 
+          className="w-full bg-transparent border-none text-4xl font-extrabold text-[var(--text-main)] outline-none placeholder:text-[var(--text-muted)] placeholder:opacity-50 focus:outline-none" 
           placeholder="Judul Artikel" 
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          // autoFocus hanya jika bukan mode edit agar tidak ganggu loading
           autoFocus={!isEditing} 
         />
 
         <textarea 
-          className={styles.inputBody} 
+          className="w-full bg-transparent border-none text-lg text-[var(--text-main)] outline-none placeholder:text-[var(--text-muted)] placeholder:opacity-50 min-h-[60vh] resize-none leading-relaxed focus:outline-none" 
           placeholder="Mulai menulis ceritamu..." 
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -154,7 +140,7 @@ function Editor() {
 // --- WRAPPER SUSPENSE (WAJIB UTK NEXT.JS CLIENT COMPONENT) ---
 export default function WritePage() {
   return (
-    <Suspense fallback={<div style={{padding:'20px'}}>Loading Editor...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[var(--bg-main)] flex items-center justify-center text-[var(--text-muted)]">Loading Editor...</div>}>
       <Editor />
     </Suspense>
   )

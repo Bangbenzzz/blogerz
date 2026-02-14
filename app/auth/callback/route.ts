@@ -26,36 +26,38 @@ export async function GET(request: Request) {
       }
     )
 
-    // 1. Tukar kode otentikasi menjadi session resmi Supabase
     const { data: { session }, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && session?.user) {
       const user = session.user
-      
-      // 2. Cek apakah user ini adalah Admin
       const isAdmin = user.email === process.env.ADMIN_EMAIL
+      const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.user_name || 'User'
 
-      // 3. Ambil nama dari Google/GitHub (kalau ada), kalau tidak ada pakai "Cyber User"
-      const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.user_name || 'Cyber User'
-
-      // 4. Sinkronisasi ke Database Prisma (Tabel Profile)
-      // Upsert: Kalau emailnya sudah ada, update namanya. Kalau belum ada, buat record baru.
+      // Sync ke Prisma
       await prisma.profile.upsert({
-        where: { email: user.email! },
+        where: { id: user.id },
         update: {
           name: userName,
           role: isAdmin ? 'ADMIN' : 'USER',
+          isVerified: isAdmin ? true : undefined,
         },
         create: {
-          id: user.id, // Pakai ID dari Supabase agar sinkron
+          id: user.id,
           email: user.email!,
           name: userName,
           role: isAdmin ? 'ADMIN' : 'USER',
+          isVerified: isAdmin ? true : false,
         }
       })
+
+      // Redirect: Admin ke /admin, User ke /dashboard
+      if (isAdmin) {
+        return NextResponse.redirect(`${origin}/admin`)
+      } else {
+        return NextResponse.redirect(`${origin}/dashboard`)
+      }
     }
   }
 
-  // 5. Setelah berhasil, arahkan user ke halaman utama '/'
   return NextResponse.redirect(origin)
 }

@@ -15,11 +15,15 @@ model Profile {
   id        String   @id
   email     String   @unique
   name      String?
+  username  String?  @unique
+  bio       String?
+  avatarUrl String?
   
-  // -- KOLOM BARU UNTUK PROFIL SOSMED --
-  username  String?  @unique // Username unik ala Twitter (@budi01)
-  bio       String?  // Status / Bio singkat
-  avatarUrl String?  // Link foto profil
+  // -- FIELD UNTUK BAN USER --
+  isBanned  Boolean  @default(false)
+  
+  // -- FIELD UNTUK VERIFIED BADGE (CENTANG BIRU) --
+  isVerified Boolean @default(false)
   
   role      Role     @default(USER)
   createdAt DateTime @default(now())
@@ -40,20 +44,14 @@ model Post {
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  // --- PERBAIKAN DI SINI ---
-  // Kita tambahkan @default(cuid()) agar data lama otomatis terisi
-  // Setelah push sukses, kamu boleh menghapus @default(cuid()) nanti jika mau
   slug      String   @unique @default(cuid())
 
   author    Profile  @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
-  // -- RELASI BARU --
   comments  Comment[]
   likes     Like[]
 }
 
-// -- TABEL BARU: KOMENTAR --
+// TABEL KOMENTAR
 model Comment {
   id        String   @id @default(uuid())
   content   String
@@ -66,7 +64,7 @@ model Comment {
   author    Profile  @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
-// -- TABEL BARU: LIKE --
+// TABEL LIKE
 model Like {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
@@ -77,7 +75,6 @@ model Like {
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   author    Profile  @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  // Pastikan 1 user cuma bisa like 1 kali per postingan
   @@unique([postId, authorId])
 }
 

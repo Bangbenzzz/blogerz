@@ -4,8 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
-import styles from './dashboard.module.css'
-import { showToast } from '@/components/Toast' // Pastikan path Toast benar
+import { showToast } from '@/components/Toast'
 
 export default function ClientPostList({ initialPosts }: { initialPosts: any[] }) {
   const [posts, setPosts] = useState(initialPosts)
@@ -17,23 +16,17 @@ export default function ClientPostList({ initialPosts }: { initialPosts: any[] }
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  // LOGIKA HAPUS POSTINGAN
   const handleDelete = async (postId: string) => {
-    // 1. Konfirmasi Browser Standar (Bisa diganti Modal Custom jika mau)
     const confirmDelete = window.confirm("Yakin ingin menghapus tulisan ini selamanya?")
     if (!confirmDelete) return
 
     setIsDeleting(true)
 
     try {
-      // 2. Panggil API/Server Action untuk hapus (contoh pakai fetch API)
-      // Jika Anda pakai Server Action, ganti bagian ini. 
-      // Ini contoh universal pakai API Route:
       const res = await fetch(`/api/posts/${postId}`, { method: 'DELETE' })
       
       if (!res.ok) throw new Error("Gagal menghapus")
 
-      // 3. Update UI Tanpa Refresh Halaman (Optimistic UI)
       setPosts(posts.filter(p => p.id !== postId))
       showToast("Tulisan berhasil dihapus", "success")
       router.refresh()
@@ -46,65 +39,52 @@ export default function ClientPostList({ initialPosts }: { initialPosts: any[] }
     }
   }
   
-  // Jika tidak ada postingan
   if (!posts || posts.length === 0) {
     return (
-      <div style={{ 
-        textAlign: 'center', 
-        padding: '60px 0', 
-        color: 'var(--text-muted)',
-        fontSize: '14px',
-        border: '1px dashed var(--border-color)',
-        borderRadius: '12px'
-      }}>
+      <div className="text-center py-16 text-[var(--text-muted)] text-sm border border-dashed border-[var(--border-color)] rounded-xl">
         Belum ada karya. Mulai menulis sekarang!
       </div>
     )
   }
 
   return (
-    <div className={styles.postListContainer}>
+    <div className="flex flex-col gap-4">
       {posts.map((post) => (
-        <div key={post.id} className={styles.postCard}>
-          <div className={styles.postInfo}>
-            {/* Judul Artikel */}
-            <Link href={`/post/${post.slug || '#'}`} className={styles.postTitle}>
+        <div key={post.id} className="bg-[var(--bg-card)] border border-[var(--border-color)] p-5 rounded-xl flex justify-between items-center transition-all hover:border-[var(--text-muted)]">
+          <div className="flex flex-col gap-1">
+            <Link href={`/post/${post.slug || '#'}`} className="text-lg font-bold text-[var(--text-main)] hover:underline">
               {post.title}
             </Link>
             
-            {/* Meta Data: Tanggal & Status */}
-            <div className={styles.postMeta}>
+            <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
               <span>
                 {new Date(post.createdAt).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric'
+                  day: 'numeric', month: 'short', year: 'numeric'
                 })}
               </span>
+              <span className="text-[8px] opacity-50">•</span>
               
-              <span className={styles.dot}>•</span>
-              
-              {/* LOGIKA STATUS WARNA */}
               {post.published ? (
-                <span className={styles.statusPublished}>Published</span>
+                <span className="border border-cyan-400 text-cyan-400 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-cyan-400/10 shadow-[0_0_8px_rgba(0,210,255,0.2)]">
+                  Published
+                </span>
               ) : (
-                <span className={styles.statusPending}>Pending</span>
+                <span className="border border-orange-500 text-orange-500 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-orange-500/10 shadow-[0_0_8px_rgba(255,136,0,0.2)]">
+                  Pending
+                </span>
               )}
             </div>
           </div>
 
-          {/* AKSI TOMBOL (EDIT & HAPUS) */}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {/* Tombol Edit */}
-            <Link href={`/dashboard/write?id=${post.id}`} className={styles.btnEditPost}>
+          <div className="flex gap-2">
+            <Link href={`/dashboard/write?id=${post.id}`} className="py-1.5 px-3 border border-[var(--border-color)] rounded-lg text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--text-main)] hover:text-[var(--bg-main)] transition-colors">
               Edit
             </Link>
 
-            {/* Tombol Hapus (DIKEMBALIKAN) */}
             <button 
               onClick={() => handleDelete(post.id)}
               disabled={isDeleting}
-              className={styles.btnDeletePost} // Class baru, lihat CSS di bawah
+              className="py-1.5 px-3 border border-red-500 rounded-lg text-xs font-semibold text-red-500 hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50"
             >
               Hapus
             </button>

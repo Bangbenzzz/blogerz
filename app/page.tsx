@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import prisma from '@/lib/prisma'
-import styles from './home.module.css'
 import UserMenu from '@/components/UserMenu'
 import PostCard from '@/components/PostCard'
 import UserSearch from '@/components/UserSearch'
+import VerifiedBadge from '@/components/VerifiedBadge'
 
 export const revalidate = 0
 
@@ -19,7 +19,6 @@ export default async function HomePage() {
   
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 1. AMBIL DATA PROFILE
   let profile = null
   if (user) {
     profile = await prisma.profile.findUnique({
@@ -27,7 +26,6 @@ export default async function HomePage() {
     })
   }
 
-  // 2. AMBIL POSTINGAN
   const posts = await prisma.post.findMany({
     where: { published: true },
     include: { 
@@ -39,65 +37,203 @@ export default async function HomePage() {
   })
 
   return (
-    <div className={styles.container}>
+    <div className="min-h-screen bg-transparent">
       
-      {/* --- HEADER UTAMA --- */}
-      <header className={styles.header}>
-        <div className={styles.logo}>HABIB<span> YUSRIL .</span></div>
-        
-        <div className={styles.userNav} style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-          {user ? (
-            <>
-              <UserSearch />
-              <UserMenu userEmail={user.email} avatarUrl={profile?.avatarUrl} />
-            </>
-          ) : (
-            <Link href="/login" className={styles.btnAction}>Join Community</Link>
-          )}
+      {/* ========== HEADER ========== */}
+      <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
+        <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
+          
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--accent)] to-green-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <span className="text-black font-black text-lg">H</span>
+            </div>
+            <span className="font-extrabold text-lg md:text-xl text-[var(--text-main)] hidden sm:block">
+              HABIB<span className="text-[var(--accent)]">BLOG</span>
+            </span>
+          </Link>
+
+          {/* Right Side */}
+          <div className="flex items-center gap-2 md:gap-3">
+            
+            {user ? (
+              <>
+                {/* Admin Button */}
+                {user.email === process.env.ADMIN_EMAIL && (
+                  <Link 
+                    href="/admin" 
+                    className="hidden sm:flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-500 py-2 px-4 text-[11px] font-bold rounded-full hover:bg-purple-500 hover:text-white transition-all"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="3"/>
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    Admin
+                  </Link>
+                )}
+
+                {/* Create Post Button */}
+                <Link
+                  href="/create"
+                  className="flex items-center gap-1.5 bg-[var(--accent)] text-black py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-white transition-all"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span className="hidden md:inline">Buat Karya</span>
+                </Link>
+
+                <UserSearch />
+                <UserMenu 
+                  userEmail={user.email}
+                  avatarUrl={profile?.avatarUrl}
+                  username={profile?.username}
+                  name={profile?.name}
+                />
+              </>
+            ) : (
+              <>
+                {/* Login Button (Untuk Guest) */}
+                <Link 
+                  href="/login" 
+                  className="bg-[var(--accent)] border border-[var(--accent)] text-black py-2 px-5 text-[11px] font-extrabold uppercase rounded-full hover:bg-white hover:border-white hover:shadow-[0_0_20px_rgba(20,255,0,0.4)] transition-all"
+                >
+                  Join Community
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
-      {/* --- KONTEN HALAMAN --- */}
+      {/* ========== CONTENT ========== */}
       {!user ? (
-        // TAMPILAN TAMU (LANDING PAGE)
+        // ===== GUEST VIEW =====
         <>
-          <section className={styles.hero}>
-            <label>// The Digital Archive</label>
-            <h1>UNLEASH YOUR <br/> <span className={styles.textOutline}>CREATIVE LOGIC.</span></h1>
-            <p>Platform menulis untuk para developer dan kreatif.</p>
-            <Link href="/login" className={styles.btnActionLarge}>Mulai Menulis</Link>
+          <section className="px-4 md:px-[5%] py-16 md:py-24 lg:py-32">
+            <div className="max-w-4xl">
+              <div className="inline-flex items-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-full px-4 py-1.5 mb-6">
+                <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse"/>
+                <span className="text-xs font-mono text-[var(--accent)]">// Platform Kreatif</span>
+              </div>
+              
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-6 text-[var(--text-main)]">
+                UNLEASH YOUR<br/>
+                <span className="text-transparent [-webkit-text-stroke:2px_var(--accent)]">
+                  CREATIVE LOGIC
+                </span>
+              </h1>
+              
+              <p className="text-base md:text-lg text-[var(--text-muted)] max-w-xl mb-8 leading-relaxed">
+                Platform menulis untuk para developer dan kreatif. Bagikan cerita, tutorial, dan ide-ide brilianmu.
+              </p>
+
+              <div className="flex flex-wrap gap-3">
+                <Link 
+                  href="/login" 
+                  className="bg-[var(--accent)] border border-[var(--accent)] text-black py-3 px-7 text-sm font-extrabold uppercase rounded-full hover:bg-white hover:border-white hover:shadow-[0_0_25px_rgba(20,255,0,0.5)] transition-all"
+                >
+                  Mulai Menulis
+                </Link>
+                <Link 
+                  href="#posts" 
+                  className="bg-transparent border border-[var(--border-color)] text-[var(--text-main)] py-3 px-7 text-sm font-bold rounded-full hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
+                >
+                  Jelajahi Karya
+                </Link>
+              </div>
+            </div>
           </section>
 
-          <main className={styles.feedSectionGuest}>
-            <div className={styles.sectionTitleGuest}>PREVIEW_KARYA / TOP 3</div>
-            <div className={styles.postGrid}>
-              {posts.slice(0, 3).map((post) => (
-                 <article key={post.id} className={styles.postCard}>
-                 <div>
-                   <div className={styles.postMeta}>PENULIS: <span>{post.author?.name || 'MEMBER'}</span></div>
-                   <h3 className={styles.postTitle}>{post.title}</h3>
-                   <p className={styles.postExcerpt}>{post.content?.slice(0, 100)}...</p>
-                 </div>
-                 <Link href="/login" className={styles.readMore}>LOGIN UNTUK BACA <span>→</span></Link>
-               </article>
+          <main id="posts" className="px-4 md:px-[5%] py-12 md:py-20">
+            <h2 className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-wider mb-8">
+              // Preview Karya
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {posts.slice(0, 6).map((post) => (
+                <article 
+                  key={post.id} 
+                  className="group bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden transition-all hover:border-[var(--accent)]/50 hover:-translate-y-1"
+                >
+                  <div className="p-4 border-b border-[var(--border-color)]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full overflow-hidden border border-[var(--border-color)]">
+                        {post.author.avatarUrl ? (
+                          <img src={post.author.avatarUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                            <span className="text-xs font-bold text-white">
+                              {post.author.name?.[0]?.toUpperCase() || '?'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-bold text-[var(--text-main)]">
+                          {post.author.name || 'Member'}
+                        </span>
+                        {post.author.isVerified && <VerifiedBadge size="sm" />}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    <h3 className="text-lg font-bold text-[var(--text-main)] mb-2 group-hover:text-[var(--accent)] transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
+                    <p className="text-sm text-[var(--text-muted)] line-clamp-3 leading-relaxed">
+                      {post.content?.slice(0, 120)}...
+                    </p>
+                  </div>
+
+                  <div className="px-4 pb-4">
+                    <Link 
+                      href="/login" 
+                      className="text-xs font-bold text-[var(--accent)] hover:underline flex items-center gap-1"
+                    >
+                      Login untuk baca
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                      </svg>
+                    </Link>
+                  </div>
+                </article>
               ))}
             </div>
           </main>
         </>
       ) : (
-        // TAMPILAN MEMBER (TIMELINE POLOS TANPA JUDUL)
-        <main className={styles.feedSectionFull}>
-          
-          {/* JUDUL DAN GARIS SUDAH DIHAPUS */}
-          
-          {/* AREA POSTINGAN (Langsung Konten) */}
-          <div className={styles.timelineContainer}>
+        // ===== MEMBER VIEW =====
+        <main className="w-full pb-20 pt-4 md:pt-6">
+          <div className="px-4 md:px-[5%] mb-6">
+            <p className="text-sm text-[var(--text-muted)]">
+              Selamat datang kembali, <span className="text-[var(--accent)] font-bold">{profile?.name || 'User'}</span>
+            </p>
+          </div>
+
+          <div className="w-full px-4 md:px-[5%]">
             {posts.length === 0 ? (
-              <div className={styles.emptyState}><p>Belum ada update terbaru.</p></div>
+              <div className="py-16 text-center">
+                <p className="text-[var(--text-muted)] mb-4">Belum ada update terbaru.</p>
+                <Link
+                  href="/create"
+                  className="inline-flex items-center gap-2 bg-[var(--accent)] text-black py-2 px-5 text-sm font-bold rounded-full hover:bg-white transition-all"
+                >
+                  Buat Karya Pertama
+                </Link>
+              </div>
             ) : (
-              <div className={styles.postListWrapper}>
+              <div className="flex flex-col gap-4 md:gap-5 max-w-2xl mx-auto lg:max-w-3xl">
                 {posts.map((post) => (
-                  <PostCard key={post.id} post={post} currentUserId={user.id} />
+                  <PostCard 
+                    key={post.id} 
+                    post={post} 
+                    currentUserId={user.id}
+                    userEmail={user.email} // <--- TAMBAHKAN PROP INI
+                  />
                 ))}
               </div>
             )}

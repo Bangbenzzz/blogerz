@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '../../lib/supabase' 
-import styles from './login.module.css'
+import { createClient } from '../../lib/supabase'
 import Link from 'next/link'
 
 export default function LoginPage() {
@@ -24,10 +23,23 @@ export default function LoginPage() {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
 
+      // SYNC USER KE PRISMA
+      if (data.user) {
+        await fetch('/api/sync-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.user_metadata?.full_name || data.user.user_metadata?.name || email.split('@')[0]
+          })
+        })
+      }
+
       if (data.user?.email === 'admin@bloger.com') {
         router.push('/admin')
       } else {
-        router.push('/')
+        router.push('/')  // User ke home
       }
     } catch (error: any) {
       setErrorMsg(error.message.toUpperCase())
@@ -44,19 +56,30 @@ export default function LoginPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <main className={styles.mainContent}>
-        <div className={styles.welcomeLabel}>// Welcome Back</div>
+    <div className="flex flex-col min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-sans items-center justify-center p-8 bg-[image:radial-gradient(circle_at_center,var(--bg-card)_0%,var(--bg-main)_100%)]">
+      
+      <div className="flex flex-col items-center text-center w-full max-w-md">
         
-        <h1 className={styles.title}>JOURNAL</h1>
-        <h1 className={styles.titleOutline}>MANAGER.</h1>
+        <div className="text-[var(--accent)] font-mono text-[11px] tracking-widest mb-4 uppercase">
+          // Welcome Back
+        </div>
 
-        <form onSubmit={handleLogin} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label className={styles.inputLabel}>Email Address</label>
+        <h1 className="text-[clamp(2.5rem,8vw,4rem)] font-extrabold leading-[0.9] tracking-[-2px] uppercase m-0">
+          JOURNAL
+        </h1>
+        <h1 className="text-[clamp(2.5rem,8vw,4rem)] font-extrabold leading-none tracking-[-2px] uppercase m-0 mb-10 text-transparent [-webkit-text-stroke:1px_var(--text-muted)]">
+          MANAGER.
+        </h1>
+
+        <form onSubmit={handleLogin} className="flex flex-col gap-8 w-full">
+          
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[var(--accent)] text-left">
+            <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
+              Email Address
+            </label>
             <input 
               type="email" 
-              className={styles.input} 
+              className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center"
               placeholder="name@email.com" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
@@ -64,11 +87,13 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className={styles.inputGroup}>
-            <label className={styles.inputLabel}>Password</label>
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[var(--accent)] text-left">
+            <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
+              Password
+            </label>
             <input 
               type="password" 
-              className={styles.input} 
+              className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center"
               placeholder="••••••••" 
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
@@ -76,19 +101,29 @@ export default function LoginPage() {
             />
           </div>
 
-          {errorMsg && <div className={styles.error}>[!] {errorMsg}</div>}
+          {errorMsg && <div className="text-red-500 text-[11px] font-mono -mt-4 text-center">[!] {errorMsg}</div>}
 
-          <button type="submit" className={styles.btnPrimary} disabled={loading}>
+          <button 
+            type="submit" 
+            className="bg-[var(--accent)] text-black py-3 px-10 font-bold text-xs uppercase transition-all tracking-widest w-full mt-2 hover:bg-[var(--text-main)] hover:shadow-[0_0_25px_rgba(20,255,0,0.3)] disabled:opacity-50"
+            disabled={loading}
+          >
             {loading ? 'Processing...' : 'Sign In'}
           </button>
         </form>
 
-        <div className={styles.divider}>
-          <span>Or Continue With</span>
+        <div className="w-full flex items-center my-10">
+          <div className="flex-1 h-px bg-[var(--border-color)]"></div>
+          <span className="px-4 text-[var(--text-muted)] text-[10px] font-mono tracking-wider">Or Continue With</span>
+          <div className="flex-1 h-px bg-[var(--border-color)]"></div>
         </div>
 
-        <div className={styles.socialButtons}>
-          <button onClick={() => handleSocialLogin('google')} className={styles.btnSocial}>
+        <div className="flex justify-between items-center gap-4 w-full">
+          
+          <button 
+            onClick={() => handleSocialLogin('google')} 
+            className="flex-1 flex items-center justify-center gap-2 bg-transparent border border-[var(--border-color)] text-[var(--text-main)] py-3 text-xs font-bold transition-all font-mono hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -98,7 +133,10 @@ export default function LoginPage() {
             GOOGLE
           </button>
           
-          <button onClick={() => handleSocialLogin('github')} className={styles.btnSocial}>
+          <button 
+            onClick={() => handleSocialLogin('github')} 
+            className="flex-1 flex items-center justify-center gap-2 bg-transparent border border-[var(--border-color)] text-[var(--text-main)] py-3 text-xs font-bold transition-all font-mono hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
             </svg>
@@ -106,10 +144,10 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <div className={styles.footerLink}>
-          New here? <Link href="/register">Create an account</Link>
+        <div className="mt-10 text-[11px] text-[var(--text-muted)] font-mono">
+          New here? <Link href="/register" className="text-[var(--accent)] no-underline font-bold ml-1 hover:underline">Create an account</Link>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

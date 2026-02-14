@@ -1,18 +1,14 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { searchUsers } from '@/app/actions'
 import { useRouter } from 'next/navigation'
-// Gunakan img tag standar agar lebih fleksibel dengan Supabase storage, atau Next Image dengan config
-import styles from '@/app/dashboard/dashboard.module.css'
+import { searchUsers } from '@/app/actions'
 
 export default function UserSearch() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  
-  // State untuk mode HP (Expand vs Icon Only)
-  const [isExpanded, setIsExpanded] = useState(false) 
+  const [isExpanded, setIsExpanded] = useState(false)
   
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -21,49 +17,50 @@ export default function UserSearch() {
   // Debounce Search
   useEffect(() => {
     const delaySearch = setTimeout(async () => {
-      if (query.length >= 1) { 
+      if (query.length >= 1) {
         setLoading(true)
         try {
           const users = await searchUsers(query)
-          setResults(users)
+          setResults(users || [])
         } catch (error) {
-          console.error("Search error:", error)
+          console.error('Search error:', error)
+          setResults([])
         } finally {
           setLoading(false)
         }
       } else {
         setResults([])
       }
-    }, 500) 
+    }, 500)
     return () => clearTimeout(delaySearch)
   }, [query])
 
-  // Klik di luar -> Tutup Mode Expand (HP) & Reset
+  // Close on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        // Jika query kosong, tutup mode expand agar balik jadi icon kecil di HP
-        if (query === '') {
-            setIsExpanded(false)
-        }
         setResults([])
+        if (isExpanded) {
+          setIsExpanded(false)
+          setQuery('')
+        }
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [query])
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isExpanded])
 
-  // Fokus otomatis ke input saat expand
+  // Auto focus on expand
   useEffect(() => {
     if (isExpanded && inputRef.current) {
-        inputRef.current.focus()
+      inputRef.current.focus()
     }
   }, [isExpanded])
 
   const handleUserClick = (user: any) => {
     if (user.username) {
       router.push(`/user/${user.username}`)
-      setQuery('') 
+      setQuery('')
       setResults([])
       setIsExpanded(false)
     } else {
@@ -71,128 +68,126 @@ export default function UserSearch() {
     }
   }
 
-  const handleExpand = () => {
-    setIsExpanded(true)
-  }
-
   return (
-    <div 
-      ref={containerRef}
-      className={`${styles.searchContainer} ${isExpanded ? styles.expanded : ''}`}
-    >
-      
-      {/* WRAPPER INPUT */}
-      <div className={styles.searchInputWrapper} onClick={handleExpand}>
-        
-        {/* ICON KACA PEMBESAR (SVG MODERN - BUKAN EMOJI) */}
-        <div className={styles.searchIcon}>
-          <svg 
-            width="18" 
-            height="18" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </div>
-        
-        <input 
-          ref={inputRef}
-          type="text" 
-          placeholder="Cari teman..." 
+    <div ref={containerRef} className="relative">
+      {/* Desktop Search */}
+      <div className="hidden md:flex items-center bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full h-[36px] w-[220px] px-3 hover:border-[var(--accent)]/50 focus-within:border-[var(--accent)] transition-colors">
+        <svg className="text-[var(--text-muted)] flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="text"
+          placeholder="Cari user..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className={styles.searchInput}
+          className="bg-transparent border-none text-[var(--text-main)] text-[13px] pl-2 w-full h-full outline-none placeholder:text-[var(--text-muted)]"
         />
-
-        {/* Loading Spinner Kecil (Opsional) */}
         {loading && (
-           <div style={{
-             width:'12px', height:'12px', 
-             border:'2px solid var(--text-muted)', 
-             borderTopColor:'transparent', 
-             borderRadius:'50%', 
-             animation:'spin 1s linear infinite',
-             marginRight: '8px',
-             marginLeft: 'auto'
-           }}/>
-        )}
-
-        {/* Tombol Close (X) Khusus HP saat expand */}
-        {isExpanded && !loading && (
-          <div 
-            onClick={(e) => {
-              e.stopPropagation()
-              setQuery('')
-              setIsExpanded(false)
-              setResults([])
-            }}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '24px',
-                height: '24px',
-                color:'var(--text-muted)', 
-                cursor:'pointer', 
-                marginLeft:'auto'
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </div>
+          <div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin"/>
         )}
       </div>
 
-      {/* DROPDOWN HASIL */}
-      {results.length > 0 && (
-        <div className={styles.searchDropdown}>
-          {results.map((user) => (
-            <div 
-              key={user.id} 
-              onClick={() => handleUserClick(user)}
-              className={styles.searchResultItem}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '10px',
-                padding: '12px', cursor: 'pointer',
-                borderBottom: '1px solid var(--border-color)',
-                transition: 'background 0.2s'
+      {/* Mobile Search Icon */}
+      {!isExpanded && (
+        <button
+          onClick={() => setIsExpanded(true)}
+          className="flex md:hidden items-center justify-center w-9 h-9 text-[var(--text-main)] hover:text-[var(--accent)] transition-colors"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      )}
+
+      {/* Mobile Expanded Search */}
+      {isExpanded && (
+        <div className="fixed top-[10px] left-[10px] right-[10px] z-[999] md:hidden">
+          <div className="h-[45px] flex items-center bg-[var(--bg-main)] border border-[var(--accent)] rounded-full px-3 shadow-lg">
+            <svg className="text-[var(--text-muted)] flex-shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Cari user..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="bg-transparent border-none text-[var(--text-main)] text-[14px] pl-2 w-full h-full outline-none"
+              autoFocus
+            />
+            {loading && (
+              <div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin mr-2"/>
+            )}
+            <button
+              onClick={() => {
+                setQuery('')
+                setIsExpanded(false)
+                setResults([])
               }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+              className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
             >
-              {/* AVATAR */}
-              <div style={{
-                width: '32px', height: '32px', borderRadius: '50%', 
-                background: 'var(--bg-card)', overflow: 'hidden', flexShrink: 0,
-                border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          {/* Mobile Results */}
+          {results.length > 0 && (
+            <div className="mt-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl shadow-xl overflow-hidden max-h-[300px] overflow-y-auto">
+              {results.map((user) => (
+                <button
+                  key={user.id}
+                  onClick={() => handleUserClick(user)}
+                  className="w-full flex items-center gap-3 p-3 hover:bg-[var(--bg-card)] transition-colors text-left border-b border-[var(--border-color)] last:border-b-0"
+                >
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {user.avatarUrl ? (
+                      <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-sm font-bold text-white">
+                        {user.name?.[0]?.toUpperCase() || '?'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-[var(--text-main)] truncate">{user.name}</p>
+                    <p className="text-xs text-[var(--text-muted)]">@{user.username || 'no-username'}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Desktop Results Dropdown */}
+      {results.length > 0 && !isExpanded && (
+        <div className="hidden md:block absolute top-[45px] right-0 w-[280px] bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl shadow-xl z-[1001] overflow-hidden max-h-[350px] overflow-y-auto">
+          {results.map((user) => (
+            <button
+              key={user.id}
+              onClick={() => handleUserClick(user)}
+              className="w-full flex items-center gap-3 p-3 hover:bg-[var(--bg-card)] transition-colors text-left border-b border-[var(--border-color)] last:border-b-0"
+            >
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center overflow-hidden flex-shrink-0">
                 {user.avatarUrl ? (
-                   <img src={user.avatarUrl} alt="av" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                  <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span style={{fontSize:'12px', fontWeight:'bold', color:'var(--text-muted)'}}>
-                    {user.name?.[0]?.toUpperCase()}
+                  <span className="text-sm font-bold text-white">
+                    {user.name?.[0]?.toUpperCase() || '?'}
                   </span>
                 )}
               </div>
-              
-              {/* INFO USER */}
-              <div style={{display:'flex', flexDirection:'column'}}>
-                <span style={{color: 'var(--text-main)', fontSize: '13px', fontWeight: 'bold'}}>
-                    {user.name}
-                </span>
-                <span style={{color: user.username ? 'var(--accent)' : '#ff4444', fontSize: '11px'}}>
-                  {user.username ? `@${user.username}` : 'No username'}
-                </span>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-[var(--text-main)] truncate">{user.name}</p>
+                <p className="text-xs text-[var(--text-muted)]">@{user.username || 'no-username'}</p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       )}

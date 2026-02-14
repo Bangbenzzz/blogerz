@@ -1,40 +1,58 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "../components/theme-provider"; 
-import Toast from "../components/Toast"; 
-import Footer from "../components/Footer"; 
+import { ThemeProvider } from "@/components/theme-provider";
+import Toast from "@/components/Toast"; // IMPORT
 
-export const metadata = {
-  title: "Cyber Blog",
-  description: "Blog/Jurnal dengan moderasi admin",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "HabibBlog",
+  description: "Platform kreatif untuk berbagi karya",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="id" suppressHydrationWarning>
-      <body style={{ margin: 0, padding: 0 }}>
-        <ThemeProvider>
-          
-          {/* --- WRAPPER UTAMA (Flexbox dipindah ke sini) --- */}
-          {/* Ini menjamin layout tidak terputus oleh ThemeProvider */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: '100vh', /* Minimal setinggi layar */
-          }}>
-            
-            {/* Toast tetap di atas */}
-            <Toast />
-            
-            {/* Konten (Ambil sisa ruang) */}
-            <div style={{ flex: 1, width: '100%' }}>
-              {children}
-            </div>
-
-            {/* Footer (Akan terdorong ke bawah) */}
-            <Footer />
-            
-          </div>
-          
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toast /> {/* TARUH DI SINI */}
         </ThemeProvider>
       </body>
     </html>

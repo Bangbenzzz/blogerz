@@ -1,11 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import prisma from '@/lib/prisma'
-import Link from 'next/link'
 import { AdminHeader } from '@/components/AdminHeader'
-import AdminPostsClient from './AdminPostsClient'
+import AdminDashboardClient from './AdminDashboardClient'
 
-export default async function AdminPage() {
+export default async function AdminDashboardPage() {
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,7 +27,6 @@ export default async function AdminPage() {
     where: { published: false }
   })
 
-  // Get all posts
   const posts = await prisma.post.findMany({
     include: { 
       author: true,
@@ -44,34 +42,35 @@ export default async function AdminPage() {
 
   return (
     <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pb-10">
-      
       <AdminHeader 
-        currentPage="Posts"
+        currentPage="Dashboard"
         userEmail={user.email}
         pendingCount={pendingCount}
       />
 
-      {/* Stats */}
       <div className="px-4 md:px-[10%] mb-6 mt-6">
         <div className="flex gap-3 flex-wrap">
-          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] px-4 py-2 rounded-lg">
-            <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase">Total</span>
+          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg">
+            <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase">Posts</span>
             <div className="text-lg font-bold text-[var(--text-main)]">{posts.length}</div>
           </div>
-          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] px-4 py-2 rounded-lg">
+          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg">
             <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase">Published</span>
             <div className="text-lg font-bold text-green-500">{posts.filter(p => p.published).length}</div>
           </div>
-          <div className="bg-[var(--bg-card)] border border-orange-500/30 px-4 py-2 rounded-lg">
+          <div className="bg-[var(--bg-card)] border border-orange-500/30 px-3 py-2 rounded-lg">
             <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase">Pending</span>
             <div className="text-lg font-bold text-orange-500">{pendingCount}</div>
+          </div>
+          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg">
+            <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase">Comments</span>
+            <div className="text-lg font-bold text-blue-500">{posts.reduce((acc, p) => acc + p.comments.length, 0)}</div>
           </div>
         </div>
       </div>
 
-      {/* Content */}
       <div className="px-4 md:px-[10%]">
-        <AdminPostsClient posts={posts} adminId={user.id} adminProfile={adminProfile} />
+        <AdminDashboardClient posts={posts} adminId={user.id} adminProfile={adminProfile} />
       </div>
     </div>
   )

@@ -1,149 +1,190 @@
-// app/user/[username]/page.tsx
-
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { notFound } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import PostCard from '@/components/PostCard'
 import UserMenu from '@/components/UserMenu'
-import styles from '@/app/dashboard/dashboard.module.css'
+import UserSearch from '@/components/UserSearch'
+import PostCard from '@/components/PostCard'
+import VerifiedBadge from '@/components/VerifiedBadge'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
-export default async function PublicProfile({ params }: { params: Promise<{ username: string }> }) {
-  // AWAIT PARAMS (Wajib di Next.js terbaru)
-  const { username } = await params
+interface Props {
+  params: Promise<{ username: string }> // Tipe diubah menjadi Promise
+}
 
+export default async function UserProfilePage({ params }: Props) {
+  // 1. Ambil cookies dan user (tetap sama)
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     { cookies: { getAll() { return cookieStore.getAll() } } }
   )
-  const { data: { user: currentUser } } = await supabase.auth.getUser()
   
-  // Ambil Avatar User yang sedang login (untuk Header)
-  let myProfile = null
-  if (currentUser) {
-    myProfile = await prisma.profile.findUnique({ where: { id: currentUser.id } })
-  }
+  const { data: { user } } = await supabase.auth.getUser()
 
-  // 1. CARI USER TARGET BERDASARKAN USERNAME DARI URL
-  const targetUsername = decodeURIComponent(username)
+  // 2. PERBAIKAN: Await params sebelum mengakses username
+  const { username } = await params
 
-  const targetUser = await prisma.profile.findUnique({
-    where: { username: targetUsername }
+  // 3. Gunakan username yang sudah di-await
+  const profile = await prisma.profile.findUnique({
+    where: { username: username }
   })
 
-  // Kalau user tidak ditemukan di database -> 404 Not Found
-  if (!targetUser) return notFound() 
+  if (!profile) {
+    notFound()
+  }
 
-  // 2. AMBIL TULISAN/ARTIKEL MEREKA
-  const userPosts = await prisma.post.findMany({
+  const currentUserProfile = user ? await prisma.profile.findUnique({
+    where: { id: user.id }
+  }) : null
+
+  const posts = await prisma.post.findMany({
     where: { 
-      authorId: targetUser.id,
+      authorId: profile.id,
       published: true 
     },
-    include: {
-      author: true,
-      likes: true,
-      comments: { include: { author: true } }
+    include: { 
+      author: true, 
+      likes: true, 
+      comments: { include: { author: true }, orderBy: { createdAt: 'asc' } }
     },
     orderBy: { createdAt: 'desc' }
   })
 
   return (
-    <div className={styles.container}>
-      
-      {/* --- HEADER PROFIL (GARIS FULL WIDTH) --- */}
-      <header className={`${styles.header} ${styles.profilePageHeader}`}>
-        
-        {/* Pembungkus baru: Konten diatur padding 5% biar sejajar dengan postingan, 
-            tapi garis header tetap full layar */}
-        <div className={styles.profileHeaderInner}>
-          
-          {/* Bagian Kiri: Judul */}
-          <div className={styles.profileHeaderTitle}>
-            <span>PROFILE VIEW</span>
-            <h1>@{targetUser.username?.toUpperCase()}</h1>
-          </div>
-          
-          {/* Bagian Kanan: Aksi */}
-          <div className={styles.profileActions}>
-            <Link href="/" className={styles.btnAction}>
-               Home
-            </Link>
-            
-            {currentUser ? (
-               <UserMenu userEmail={currentUser.email} avatarUrl={myProfile?.avatarUrl} />
+    <div className="min-h-screen bg-transparent text-[var(--text-main)] pb-20">
+      {/* Header */}
+      <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
+        <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--accent)] to-green-700 flex items-center justify-center">
+              <span className="text-black font-black text-lg">H</span>
+            </div>
+            <span className="font-extrabold text-lg md:text-xl text-[var(--text-main)] hidden sm:block">
+              HABIB<span className="text-[var(--accent)]">BLOG</span>
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-2 md:gap-3">
+            {user ? (
+              <>
+                {user.email === process.env.ADMIN_EMAIL && (
+                  <Link 
+                    href="/admin" 
+                    className="hidden sm:flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-500 py-2 px-4 text-[11px] font-bold rounded-full hover:bg-purple-500 hover:text-white transition-all"
+                  >
+                    Admin
+                  </Link>
+                )}
+
+                <Link
+                  href="/create"
+                  className="flex items-center gap-1.5 bg-[var(--accent)] text-black py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-white transition-all"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span className="hidden md:inline">Buat Karya</span>
+                </Link>
+
+                <UserSearch />
+                <UserMenu 
+                  userEmail={user.email}
+                  avatarUrl={currentUserProfile?.avatarUrl}
+                  username={currentUserProfile?.username}
+                  name={currentUserProfile?.name}
+                />
+              </>
             ) : (
-               <Link href="/login" className={styles.btnAction}>
-                 Login
-               </Link>
+              <>
+                <ThemeToggle />
+                <Link 
+                  href="/login" 
+                  className="bg-[var(--accent)] border border-[var(--accent)] text-black py-2 px-5 text-[11px] font-extrabold uppercase rounded-full hover:bg-white transition-all"
+                >
+                  Join Community
+                </Link>
+              </>
             )}
           </div>
-          
         </div>
       </header>
 
-      {/* --- KONTEN UTAMA --- */}
-      <main className={styles.profileContent}>
-        
-        {/* KARTU IDENTITAS USER */}
-        <div className={styles.profileIdentityCard}>
-          <div className={styles.avatarWrapper} style={{ border: 'none', width: '100px', height: '100px' }}> 
-            {targetUser.avatarUrl ? (
-              <img 
-                src={targetUser.avatarUrl} 
-                alt="avatar" 
-                style={{width: '100%', height: '100%', objectFit:'cover'}} 
-              />
-            ) : (
-              <div className={styles.avatarPlaceholder} style={{
-                width: '100%', 
-                height: '100%', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                fontSize: '40px',
-                background: 'var(--bg-secondary)',
-                color: 'var(--text-muted)'
-              }}>
-                {targetUser.name?.[0]}
-              </div>
+      {/* Content */}
+      <main className="px-4 md:px-[5%] py-6 md:py-10">
+        <div className="max-w-2xl mx-auto">
+          {/* Profile */}
+          <div className="text-center mb-8">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[var(--border-color)] mx-auto mb-4">
+              {profile.avatarUrl ? (
+                <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                  <span className="text-4xl font-black text-white">
+                    {profile.name?.[0]?.toUpperCase() || '?'}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <h1 className="text-xl md:text-2xl font-black text-[var(--text-main)]">
+                {profile.name || 'User'}
+              </h1>
+              {profile.isVerified && <VerifiedBadge size="md" />}
+            </div>
+
+            <p className="text-sm text-[var(--text-muted)] mb-3">
+              @{profile.username || 'username'}
+            </p>
+
+            {profile.bio && (
+              <p className="text-sm text-[var(--text-muted)] max-w-md mx-auto">
+                {profile.bio}
+              </p>
             )}
           </div>
-          
-          <h2>{targetUser.name}</h2>
-          
-          <div style={{color: 'var(--accent)', fontFamily: 'monospace', marginTop: '5px', fontSize: '14px'}}>
-            @{targetUser.username}
-          </div>
-          
-          <p className={styles.profileBio}>
-            {targetUser.bio || "User ini belum menulis bio apapun."}
-          </p>
-          
-          <div style={{marginTop: '15px', fontSize: '11px', fontWeight: 'bold', color: 'var(--text-muted)', fontFamily: 'monospace'}}>
-            BERGABUNG SEJAK: {new Date(targetUser.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </div>
-        </div>
 
-        {/* DAFTAR TULISAN MEREKA */}
-        <div className={styles.sectionTitle} style={{padding: 0, border: 'none'}}>
-           KARYA PUBLIK ({userPosts.length})
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4 text-center">
+              <p className="text-2xl font-black text-[var(--text-main)]">{posts.length}</p>
+              <p className="text-xs text-[var(--text-muted)]">Karya</p>
+            </div>
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4 text-center">
+              <p className="text-2xl font-black text-[var(--text-main)]">
+                {posts.reduce((acc, p) => acc + p.likes.length, 0)}
+              </p>
+              <p className="text-xs text-[var(--text-muted)]">Likes</p>
+            </div>
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4 text-center">
+              <p className="text-2xl font-black text-[var(--text-main)]">
+                {posts.reduce((acc, p) => acc + p.comments.length, 0)}
+              </p>
+              <p className="text-xs text-[var(--text-muted)]">Komentar</p>
+            </div>
+          </div>
+
+          {/* Posts */}
+          <h2 className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-wider mb-4">
+            // Karya ({posts.length})
+          </h2>
+
+          {posts.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-[var(--text-muted)]">Belum ada karya yang dipublikasi.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} currentUserId={user?.id} />
+              ))}
+            </div>
+          )}
         </div>
-        
-        {userPosts.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>User ini belum menerbitkan artikel apapun.</p>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '20px' }}>
-            {userPosts.map((post) => (
-              <PostCard key={post.id} post={post} currentUserId={currentUser?.id} />
-            ))}
-          </div>
-        )}
       </main>
     </div>
   )

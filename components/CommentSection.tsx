@@ -1,201 +1,129 @@
-// components/CommentSection.tsx
 'use client'
 
 import { useState } from 'react'
-import { postComment, deleteComment } from '@/app/actions' // <--- Jangan lupa import deleteComment
-import Image from 'next/image'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { deleteComment, postComment } from '@/app/actions'
+import VerifiedBadge from './VerifiedBadge'
 
-export default function CommentSection({ post, currentUserId }: { post: any, currentUserId?: string }) {
-  const [isOpen, setIsOpen] = useState(false)
+interface Comment {
+  id: string
+  content: string
+  createdAt: Date
+  author: {
+    id: string
+    name: string | null
+    username: string | null
+    avatarUrl: string | null
+    isVerified: boolean
+  }
+}
+
+interface CommentSectionProps {
+  postId: string
+  comments: Comment[]
+  currentUserId?: string | null
+  isAdmin?: boolean
+}
+
+export default function CommentSection({ postId, comments, currentUserId, isAdmin }: CommentSectionProps) {
   const [commentText, setCommentText] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const router = useRouter()
+  const [commentList, setCommentList] = useState(comments)
+  const [loading, setLoading] = useState(false)
 
-  // 1. FUNGSI KIRIM KOMENTAR
-  const handleComment = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!currentUserId) return alert("Login dulu bro!")
-    if (!commentText.trim()) return
-
-    setIsSubmitting(true)
+    if (!commentText.trim() || loading) return
     
-    const formData = new FormData()
-    formData.append('content', commentText)
-    
-    await postComment(post.id, formData)
-    
-    setCommentText('') 
-    setIsSubmitting(false)
-    router.refresh()
+    setLoading(true)
+    const result = await postComment(postId, commentText)
+    if (result.success && result.comment) {
+      setCommentList([...commentList, result.comment as Comment])
+      setCommentText('')
+    }
+    setLoading(false)
   }
 
-  // 2. FUNGSI HAPUS KOMENTAR
   const handleDelete = async (commentId: string) => {
-    if (!confirm("Yakin mau hapus komentar ini?")) return
+    if (!confirm('Hapus komentar ini?')) return
     
-    await deleteComment(commentId)
-    router.refresh() // Refresh agar komentar hilang dari layar
+    const result = await deleteComment(commentId)
+    if (result.success) {
+      setCommentList(commentList.filter(c => c.id !== commentId))
+    }
   }
 
-  // Toggle buka/tutup
-  if (!isOpen) {
-    return (
-      <button 
-        onClick={() => setIsOpen(true)}
-        style={{
-          background: 'transparent', 
-          border: 'none', 
-          color: 'var(--text-muted)', 
-          fontSize: '12px', 
-          cursor: 'pointer', 
-          marginTop: '10px',
-          textDecoration: 'underline'
-        }}
-      >
-        Lihat {post.comments.length} Komentar...
-      </button>
-    )
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })
   }
 
   return (
-    <div style={{
-        marginTop: '15px', 
-        borderTop: '1px solid var(--border-color)', 
-        paddingTop: '15px'
-    }}>
-      
-      {/* DAFTAR KOMENTAR */}
-      <div style={{display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px'}}>
-        {post.comments.map((comment: any) => {
-          
-          // CEK APAKAH INI KOMENTAR SAYA?
-          const isMyComment = currentUserId === comment.authorId
+    <div className="space-y-4">
+      {/* Comment Form */}
+      <form onSubmit={handleSubmit} className="flex gap-3">
+        <input
+          type="text"
+          placeholder="Tulis komentar..."
+          value={commentText}
+          onChange={(e) => setCommentText(e.target.value)}
+          className="flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent)] transition-colors"
+        />
+        <button
+          type="submit"
+          disabled={!commentText.trim() || loading}
+          className="px-5 py-2 bg-[var(--accent)] text-black text-sm font-bold rounded-full hover:bg-white disabled:opacity-50 transition-all"
+        >
+          {loading ? '...' : 'Kirim'}
+        </button>
+      </form>
 
-          return (
-            <div key={comment.id} style={{display: 'flex', gap: '10px'}}>
-              
-              {/* Foto User */}
-              <div style={{
-                  width: '24px', height: '24px', 
-                  borderRadius: '50%', overflow: 'hidden', flexShrink: 0, 
-                  background: 'var(--bg-card)', 
-                  border: '1px solid var(--border-color)'
-              }}>
-                {comment.author?.avatarUrl ? (
-                  <Image src={comment.author.avatarUrl} alt="av" width={24} height={24} style={{objectFit:'cover'}} unoptimized />
+      {/* Comments List */}
+      {commentList.length > 0 && (
+        <div className="space-y-3">
+          {commentList.map((comment) => (
+            <div key={comment.id} className="flex gap-3 p-3 bg-[var(--bg-card)] rounded-xl">
+              <div className="w-8 h-8 rounded-full overflow-hidden border border-[var(--border-color)] flex-shrink-0">
+                {comment.author.avatarUrl ? (
+                  <img src={comment.author.avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div style={{
-                      width:'100%', height:'100%', 
-                      display:'flex', alignItems:'center', justifyContent:'center', 
-                      fontSize:'10px', color: 'var(--text-muted)'
-                  }}>
-                      {comment.author?.name?.[0]}
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">
+                      {comment.author.name?.[0]?.toUpperCase() || '?'}
+                    </span>
                   </div>
                 )}
               </div>
-              
-              {/* Isi & Info Komentar */}
-              <div style={{flexGrow: 1}}>
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                  
-                  {/* Nama & Tanggal */}
-                  <div style={{display: 'flex', gap: '5px', alignItems: 'center'}}>
-                    <Link href={`/user/${comment.author?.username}`} style={{
-                        fontSize: '12px', fontWeight: 'bold', 
-                        color: 'var(--text-main)', 
-                        textDecoration:'none'
-                    }}>
-                      {comment.author?.name || 'User'}
-                    </Link>
-                    <span style={{fontSize: '10px', color: 'var(--text-muted)'}}>
-                      {new Date(comment.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-
-                  {/* TOMBOL HAPUS (Hanya muncul jika isMyComment TRUE) */}
-                  {isMyComment && (
-                    <button 
-                      onClick={() => handleDelete(comment.id)}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: '#ff4444', // Merah
-                        fontSize: '10px',
-                        cursor: 'pointer',
-                        padding: '0 5px',
-                        fontWeight: 'bold'
-                      }}
-                      title="Hapus komentar"
-                    >
-                      Hapus ✕
-                    </button>
-                  )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-sm font-bold text-[var(--text-main)]">
+                    {comment.author.name || 'Anonymous'}
+                  </span>
+                  {comment.author.isVerified && <VerifiedBadge size="sm" />}
+                  <span className="text-xs text-[var(--text-muted)]">
+                    • {formatDate(comment.createdAt)}
+                  </span>
                 </div>
-
-                <p style={{
-                    fontSize: '13px', 
-                    color: 'var(--text-main)', 
-                    margin: '2px 0 0 0', lineHeight: '1.4'
-                }}>
-                  {comment.content}
-                </p>
+                <p className="text-sm text-[var(--text-muted)] mt-1">{comment.content}</p>
               </div>
+              
+              {/* Delete Button */}
+              {(comment.author.id === currentUserId || isAdmin) && (
+                <button
+                  onClick={() => handleDelete(comment.id)}
+                  className="text-red-500 hover:text-red-400 transition-colors p-1"
+                  title="Hapus komentar"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              )}
             </div>
-          )
-        })}
-      </div>
-
-      {/* FORM INPUT */}
-      {currentUserId && (
-        <form onSubmit={handleComment} style={{display: 'flex', gap: '10px'}}>
-          <input 
-            type="text" 
-            placeholder="Tulis balasan..." 
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            style={{
-              flexGrow: 1, 
-              background: 'var(--input-bg)',       
-              color: 'var(--text-main)',           
-              border: '1px solid var(--border-color)', 
-              padding: '8px 12px', 
-              borderRadius: '20px', 
-              fontSize: '13px', 
-              outline: 'none'
-            }}
-          />
-          <button 
-            type="submit" 
-            disabled={isSubmitting}
-            style={{
-              background: 'var(--accent)', 
-              color: '#000',               
-              border: 'none',
-              padding: '6px 15px', 
-              borderRadius: '20px', 
-              fontSize: '12px', 
-              fontWeight: 'bold',
-              cursor: isSubmitting ? 'wait' : 'pointer'
-            }}
-          >
-            {isSubmitting ? '...' : 'Kirim'}
-          </button>
-        </form>
+          ))}
+        </div>
       )}
-      
-      <button 
-        onClick={() => setIsOpen(false)} 
-        style={{
-            fontSize:'10px', 
-            color: 'var(--text-muted)', 
-            background:'none', border:'none', 
-            marginTop:'10px', cursor:'pointer'
-        }}
-      >
-        Tutup Komentar ▲
-      </button>
     </div>
   )
 }
