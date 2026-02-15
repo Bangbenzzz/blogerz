@@ -33,7 +33,8 @@ export default async function AdminProfilePage() {
       {/* Header */}
       <header className="sticky top-0 z-50 flex flex-col md:flex-row justify-between items-start md:items-center py-4 px-4 md:px-[10%] bg-[var(--bg-main)] backdrop-blur-xl border-b border-white/10 mb-8 gap-4">
         <div className="flex flex-col gap-1">
-          <span className="text-[var(--accent)] font-mono text-[10px] tracking-widest uppercase">
+          {/* Warna teks Biru */}
+          <span className="text-[#3B82F6] font-mono text-[10px] tracking-widest uppercase">
             // ADMIN_PROFILE
           </span>
           <h1 className="text-xl font-extrabold uppercase tracking-tight m-0">
@@ -43,10 +44,12 @@ export default async function AdminProfilePage() {
 
         <div className="flex flex-wrap items-center gap-2 md:gap-4 w-full md:w-auto">
           <div className="flex gap-2 overflow-x-auto pb-1 w-full md:w-auto">
-            <Link href="/admin" className="py-1.5 px-3 text-[10px] font-mono font-bold uppercase tracking-wider border border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all whitespace-nowrap">📝 Posts</Link>
-            <Link href="/admin/users" className="py-1.5 px-3 text-[10px] font-mono font-bold uppercase tracking-wider border border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all whitespace-nowrap">👥 Users</Link>
-            <Link href="/admin/dashboard" className="py-1.5 px-3 text-[10px] font-mono font-bold uppercase tracking-wider border border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all whitespace-nowrap">🏠 Dashboard</Link>
-            <Link href="/admin/profile" className="py-1.5 px-3 text-[10px] font-mono font-bold uppercase tracking-wider border border-purple-500 text-purple-500 bg-purple-500/10 whitespace-nowrap">👤 Profile</Link>
+            {/* Hover Border Biru */}
+            <Link href="/admin" className="py-1.5 px-3 text-[10px] font-mono font-bold uppercase tracking-wider border border-[var(--border-color)] text-[var(--text-muted)] hover:border-[#3B82F6] hover:text-[#3B82F6] transition-all whitespace-nowrap">📝 Posts</Link>
+            <Link href="/admin/users" className="py-1.5 px-3 text-[10px] font-mono font-bold uppercase tracking-wider border border-[var(--border-color)] text-[var(--text-muted)] hover:border-[#3B82F6] hover:text-[#3B82F6] transition-all whitespace-nowrap">👥 Users</Link>
+            <Link href="/admin/dashboard" className="py-1.5 px-3 text-[10px] font-mono font-bold uppercase tracking-wider border border-[var(--border-color)] text-[var(--text-muted)] hover:border-[#3B82F6] hover:text-[#3B82F6] transition-all whitespace-nowrap">🏠 Dashboard</Link>
+            {/* Active Link Biru */}
+            <Link href="/admin/profile" className="py-1.5 px-3 text-[10px] font-mono font-bold uppercase tracking-wider border border-[#3B82F6] text-[#3B82F6] bg-[#3B82F6]/10 whitespace-nowrap">👤 Profile</Link>
           </div>
 
           <div className="flex items-center gap-2 ml-auto md:ml-0">

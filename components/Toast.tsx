@@ -46,8 +46,9 @@ export default function Toast() {
 
   if (!toast) return null
 
-  let borderColor = '#00ff41'
-  let shadowColor = 'rgba(0, 255, 65, 0.4)'
+  // PERUBAHAN WARNA: Success sekarang Biru
+  let borderColor = '#3B82F6' // Biru (sebelumnya Hijau Neon)
+  let shadowColor = 'rgba(59, 130, 246, 0.4)' // Biru (sebelumnya Hijau Neon)
 
   if (toast.type === 'error') {
     borderColor = '#ff0033'

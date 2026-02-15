@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '../../lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { syncUserToPrisma } from './actions'
 
@@ -62,7 +62,8 @@ export default function RegisterPage() {
       {/* Main Content */}
       <div className="flex flex-col items-center text-center w-full max-w-md">
         
-        <div className="text-[var(--accent)] font-mono text-[11px] tracking-widest mb-4 uppercase">
+        {/* Warna Biru */}
+        <div className="text-[#3B82F6] font-mono text-[11px] tracking-widest mb-4 uppercase">
           // New Recruit
         </div>
 
@@ -77,8 +78,8 @@ export default function RegisterPage() {
         {/* Form */}
         <form onSubmit={handleRegister} className="flex flex-col gap-8 w-full">
           
-          {/* Input Nama */}
-          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[var(--accent)] text-left">
+          {/* Input Nama - Focus Border Biru */}
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[#3B82F6] text-left">
             <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
               Full Name
             </label>
@@ -92,8 +93,8 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Input Email */}
-          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[var(--accent)] text-left">
+          {/* Input Email - Focus Border Biru */}
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[#3B82F6] text-left">
             <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
               Email Address
             </label>
@@ -107,8 +108,8 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Input Password */}
-          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[var(--accent)] text-left">
+          {/* Input Password - Focus Border Biru */}
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[#3B82F6] text-left">
             <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
               Password
             </label>
@@ -123,23 +124,23 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Pesan Error/Sukses */}
+          {/* Pesan Error/Sukses - Warna Biru untuk Sukses */}
           {errorMsg && <div className="text-red-500 text-[11px] font-mono -mt-4 text-center">[!] {errorMsg}</div>}
-          {successMsg && <div className="text-[var(--accent)] text-[11px] font-mono -mt-4 text-center">{successMsg}</div>}
+          {successMsg && <div className="text-[#3B82F6] text-[11px] font-mono -mt-4 text-center">{successMsg}</div>}
 
-          {/* Tombol Submit */}
+          {/* Tombol Submit - Warna Biru */}
           <button 
             type="submit" 
-            className="bg-[var(--accent)] text-black py-3 px-10 font-bold text-xs uppercase transition-all tracking-widest w-full mt-2 hover:bg-[var(--text-main)] hover:shadow-[0_0_25px_rgba(20,255,0,0.3)] disabled:opacity-50"
+            className="bg-[#3B82F6] text-white py-3 px-10 font-bold text-xs uppercase transition-all tracking-widest w-full mt-2 hover:bg-[#2563EB] hover:shadow-[0_0_25px_rgba(59,130,246,0.3)] disabled:opacity-50"
             disabled={loading}
           >
             {loading ? 'Processing...' : 'Create Account'}
           </button>
         </form>
 
-        {/* Footer Link */}
+        {/* Footer Link - Warna Biru */}
         <div className="mt-10 text-[11px] text-[var(--text-muted)] font-mono">
-          Already have an account? <Link href="/login" className="text-[var(--accent)] no-underline font-bold ml-1 hover:underline">Sign In here</Link>
+          Already have an account? <Link href="/login" className="text-[#3B82F6] no-underline font-bold ml-1 hover:underline">Sign In here</Link>
         </div>
       </div>
     </div>

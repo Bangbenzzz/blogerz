@@ -42,8 +42,8 @@ export async function searchUsers(query: string) {
   }
 }
 
-// ==================== CREATE POST ====================
-export async function createPost(title: string, content: string) {
+// ==================== CREATE POST (UPDATE: DENGAN GAMBAR) ====================
+export async function createPost(title: string, content: string, imageUrl?: string | null) {
   try {
     const { data: { user } } = await getCurrentUser()
     
@@ -56,7 +56,8 @@ export async function createPost(title: string, content: string) {
         title,
         content,
         authorId: user.id,
-        published: false
+        published: false,
+        imageUrl: imageUrl // Tambahkan field imageUrl
       },
       include: {
         author: true
@@ -174,34 +175,44 @@ export async function deleteComment(commentId: string) {
 // ==================== ADMIN ACTIONS ====================
 
 export async function approvePost(postId: string) {
-  const { data: { user } } = await getCurrentUser()
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL 
-  
-  if (!user || user.email !== ADMIN_EMAIL) {
-    throw new Error('Unauthorized')
-  }
+  try {
+    const { data: { user } } = await getCurrentUser()
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL 
+    
+    if (!user || user.email !== ADMIN_EMAIL) {
+      return { success: false, error: 'Unauthorized' }
+    }
 
-  await prisma.post.update({
-    where: { id: postId },
-    data: { published: true }
-  })
-  
-  revalidatePath('/admin')
+    await prisma.post.update({
+      where: { id: postId },
+      data: { published: true }
+    })
+    
+    revalidatePath('/admin')
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: 'Failed to approve post' }
+  }
 }
 
 export async function deletePost(postId: string) {
-  const { data: { user } } = await getCurrentUser()
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL 
-  
-  if (!user || user.email !== ADMIN_EMAIL) {
-    throw new Error('Unauthorized')
-  }
+  try {
+    const { data: { user } } = await getCurrentUser()
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL 
+    
+    if (!user || user.email !== ADMIN_EMAIL) {
+      return { success: false, error: 'Unauthorized' }
+    }
 
-  await prisma.post.delete({
-    where: { id: postId }
-  })
-  
-  revalidatePath('/admin')
+    await prisma.post.delete({
+      where: { id: postId }
+    })
+    
+    revalidatePath('/admin')
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: 'Failed to delete post' }
+  }
 }
 
 export async function toggleBanUser(userId: string, isBanned: boolean) {
@@ -209,7 +220,7 @@ export async function toggleBanUser(userId: string, isBanned: boolean) {
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL 
   
   if (!user || user.email !== ADMIN_EMAIL) {
-    throw new Error('Unauthorized')
+    return { success: false, error: 'Unauthorized' }
   }
 
   await prisma.profile.update({
@@ -225,7 +236,7 @@ export async function changeUserRole(userId: string, role: 'USER' | 'ADMIN') {
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL 
   
   if (!user || user.email !== ADMIN_EMAIL) {
-    throw new Error('Unauthorized')
+    return { success: false, error: 'Unauthorized' }
   }
 
   await prisma.profile.update({
@@ -241,7 +252,7 @@ export async function toggleVerified(userId: string, isVerified: boolean) {
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL 
   
   if (!user || user.email !== ADMIN_EMAIL) {
-    throw new Error('Unauthorized')
+    return { success: false, error: 'Unauthorized' }
   }
 
   await prisma.profile.update({
@@ -257,11 +268,11 @@ export async function adminComment(postId: string, content: string) {
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL 
   
   if (!user || user.email !== ADMIN_EMAIL) {
-    throw new Error('Unauthorized')
+    return { success: false, error: 'Unauthorized' }
   }
 
   if (!content.trim()) {
-    throw new Error('Comment cannot be empty')
+    return { success: false, error: 'Comment cannot be empty' }
   }
 
   await prisma.comment.create({
@@ -273,4 +284,5 @@ export async function adminComment(postId: string, content: string) {
   })
   
   revalidatePath('/admin')
+  return { success: true }
 }

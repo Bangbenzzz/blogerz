@@ -35,7 +35,7 @@ interface Post {
 interface PostCardProps {
   post: Post
   currentUserId?: string | null
-  userEmail?: string | null // Ditambahkan untuk cek Admin
+  userEmail?: string | null
 }
 
 export default function PostCard({ post, currentUserId, userEmail }: PostCardProps) {
@@ -49,8 +49,6 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedCommentId, setSelectedCommentId] = useState<string | null>(null)
 
-  // Cek apakah user yang login adalah Admin
-  // Pastikan ADMIN_EMAIL sudah terdefinisi di .env.local
   const isAdmin = userEmail === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
   const handleLike = async () => {
@@ -104,6 +102,7 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
     }
   }
 
+  // PERBAIKAN HYDRATION: Logika tanggal manual UTC
   const formatDate = (date: Date) => {
     const now = new Date()
     const postDate = new Date(date)
@@ -116,7 +115,10 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
     if (minutes < 60) return `${minutes}m lalu`
     if (hours < 24) return `${hours}j lalu`
     if (days < 7) return `${days}h lalu`
-    return postDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+    
+    // Gunakan UTC untuk tanggal absolut
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return `${postDate.getUTCDate()} ${months[postDate.getUTCMonth()]}`
   }
 
   return (
@@ -153,13 +155,14 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
         </div>
       )}
 
-      {/* KARTU POST */}
-      <article className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden transition-all hover:border-[var(--accent)]/30">
+      {/* KARTU POST - Hover Border Biru */}
+      <article className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden transition-all hover:border-[#3B82F6]/30">
         {/* Header */}
         <div className="p-4 md:p-5 border-b border-[var(--border-color)]">
           <div className="flex items-center gap-3">
             <Link href={`/user/${post.author.username || post.author.id}`}>
-              <div className="w-11 h-11 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-[var(--border-color)] hover:border-[var(--accent)] transition-colors">
+              {/* Hover Border Biru */}
+              <div className="w-11 h-11 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-[var(--border-color)] hover:border-[#3B82F6] transition-colors">
                 {post.author.avatarUrl ? (
                   <img src={post.author.avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -176,7 +179,8 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Link 
                   href={`/user/${post.author.username || post.author.id}`}
-                  className="font-bold text-[var(--text-main)] hover:text-[var(--accent)] transition-colors text-sm md:text-base"
+                  // Hover Text Biru
+                  className="font-bold text-[var(--text-main)] hover:text-[#3B82F6] transition-colors text-sm md:text-base"
                 >
                   {post.author.name || 'Anonymous'}
                 </Link>
@@ -220,7 +224,6 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
                 <div className="space-y-3 max-h-[200px] overflow-y-auto pr-2">
                   {comments.map((comment) => {
                     const isOwner = comment.author.id === currentUserId;
-                    // Logika: Tombol hapus muncul jika Pemilik Komentar ATAU Admin
                     const canDelete = isOwner || isAdmin;
 
                     return (
@@ -246,7 +249,7 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
                               <span className="text-[10px] text-[var(--text-muted)]">• {formatDate(comment.createdAt)}</span>
                             </div>
                             
-                            {/* TOMBOL HAPUS (MUNCUL UNTUK ADMIN & PEMILIK) */}
+                            {/* TOMBOL HAPUS */}
                             {canDelete && (
                               <button 
                                 onClick={() => openDeleteModal(comment.id)}
@@ -277,12 +280,14 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
                   placeholder="Tulis komentar..."
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  className="flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full px-4 py-2 text-xs text-[var(--text-main)] outline-none focus:border-[var(--accent)] transition-colors"
+                  // Focus Border Biru
+                  className="flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full px-4 py-2 text-xs text-[var(--text-main)] outline-none focus:border-[#3B82F6] transition-colors"
                 />
                 <button
                   type="submit"
                   disabled={!commentText.trim() || loading}
-                  className="px-4 py-2 bg-[var(--accent)] text-black text-xs font-bold rounded-full hover:bg-white disabled:opacity-50 transition-all"
+                  // Tombol Kirim Biru
+                  className="px-4 py-2 bg-[#3B82F6] text-white text-xs font-bold rounded-full hover:bg-[#2563EB] disabled:opacity-50 transition-all"
                 >
                   Kirim
                 </button>
@@ -324,7 +329,8 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
 
           <button 
             onClick={() => setShowFull(!showFull)}
-            className="ml-auto text-xs font-bold text-[var(--accent)] hover:underline flex items-center gap-1"
+            // Teks Biru
+            className="ml-auto text-xs font-bold text-[#3B82F6] hover:underline flex items-center gap-1"
           >
             {showFull ? (
                <>

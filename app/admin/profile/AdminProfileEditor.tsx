@@ -124,8 +124,9 @@ export default function AdminProfileEditor({ profile, userEmail }: AdminProfileE
         
         {/* Avatar Section */}
         <div className="flex flex-col items-center gap-4 mb-6">
+          {/* Border Avatar Biru */}
           <div 
-            className="w-24 h-24 rounded-full overflow-hidden bg-[var(--bg-main)] border-2 border-purple-500 flex items-center justify-center cursor-pointer relative group"
+            className="w-24 h-24 rounded-full overflow-hidden bg-[var(--bg-main)] border-2 border-[#3B82F6] flex items-center justify-center cursor-pointer relative group"
             onClick={() => fileInputRef.current?.click()}
           >
             {previewUrl ? (
@@ -133,7 +134,8 @@ export default function AdminProfileEditor({ profile, userEmail }: AdminProfileE
             ) : profile?.avatarUrl ? (
               <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-3xl font-bold text-purple-500">
+              // Inisial Biru
+              <span className="text-3xl font-bold text-[#3B82F6]">
                 {formData.name?.[0]?.toUpperCase() || 'A'}
               </span>
             )}
@@ -154,7 +156,8 @@ export default function AdminProfileEditor({ profile, userEmail }: AdminProfileE
           <div className="flex items-center gap-2 flex-wrap justify-center">
             <h2 className="text-lg font-bold">{formData.name || 'Admin'}</h2>
             <VerifiedBadge size="md" />
-            <span className="text-xs bg-purple-500/20 text-purple-500 px-2 py-0.5 rounded font-bold">ADMIN</span>
+            {/* Badge Admin Biru */}
+            <span className="text-xs bg-[#3B82F6]/20 text-[#3B82F6] px-2 py-0.5 rounded font-bold">ADMIN</span>
           </div>
 
           {profile?.avatarUrl && (
@@ -175,7 +178,8 @@ export default function AdminProfileEditor({ profile, userEmail }: AdminProfileE
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-purple-500"
+              // Focus Border Biru
+              className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[#3B82F6]"
             />
           </div>
 
@@ -185,7 +189,8 @@ export default function AdminProfileEditor({ profile, userEmail }: AdminProfileE
               type="text"
               value={formData.username}
               onChange={(e) => setFormData({...formData, username: e.target.value})}
-              className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-purple-500"
+              // Focus Border Biru
+              className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[#3B82F6]"
             />
           </div>
 
@@ -205,19 +210,21 @@ export default function AdminProfileEditor({ profile, userEmail }: AdminProfileE
               value={formData.bio}
               onChange={(e) => setFormData({...formData, bio: e.target.value})}
               rows={3}
-              className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-purple-500 resize-none"
+              // Focus Border Biru
+              className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[#3B82F6] resize-none"
             />
           </div>
 
-          {/* Preview */}
+          {/* Preview Box Biru */}
           {previewUrl && (
-            <div className="p-4 bg-purple-500/10 border border-purple-500 rounded-lg">
-              <p className="text-xs text-purple-500 mb-2">Preview foto baru:</p>
+            <div className="p-4 bg-[#3B82F6]/10 border border-[#3B82F6] rounded-lg">
+              <p className="text-xs text-[#3B82F6] mb-2">Preview foto baru:</p>
               <div className="flex gap-2">
                 <button 
                   onClick={handleSave}
                   disabled={isLoading}
-                  className="flex-1 py-2 bg-purple-500 text-white text-sm font-bold rounded-lg hover:bg-purple-600 disabled:opacity-50"
+                  // Tombol Biru
+                  className="flex-1 py-2 bg-[#3B82F6] text-white text-sm font-bold rounded-lg hover:bg-[#2563EB] disabled:opacity-50"
                 >
                   {isLoading ? 'Menyimpan...' : 'Simpan Foto'}
                 </button>
@@ -234,7 +241,8 @@ export default function AdminProfileEditor({ profile, userEmail }: AdminProfileE
           <button 
             onClick={handleSave}
             disabled={isLoading || !!previewUrl}
-            className="w-full py-3 bg-purple-500 text-white font-bold rounded-lg hover:bg-purple-600 disabled:opacity-50 transition-colors"
+            // Tombol Utama Biru
+            className="w-full py-3 bg-[#3B82F6] text-white font-bold rounded-lg hover:bg-[#2563EB] disabled:opacity-50 transition-colors"
           >
             {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>

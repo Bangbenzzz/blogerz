@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { toggleBanUser, changeUserRole, toggleVerified } from '@/app/actions' // DIUBAH: Import dari pusat
+import { toggleBanUser, changeUserRole, toggleVerified } from '@/app/actions'
 import VerifiedBadge from '@/components/VerifiedBadge'
 
 interface User {
@@ -64,12 +64,11 @@ export default function AdminUsersClient({
     setLoading(null)
   }
 
+  // PERBAIKAN HYDRATION: Gunakan format tanggal manual UTC
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    })
+    const d = new Date(date)
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`
   }
 
   return (
@@ -124,10 +123,10 @@ export default function AdminUsersClient({
                     {user.email}
                   </td>
 
-                  {/* Role */}
+                  {/* Role - Warna Biru untuk Admin */}
                   <td className="p-4 text-center">
                     {user.id === currentAdminId ? (
-                      <span className="px-2 py-1 text-[10px] font-bold bg-purple-500/20 text-purple-500 rounded">
+                      <span className="px-2 py-1 text-[10px] font-bold bg-[#3B82F6]/20 text-[#3B82F6] rounded">
                         ADMIN
                       </span>
                     ) : (
@@ -137,7 +136,7 @@ export default function AdminUsersClient({
                         disabled={loading === user.id}
                         className={`px-2 py-1 text-xs font-bold rounded border ${
                           user.role === 'ADMIN' 
-                            ? 'bg-purple-500/20 text-purple-500 border-purple-500/30' 
+                            ? 'bg-[#3B82F6]/20 text-[#3B82F6] border-[#3B82F6]/30' 
                             : 'bg-[var(--bg-main)] text-[var(--text-muted)] border-[var(--border-color)]'
                         }`}
                       >
@@ -163,13 +162,13 @@ export default function AdminUsersClient({
                   {/* Actions */}
                   <td className="p-4">
                     <div className="flex items-center justify-center gap-1">
-                      {/* Verified Button */}
+                      {/* Verified Button - Biru */}
                       <button
                         onClick={() => handleVerified(user.id, user.isVerified)}
                         disabled={loading === user.id}
                         className={`p-2 rounded transition-colors ${
                           user.isVerified 
-                            ? 'bg-blue-500/20 text-blue-500 hover:bg-blue-500/30' 
+                            ? 'bg-[#3B82F6]/20 text-[#3B82F6] hover:bg-[#3B82F6]/30' 
                             : 'bg-[var(--bg-main)] text-[var(--text-muted)] hover:bg-[var(--bg-card)]'
                         }`}
                         title={user.isVerified ? 'Hapus verified' : 'Beri verified'}
@@ -231,7 +230,7 @@ export default function AdminUsersClient({
         )}
       </div>
 
-      {/* User Detail Modal */}
+      {/* User Detail Modal - Complete Code */}
       {selectedUser && (
         <div 
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-4"
@@ -241,18 +240,61 @@ export default function AdminUsersClient({
             className="bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl max-w-md w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Konten Modal sama persis seperti kode sebelumnya, dipendekkan di sini agar respons tidak kepanjangan */}
-            {/* Anda bisa copy bagian modal dari kode lama Anda karena tidak ada perubahan logic di sana */}
             <div className="flex items-center gap-4 mb-6">
-               {/* ... Avatar ... */}
-               {/* ... Info ... */}
+              <div className="w-16 h-16 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center overflow-hidden flex-shrink-0">
+                {selectedUser.avatarUrl ? (
+                  <img src={selectedUser.avatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl font-bold text-[var(--text-muted)]">
+                    {selectedUser.name?.[0]?.toUpperCase() || '?'}
+                  </span>
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-[var(--text-main)]">
+                    {selectedUser.name || 'No Name'}
+                  </h3>
+                  {selectedUser.isVerified && <VerifiedBadge size="sm" />}
+                </div>
+                <p className="text-sm text-[var(--text-muted)]">@{selectedUser.username || 'no-username'}</p>
+              </div>
             </div>
+
             <div className="space-y-3 text-sm">
-               {/* ... Detail Data ... */}
+              <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
+                <span className="text-[var(--text-muted)]">Email</span>
+                <span className="text-[var(--text-main)] font-mono text-xs">{selectedUser.email}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
+                <span className="text-[var(--text-muted)]">Role</span>
+                <span className={`font-bold ${selectedUser.role === 'ADMIN' ? 'text-[#3B82F6]' : 'text-[var(--text-main)]'}`}>
+                  {selectedUser.role}
+                </span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
+                <span className="text-[var(--text-muted)]">Status</span>
+                <span className={`font-bold ${selectedUser.isBanned ? 'text-red-500' : 'text-green-500'}`}>
+                  {selectedUser.isBanned ? 'BANNED' : 'ACTIVE'}
+                </span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
+                <span className="text-[var(--text-muted)]">Bergabung</span>
+                <span className="text-[var(--text-main)]">{formatDate(selectedUser.createdAt)}</span>
+              </div>
+              {selectedUser.bio && (
+                <div className="pt-2">
+                  <span className="text-[var(--text-muted)] block mb-1">Bio</span>
+                  <p className="text-[var(--text-main)] bg-[var(--bg-card)] p-3 rounded-lg text-xs">
+                    {selectedUser.bio}
+                  </p>
+                </div>
+              )}
             </div>
+
             <button
               onClick={() => setSelectedUser(null)}
-              className="w-full mt-6 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg text-sm font-bold text-[var(--text-main)] hover:bg-[var(--accent)]/10 transition-colors"
+              className="w-full mt-6 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg text-sm font-bold text-[var(--text-main)] hover:bg-[#3B82F6]/10 hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors"
             >
               Tutup
             </button>

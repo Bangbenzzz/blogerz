@@ -148,8 +148,9 @@ export function AdminHeader({
       <div className="flex justify-between items-center py-3 px-4 md:px-[10%]">
         {/* LEFT: Title */}
         <div className="flex flex-col gap-0.5 flex-shrink-0">
-          <span className="text-[var(--accent)] font-mono text-[10px] tracking-widest uppercase">
-            {`// ADMIN_PANEL`}
+          {/* Warna Biru */}
+          <span className="text-[#3B82F6] font-mono text-[10px] tracking-widest uppercase">
+            {`// ADMIN PANEL`}
           </span>
           <h1 className="text-base md:text-xl font-extrabold uppercase tracking-tight text-[var(--text-main)]">
             {displayTitle}
@@ -173,8 +174,10 @@ export function AdminHeader({
                   href={item.href}
                   className={`py-1.5 px-3 text-[10px] font-mono font-bold uppercase tracking-wider border transition-all whitespace-nowrap ${
                     isActive
-                      ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent)]/10'
-                      : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
+                      // Active: Border Biru, Teks Biru
+                      ? 'border-[#3B82F6] text-[#3B82F6] bg-[#3B82F6]/10'
+                      // Hover: Border Biru, Teks Biru
+                      : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[#3B82F6] hover:text-[#3B82F6]'
                   }`}
                 >
                   {item.icon} {item.label}
@@ -248,7 +251,8 @@ export function AdminHeader({
       {isSearchExpanded && (
         <div ref={searchRef} className="md:hidden fixed top-[10px] left-[10px] right-[10px] z-[999]">
           {/* Search Input */}
-          <div className="h-[45px] flex items-center bg-[var(--bg-main)] border border-[var(--accent)] rounded-full px-[12px] shadow-lg">
+          {/* Border Biru */}
+          <div className="h-[45px] flex items-center bg-[var(--bg-main)] border border-[#3B82F6] rounded-full px-[12px] shadow-lg">
             <div className="text-[var(--text-muted)] flex-shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -265,7 +269,8 @@ export function AdminHeader({
               autoFocus
             />
             {isSearching && (
-              <div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin mr-2" />
+              // Spinner Biru
+              <div className="w-4 h-4 border-2 border-[#3B82F6] border-t-transparent rounded-full animate-spin mr-2" />
             )}
             <button
               onClick={handleCloseSearch}
@@ -335,8 +340,10 @@ export function AdminHeader({
                   href={item.href}
                   className={`py-3 px-3 text-sm font-mono font-bold uppercase tracking-wider border-l-2 transition-all ${
                     isActive
-                      ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent)]/10'
-                      : 'border-transparent text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
+                      // Active: Border Biru, Teks Biru
+                      ? 'border-[#3B82F6] text-[#3B82F6] bg-[#3B82F6]/10'
+                      // Hover: Border Biru, Teks Biru
+                      : 'border-transparent text-[var(--text-muted)] hover:border-[#3B82F6] hover:text-[#3B82F6]'
                   }`}
                 >
                   {item.icon} {item.label}

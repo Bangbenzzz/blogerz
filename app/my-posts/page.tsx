@@ -3,9 +3,9 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
-import SettingsEditor from './SettingsEditor'
+import ClientPostList from '../dashboard/ClientPostList'
 
-export default async function SettingsPage() {
+export default async function MyPostsPage() {
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,6 +21,16 @@ export default async function SettingsPage() {
 
   const profile = await prisma.profile.findUnique({
     where: { id: user.id }
+  })
+
+  // Ambil HANYA post milik user yang sedang login
+  const posts = await prisma.post.findMany({
+    where: { authorId: user.id },
+    include: { 
+      likes: true,
+      comments: true
+    },
+    orderBy: { createdAt: 'desc' }
   })
 
   return (
@@ -56,14 +66,15 @@ export default async function SettingsPage() {
         <div className="max-w-2xl mx-auto">
           <div className="mb-6">
             <h1 className="text-xl md:text-2xl font-black text-[var(--text-main)]">
-              Pengaturan Profil
+              Karya Saya
             </h1>
             <p className="text-sm text-[var(--text-muted)] mt-1">
-              Ubah foto profil, nama, dan bio kamu.
+              Daftar karya yang telah kamu buat.
             </p>
           </div>
 
-          <SettingsEditor profile={profile} userEmail={user.email || ''} />
+          {/* Menggunakan komponen yang sama dengan Dashboard */}
+          <ClientPostList initialPosts={posts} />
         </div>
       </main>
     </div>

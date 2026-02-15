@@ -35,12 +35,14 @@ export default function UserMenu({ userEmail, avatarUrl, username, name }: UserM
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 focus:outline-none group"
       >
-        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-[var(--border-color)] group-hover:border-[var(--accent)] transition-colors">
+        {/* Hover Border Biru */}
+        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-[var(--border-color)] group-hover:border-[#3B82F6] transition-colors">
           {avatarUrl ? (
             <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[var(--accent)] to-green-700 flex items-center justify-center">
-              <span className="text-sm font-bold text-black">
+            // Avatar Placeholder Biru
+            <div className="w-full h-full bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center">
+              <span className="text-sm font-bold text-white">
                 {displayName?.[0]?.toUpperCase() || 'U'}
               </span>
             </div>
@@ -74,7 +76,6 @@ export default function UserMenu({ userEmail, avatarUrl, username, name }: UserM
 
           {/* Menu Items */}
           <div className="py-2">
-            {/* UBAH: Dari /settings menjadi /dashboard */}
             <Link
               href="/dashboard"
               onClick={() => setIsOpen(false)}

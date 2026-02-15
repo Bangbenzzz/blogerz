@@ -70,8 +70,8 @@ export default function UserSearch() {
 
   return (
     <div ref={containerRef} className="relative">
-      {/* Desktop Search */}
-      <div className="hidden md:flex items-center bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full h-[36px] w-[220px] px-3 hover:border-[var(--accent)]/50 focus-within:border-[var(--accent)] transition-colors">
+      {/* Desktop Search - Border Biru saat Focus/Hover */}
+      <div className="hidden md:flex items-center bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full h-[36px] w-[220px] px-3 hover:border-[#3B82F6]/50 focus-within:border-[#3B82F6] transition-colors">
         <svg className="text-[var(--text-muted)] flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -84,15 +84,16 @@ export default function UserSearch() {
           className="bg-transparent border-none text-[var(--text-main)] text-[13px] pl-2 w-full h-full outline-none placeholder:text-[var(--text-muted)]"
         />
         {loading && (
-          <div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin"/>
+          // Spinner Biru
+          <div className="w-4 h-4 border-2 border-[#3B82F6] border-t-transparent rounded-full animate-spin"/>
         )}
       </div>
 
-      {/* Mobile Search Icon */}
+      {/* Mobile Search Icon - Hover Biru */}
       {!isExpanded && (
         <button
           onClick={() => setIsExpanded(true)}
-          className="flex md:hidden items-center justify-center w-9 h-9 text-[var(--text-main)] hover:text-[var(--accent)] transition-colors"
+          className="flex md:hidden items-center justify-center w-9 h-9 text-[var(--text-main)] hover:text-[#3B82F6] transition-colors"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"/>
@@ -101,10 +102,10 @@ export default function UserSearch() {
         </button>
       )}
 
-      {/* Mobile Expanded Search */}
+      {/* Mobile Expanded Search - Border Biru */}
       {isExpanded && (
         <div className="fixed top-[10px] left-[10px] right-[10px] z-[999] md:hidden">
-          <div className="h-[45px] flex items-center bg-[var(--bg-main)] border border-[var(--accent)] rounded-full px-3 shadow-lg">
+          <div className="h-[45px] flex items-center bg-[var(--bg-main)] border border-[#3B82F6] rounded-full px-3 shadow-lg">
             <svg className="text-[var(--text-muted)] flex-shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"/>
               <line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -119,7 +120,8 @@ export default function UserSearch() {
               autoFocus
             />
             {loading && (
-              <div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin mr-2"/>
+              // Spinner Biru
+              <div className="w-4 h-4 border-2 border-[#3B82F6] border-t-transparent rounded-full animate-spin mr-2"/>
             )}
             <button
               onClick={() => {

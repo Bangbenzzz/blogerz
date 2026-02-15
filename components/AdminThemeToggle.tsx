@@ -18,7 +18,8 @@ export default function AdminThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--accent)] transition-colors"
+      // Hover Border Biru
+      className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[#3B82F6] transition-colors"
       title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
     >
       {theme === 'dark' ? (

@@ -101,9 +101,10 @@ function Editor() {
         </div>
 
         <div className="flex items-center gap-2">
+             {/* Tombol Biru */}
              <button 
                onClick={handlePublish} 
-               className="bg-[var(--accent)] text-black px-6 py-2 text-sm font-bold rounded-full hover:bg-white transition-all disabled:opacity-50" 
+               className="bg-[#3B82F6] text-white px-6 py-2 text-sm font-bold rounded-full hover:bg-[#2563EB] transition-all disabled:opacity-50" 
                disabled={loading || !title}
              >
                {loading 

@@ -25,21 +25,18 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
     window.location.reload()
   }
 
+  // PERBAIKAN HYDRATION: Gunakan format tanggal manual UTC
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    })
+    const d = new Date(date)
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`
   }
 
   const formatFullDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('id-ID', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+    const d = new Date(date)
+    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+    return `${days[d.getUTCDay()]}, ${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`
   }
 
   return (
@@ -91,8 +88,8 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
               {user.isVerified && <VerifiedBadge size="lg" />}
             </div>
             
-            {/* Username */}
-            <p className="text-[var(--accent)] font-mono text-base mb-2">
+            {/* Username - Diubah ke Biru */}
+            <p className="text-[#3B82F6] font-mono text-base mb-2">
               @{user.username || 'no-username'}
             </p>
             
@@ -101,11 +98,11 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
               {user.email}
             </p>
             
-            {/* Badges */}
+            {/* Badges - Diubah ke Biru untuk Admin/Role */}
             <div className="flex gap-2 flex-wrap justify-center">
               <span className={`px-3 py-1 text-[11px] font-bold rounded-full ${
                 user.role === 'ADMIN' 
-                  ? 'bg-[var(--accent)]/20 text-[var(--accent)] border border-[var(--accent)]' 
+                  ? 'bg-[#3B82F6]/20 text-[#3B82F6] border border-[#3B82F6]' 
                   : 'bg-blue-500/20 text-blue-500 border border-blue-500'
               }`}>
                 {user.role}
@@ -227,7 +224,7 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
                           </div>
                         )}
 
-                        {/* Form Komentar Admin */}
+                        {/* Form Komentar Admin - Diubah ke Biru */}
                         <div className="border-t border-[var(--border-color)] pt-4 mt-4">
                           <div className="flex gap-2">
                             <input
@@ -235,12 +232,14 @@ export default function UserDetailModal({ user, onClose }: UserDetailModalProps)
                               placeholder="Tulis komentar sebagai Admin..."
                               value={commentText}
                               onChange={(e) => setCommentText(e.target.value)}
-                              className="flex-grow bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent)]"
+                              // Focus border Biru
+                              className="flex-grow bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[#3B82F6]"
                             />
                             <button
                               onClick={() => handleComment(post.id)}
                               disabled={!commentText.trim() || commentingPost === post.id}
-                              className="px-4 py-2 bg-blue-500 text-white text-sm font-bold rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors flex-shrink-0"
+                              // Tombol Biru
+                              className="px-4 py-2 bg-[#3B82F6] text-white text-sm font-bold rounded-lg hover:bg-[#2563EB] disabled:opacity-50 transition-colors flex-shrink-0"
                             >
                               {commentingPost === post.id ? '...' : 'Kirim'}
                             </button>

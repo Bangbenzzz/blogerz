@@ -171,7 +171,8 @@ export default function ProfileEditor({ profile, userEmail }: { profile: any, us
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
               placeholder="Nama kamu"
-              className="bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] p-2 rounded-md text-sm outline-none focus:border-[var(--accent)] w-full"
+              // Focus Border Biru
+              className="bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] p-2 rounded-md text-sm outline-none focus:border-[#3B82F6] w-full"
             />
           </div>
 
@@ -182,7 +183,8 @@ export default function ProfileEditor({ profile, userEmail }: { profile: any, us
               value={formData.username}
               onChange={(e) => setFormData({...formData, username: e.target.value})}
               placeholder="username_unik"
-              className="bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] p-2 rounded-md text-sm outline-none focus:border-[var(--accent)] w-full"
+              // Focus Border Biru
+              className="bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] p-2 rounded-md text-sm outline-none focus:border-[#3B82F6] w-full"
             />
           </div>
 
@@ -192,12 +194,14 @@ export default function ProfileEditor({ profile, userEmail }: { profile: any, us
               value={formData.bio}
               onChange={(e) => setFormData({...formData, bio: e.target.value})}
               placeholder="Ceritakan sedikit tentang dirimu..."
-              className="bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] p-2 rounded-md text-sm outline-none focus:border-[var(--accent)] w-full h-[70px] resize-none"
+              // Focus Border Biru
+              className="bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] p-2 rounded-md text-sm outline-none focus:border-[#3B82F6] w-full h-[70px] resize-none"
             />
           </div>
 
           <button 
-            className="self-start py-2 px-5 bg-[var(--text-main)] text-[var(--bg-main)] rounded-full font-bold text-sm cursor-pointer hover:opacity-90 disabled:opacity-50 transition-opacity mt-1"
+            // Tombol Biru
+            className="self-start py-2 px-5 bg-[#3B82F6] text-white rounded-full font-bold text-sm cursor-pointer hover:bg-[#2563EB] disabled:opacity-50 transition-opacity mt-1"
             onClick={handleSaveWithUpload}
             disabled={isLoading}
           >
@@ -222,7 +226,8 @@ export default function ProfileEditor({ profile, userEmail }: { profile: any, us
                 Batal
               </button>
               <button 
-                className="flex-1 py-2 rounded-full font-bold text-xs bg-[var(--text-main)] text-[var(--bg-main)] border-none"
+                // Tombol Biru
+                className="flex-1 py-2 rounded-full font-bold text-xs bg-[#3B82F6] text-white border-none hover:bg-[#2563EB]"
                 onClick={handleSaveWithUpload}
                 disabled={isLoading}
               >

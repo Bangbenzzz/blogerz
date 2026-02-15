@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { adminComment } from '../users/actions'
+import { adminComment } from '../users/actions' // Sesuaikan path jika berbeda
 import VerifiedBadge from '@/components/VerifiedBadge'
 
 interface Post {
@@ -58,12 +58,12 @@ export default function AdminDashboardClient({
     router.refresh()
   }
 
+  // PERBAIKAN HYDRATION: Gunakan format tanggal manual UTC
+  // Ini mencegah perbedaan render antara Server (UTC) dan Client (Local)
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    })
+    const d = new Date(date)
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`
   }
 
   if (posts.length === 0) {
@@ -79,7 +79,7 @@ export default function AdminDashboardClient({
       {posts.map((post) => (
         <div 
           key={post.id} 
-          className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden transition-all duration-300 hover:border-[var(--accent)]/30"
+          className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden transition-all duration-300 hover:border-[#3B82F6]/30"
         >
           {/* Post Header */}
           <div className="p-5">
@@ -125,13 +125,15 @@ export default function AdminDashboardClient({
                 )}
 
                 <div className="flex items-center gap-4 mt-3 text-xs text-[var(--text-muted)] flex-wrap">
-                  <span> {formatDate(post.createdAt)}</span>
+                  {/* Penyebab Error Hydration ada di baris ini, sekarang sudah aman */}
+                  <span>📅 {formatDate(post.createdAt)}</span>
                   <span>💬 {post.comments.length} komentar</span>
                   <span>❤️ {post.likes.length} likes</span>
                   
                   <button
                     onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
-                    className="text-[var(--accent)] hover:underline font-bold flex items-center gap-1 group"
+                    // Warna Biru
+                    className="text-[#3B82F6] hover:underline font-bold flex items-center gap-1 group"
                   >
                     {expandedPost === post.id ? (
                       <>
@@ -154,11 +156,10 @@ export default function AdminDashboardClient({
             </div>
           </div>
 
-          {/* Expanded Content - STYLING DIPERBAIKI */}
+          {/* Expanded Content */}
           {expandedPost === post.id && (
             <div className="border-t border-[var(--border-color)] bg-[var(--bg-main)]/80 backdrop-blur-sm animate-in slide-in-from-top-2 duration-300">
               
-              {/* Container Utama dengan Padding & Gap */}
               <div className="p-6 space-y-6">
                 
                 {/* Bagian Konten Penuh */}
@@ -167,7 +168,8 @@ export default function AdminDashboardClient({
                     <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <div className="relative p-5 bg-[var(--bg-card)] rounded-xl border border-[var(--border-color)] shadow-sm">
                       <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse"></div>
+                        {/* Dot Biru */}
+                        <div className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse"></div>
                         <h4 className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                           Isi Lengkap Postingan
                         </h4>
@@ -183,7 +185,8 @@ export default function AdminDashboardClient({
                 <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border-color)] overflow-hidden shadow-sm">
                   <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent)]">
+                      {/* Icon Biru */}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#3B82F6]">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                       </svg>
                       <h4 className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wide">
@@ -197,8 +200,8 @@ export default function AdminDashboardClient({
                       <div className="space-y-4">
                         {post.comments.map((comment) => (
                           <div key={comment.id} className="flex gap-3 p-3 rounded-lg hover:bg-[var(--bg-main)]/50 transition-colors group relative">
-                            {/* Garis dekoratif kiri */}
-                            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-transparent group-hover:bg-[var(--accent)]/20 transition-colors rounded-full"></div>
+                            {/* Garis dekoratif kiri Biru */}
+                            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-transparent group-hover:bg-[#3B82F6]/20 transition-colors rounded-full"></div>
                             
                             <div className="w-8 h-8 rounded-full overflow-hidden bg-[var(--bg-main)] border border-[var(--border-color)] flex-shrink-0 flex items-center justify-center shadow-sm">
                               {comment.author.avatarUrl ? (
@@ -219,7 +222,8 @@ export default function AdminDashboardClient({
                                   • {formatDate(comment.createdAt)}
                                 </span>
                                 {comment.author.id === adminId && (
-                                  <span className="text-[9px] bg-purple-500/20 text-purple-500 px-2 py-0.5 rounded-full font-bold border border-purple-500/30">
+                                  // Badge Admin Biru
+                                  <span className="text-[9px] bg-[#3B82F6]/20 text-[#3B82F6] px-2 py-0.5 rounded-full font-bold border border-[#3B82F6]/30">
                                     ADMIN
                                   </span>
                                 )}
@@ -244,24 +248,24 @@ export default function AdminDashboardClient({
                 </div>
 
                 {/* Form Komentar Admin */}
-                <div className="bg-gradient-to-r from-purple-500/5 to-blue-500/5 border border-purple-500/20 rounded-xl p-4">
+                <div className="bg-gradient-to-r from-[#3B82F6]/5 to-blue-500/5 border border-[#3B82F6]/20 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-500">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#3B82F6]">
                       <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
                       <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
                       <path d="M2 2l7.586 7.586"></path>
                       <circle cx="11" cy="11" r="2"></circle>
                     </svg>
-                    <h4 className="text-xs font-bold text-purple-500 uppercase tracking-wide">
+                    <h4 className="text-xs font-bold text-[#3B82F6] uppercase tracking-wide">
                       Komentar sebagai Admin
                     </h4>
                   </div>
                   <div className="flex gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-purple-500/10 border border-purple-500/30 flex-shrink-0 flex items-center justify-center shadow-inner">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-[#3B82F6]/10 border border-[#3B82F6]/30 flex-shrink-0 flex items-center justify-center shadow-inner">
                       {adminProfile?.avatarUrl ? (
                         <img src={adminProfile.avatarUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-sm font-bold text-purple-500">A</span>
+                        <span className="text-sm font-bold text-[#3B82F6]">A</span>
                       )}
                     </div>
                     <div className="flex-grow flex gap-2">
@@ -270,12 +274,14 @@ export default function AdminDashboardClient({
                         placeholder="Tulis komentar atau peringatan..."
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
-                        className="flex-grow bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg px-4 py-2.5 text-sm text-[var(--text-main)] outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all placeholder:text-[var(--text-muted)]"
+                        // Focus ring Biru
+                        className="flex-grow bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg px-4 py-2.5 text-sm text-[var(--text-main)] outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-all placeholder:text-[var(--text-muted)]"
                       />
                       <button
                         onClick={() => handleComment(post.id)}
                         disabled={!commentText.trim() || loading === post.id}
-                        className="px-6 py-2.5 bg-purple-500 text-white text-sm font-bold rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 flex items-center gap-2"
+                        // Tombol Biru
+                        className="px-6 py-2.5 bg-[#3B82F6] text-white text-sm font-bold rounded-lg hover:bg-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-[#3B82F6]/20 hover:shadow-[#3B82F6]/40 flex items-center gap-2"
                       >
                         {loading === post.id ? (
                           <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

@@ -39,11 +39,12 @@ export default async function DashboardPage() {
       <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
         <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--accent)] to-green-700 flex items-center justify-center">
-              <span className="text-black font-black text-lg">H</span>
+            {/* Logo Biru */}
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <span className="text-white font-black text-lg">H</span>
             </div>
             <span className="font-extrabold text-lg md:text-xl text-[var(--text-main)] hidden sm:block">
-              HABIB<span className="text-[var(--accent)]">BLOG</span>
+              HABIB<span className="text-[#3B82F6]">BLOG</span>
             </span>
           </Link>
 
@@ -51,7 +52,8 @@ export default async function DashboardPage() {
             {user.email === process.env.ADMIN_EMAIL && (
               <Link 
                 href="/admin" 
-                className="hidden sm:flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-500 py-2 px-4 text-[11px] font-bold rounded-full hover:bg-purple-500 hover:text-white transition-all"
+                // Tombol Admin Biru
+                className="hidden sm:flex items-center gap-2 bg-[#3B82F6]/10 border border-[#3B82F6]/30 text-[#3B82F6] py-2 px-4 text-[11px] font-bold rounded-full hover:bg-[#3B82F6] hover:text-white transition-all"
               >
                 Admin
               </Link>
@@ -59,7 +61,8 @@ export default async function DashboardPage() {
 
             <Link
               href="/create"
-              className="flex items-center gap-1.5 bg-[var(--accent)] text-black py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-white transition-all"
+              // Tombol Buat Karya Biru
+              className="flex items-center gap-1.5 bg-[#3B82F6] text-white py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-[#2563EB] transition-all"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="12" y1="5" x2="12" y2="19"/>
@@ -89,8 +92,9 @@ export default async function DashboardPage() {
                 {profile?.avatarUrl ? (
                   <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[var(--accent)] to-green-700 flex items-center justify-center">
-                    <span className="text-3xl font-black text-black">
+                  // Avatar Placeholder Biru
+                  <div className="w-full h-full bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center">
+                    <span className="text-3xl font-black text-white">
                       {profile?.name?.[0]?.toUpperCase() || 'U'}
                     </span>
                   </div>
@@ -114,7 +118,8 @@ export default async function DashboardPage() {
 
             <Link
               href="/settings"
-              className="inline-flex items-center gap-2 bg-[var(--bg-main)] border border-[var(--border-color)] py-2 px-4 text-sm font-bold rounded-full hover:border-[var(--accent)] transition-colors"
+              // Hover Border Biru
+              className="inline-flex items-center gap-2 bg-[var(--bg-main)] border border-[var(--border-color)] py-2 px-4 text-sm font-bold rounded-full hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="3"/>
@@ -154,7 +159,8 @@ export default async function DashboardPage() {
               <p className="text-[var(--text-muted)] mb-4">Belum ada karya.</p>
               <Link
                 href="/create"
-                className="inline-flex items-center gap-2 bg-[var(--accent)] text-black py-2 px-5 text-sm font-bold rounded-full hover:bg-white transition-all"
+                // Tombol Biru
+                className="inline-flex items-center gap-2 bg-[#3B82F6] text-white py-2 px-5 text-sm font-bold rounded-full hover:bg-[#2563EB] transition-all"
               >
                 Buat Karya Pertama
               </Link>
@@ -164,7 +170,8 @@ export default async function DashboardPage() {
               {posts.map((post) => (
                 <div 
                   key={post.id}
-                  className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4 hover:border-[var(--accent)]/30 transition-colors"
+                  // Hover Border Biru
+                  className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4 hover:border-[#3B82F6]/30 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">

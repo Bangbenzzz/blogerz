@@ -39,7 +39,7 @@ export default async function AdminUsersPage() {
       />
       
       <div className="px-4 md:px-[10%] mt-6">
-        {/* UBAH: users -> initialUsers, adminId -> currentAdminId */}
+        {/* Props sudah sesuai dengan yang dibutuhkan Client Component */}
         <AdminUsersClient initialUsers={users} currentAdminId={user.id} />
       </div>
     </div>

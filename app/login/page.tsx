@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '../../lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 
 export default function LoginPage() {
@@ -60,7 +60,8 @@ export default function LoginPage() {
       
       <div className="flex flex-col items-center text-center w-full max-w-md">
         
-        <div className="text-[var(--accent)] font-mono text-[11px] tracking-widest mb-4 uppercase">
+        {/* Warna Biru Tidak Terang #3B82F6 */}
+        <div className="text-[#3B82F6] font-mono text-[11px] tracking-widest mb-4 uppercase">
           // Welcome Back
         </div>
 
@@ -73,7 +74,8 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="flex flex-col gap-8 w-full">
           
-          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[var(--accent)] text-left">
+          {/* Border focus biru */}
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[#3B82F6] text-left">
             <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
               Email Address
             </label>
@@ -87,7 +89,8 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[var(--accent)] text-left">
+          {/* Border focus biru */}
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[#3B82F6] text-left">
             <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
               Password
             </label>
@@ -103,9 +106,10 @@ export default function LoginPage() {
 
           {errorMsg && <div className="text-red-500 text-[11px] font-mono -mt-4 text-center">[!] {errorMsg}</div>}
 
+          {/* Tombol Sign In Biru */}
           <button 
             type="submit" 
-            className="bg-[var(--accent)] text-black py-3 px-10 font-bold text-xs uppercase transition-all tracking-widest w-full mt-2 hover:bg-[var(--text-main)] hover:shadow-[0_0_25px_rgba(20,255,0,0.3)] disabled:opacity-50"
+            className="bg-[#3B82F6] text-white py-3 px-10 font-bold text-xs uppercase transition-all tracking-widest w-full mt-2 hover:bg-[#2563EB] hover:shadow-[0_0_25px_rgba(59,130,246,0.3)] disabled:opacity-50"
             disabled={loading}
           >
             {loading ? 'Processing...' : 'Sign In'}
@@ -120,9 +124,10 @@ export default function LoginPage() {
 
         <div className="flex justify-between items-center gap-4 w-full">
           
+          {/* Hover border biru */}
           <button 
             onClick={() => handleSocialLogin('google')} 
-            className="flex-1 flex items-center justify-center gap-2 bg-transparent border border-[var(--border-color)] text-[var(--text-main)] py-3 text-xs font-bold transition-all font-mono hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            className="flex-1 flex items-center justify-center gap-2 bg-transparent border border-[var(--border-color)] text-[var(--text-main)] py-3 text-xs font-bold transition-all font-mono hover:border-[#3B82F6] hover:text-[#3B82F6]"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -133,9 +138,10 @@ export default function LoginPage() {
             GOOGLE
           </button>
           
+          {/* Hover border biru */}
           <button 
             onClick={() => handleSocialLogin('github')} 
-            className="flex-1 flex items-center justify-center gap-2 bg-transparent border border-[var(--border-color)] text-[var(--text-main)] py-3 text-xs font-bold transition-all font-mono hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            className="flex-1 flex items-center justify-center gap-2 bg-transparent border border-[var(--border-color)] text-[var(--text-main)] py-3 text-xs font-bold transition-all font-mono hover:border-[#3B82F6] hover:text-[#3B82F6]"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
@@ -144,8 +150,9 @@ export default function LoginPage() {
           </button>
         </div>
 
+        {/* Link warna biru */}
         <div className="mt-10 text-[11px] text-[var(--text-muted)] font-mono">
-          New here? <Link href="/register" className="text-[var(--accent)] no-underline font-bold ml-1 hover:underline">Create an account</Link>
+          New here? <Link href="/register" className="text-[#3B82F6] no-underline font-bold ml-1 hover:underline">Create an account</Link>
         </div>
       </div>
     </div>

@@ -51,12 +51,11 @@ export default function CommentSection({ postId, comments, currentUserId, isAdmi
     }
   }
 
+  // PERBAIKAN HYDRATION: Format tanggal manual UTC
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    })
+    const d = new Date(date)
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`
   }
 
   return (
@@ -68,12 +67,14 @@ export default function CommentSection({ postId, comments, currentUserId, isAdmi
           placeholder="Tulis komentar..."
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
-          className="flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent)] transition-colors"
+          // Focus Border Biru
+          className="flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[#3B82F6] transition-colors"
         />
         <button
           type="submit"
           disabled={!commentText.trim() || loading}
-          className="px-5 py-2 bg-[var(--accent)] text-black text-sm font-bold rounded-full hover:bg-white disabled:opacity-50 transition-all"
+          // Tombol Biru
+          className="px-5 py-2 bg-[#3B82F6] text-white text-sm font-bold rounded-full hover:bg-[#2563EB] disabled:opacity-50 transition-all"
         >
           {loading ? '...' : 'Kirim'}
         </button>

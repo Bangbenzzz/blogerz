@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { approvePost, deletePost } from '@/app/actions' // DIUBAH: Import dari pusat
+import { approvePost, deletePost } from '@/app/actions'
 import VerifiedBadge from '@/components/VerifiedBadge'
 
 interface Post {
@@ -60,12 +60,12 @@ export default function AdminPostsClient({
     window.location.reload()
   }
 
+  // PERBAIKAN HYDRATION: Format tanggal manual menggunakan UTC
+  // Ini mencegah perbedaan render antara Server dan Client
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    })
+    const d = new Date(date)
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`
   }
 
   if (posts.length === 0) {
@@ -133,7 +133,8 @@ export default function AdminPostsClient({
                   
                   <button
                     onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
-                    className="text-[var(--accent)] hover:underline font-bold"
+                    // Diubah ke Biru (#3B82F6)
+                    className="text-[#3B82F6] hover:underline font-bold"
                   >
                     {expandedPost === post.id ? 'Tutup ▲' : 'Detail ▼'}
                   </button>
@@ -145,7 +146,7 @@ export default function AdminPostsClient({
                     <button
                       onClick={() => handleApprove(post.id)}
                       disabled={loading === post.id}
-                      className="px-4 py-1.5 bg-green-500 text-white text-xs font-bold rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors"
+                      className="px-4 py-1.5 bg-[#3B82F6] text-white text-xs font-bold rounded-lg hover:bg-[#2563EB] disabled:opacity-50 transition-colors"
                     >
                       {loading === post.id ? '...' : '✓ Approve'}
                     </button>
@@ -202,7 +203,8 @@ export default function AdminPostsClient({
                               {formatDate(comment.createdAt)}
                             </span>
                             {comment.author.id === adminId && (
-                              <span className="text-[9px] bg-purple-500/20 text-purple-500 px-1.5 py-0.5 rounded font-bold">
+                              // Diubah ke Biru (#3B82F6)
+                              <span className="text-[9px] bg-[#3B82F6]/20 text-[#3B82F6] px-1.5 py-0.5 rounded font-bold">
                                 ADMIN
                               </span>
                             )}

@@ -62,9 +62,10 @@ export default async function AdminPage() {
             <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase">Published</span>
             <div className="text-lg font-bold text-green-500">{posts.filter(p => p.published).length}</div>
           </div>
-          <div className="bg-[var(--bg-card)] border border-orange-500/30 px-4 py-2 rounded-lg">
+          {/* Menambahkan warna biru pada statistik Comments untuk konsistensi dengan Dashboard */}
+          <div className="bg-[var(--bg-card)] border border-[#3B82F6]/30 px-4 py-2 rounded-lg">
             <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase">Pending</span>
-            <div className="text-lg font-bold text-orange-500">{pendingCount}</div>
+            <div className="text-lg font-bold text-[#3B82F6]">{pendingCount}</div>
           </div>
         </div>
       </div>

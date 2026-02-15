@@ -6,9 +6,9 @@ interface VerifiedBadgeProps {
 
 export default function VerifiedBadge({ size = 'md' }: VerifiedBadgeProps) {
   const sizePx = {
-    sm: 16,
-    md: 20,
-    lg: 24
+    sm: 14, // Sedikit diperkecil agar proporsional dengan teks
+    md: 18,
+    lg: 22
   }
 
   return (
@@ -17,7 +17,8 @@ export default function VerifiedBadge({ size = 'md' }: VerifiedBadgeProps) {
       alt="Verified" 
       width={sizePx[size]}
       height={sizePx[size]}
-      className="inline-block"
+      // Ditambahkan margin negatif ke kiri (-ml-0.5) agar lebih dekat dengan nama
+      className="inline-block -ml-0.5" 
       style={{ width: sizePx[size], height: sizePx[size] }}
     />
   )

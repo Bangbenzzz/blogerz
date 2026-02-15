@@ -19,7 +19,7 @@ interface Props {
   post: Post
   currentUserId: string
   currentProfile: any
-  userEmail?: string | null // Ditambahkan
+  userEmail?: string | null
 }
 
 export default function PostDetailClient({ post, currentUserId, currentProfile, userEmail }: Props) {
@@ -82,8 +82,11 @@ export default function PostDetailClient({ post, currentUserId, currentProfile, 
     }
   }
 
+  // PERBAIKAN HYDRATION: Format tanggal manual UTC
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+    const d = new Date(date)
+    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+    return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`
   }
 
   return (
@@ -112,13 +115,15 @@ export default function PostDetailClient({ post, currentUserId, currentProfile, 
           {/* Author Info */}
           <div className="flex items-center gap-3 mb-6">
             <Link href={`/user/${post.author.username || post.author.id}`}>
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 border-[var(--border-color)] hover:border-[var(--accent)] transition-colors">
+              {/* Hover Border Biru */}
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 border-[var(--border-color)] hover:border-[#3B82F6] transition-colors">
                 {post.author.avatarUrl ? <img src={post.author.avatarUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center"><span className="text-lg font-bold text-white">{post.author.name?.[0]?.toUpperCase() || '?'}</span></div>}
               </div>
             </Link>
             <div>
               <div className="flex items-center gap-1.5">
-                <Link href={`/user/${post.author.username || post.author.id}`} className="font-bold text-[var(--text-main)] hover:text-[var(--accent)] transition-colors">{post.author.name || 'Anonymous'}</Link>
+                {/* Hover Text Biru */}
+                <Link href={`/user/${post.author.username || post.author.id}`} className="font-bold text-[var(--text-main)] hover:text-[#3B82F6] transition-colors">{post.author.name || 'Anonymous'}</Link>
                 {post.author.isVerified && <VerifiedBadge size="sm" />}
               </div>
               <p className="text-sm text-[var(--text-muted)]">@{post.author.username || 'user'} • {formatDate(post.createdAt)}</p>
@@ -142,11 +147,14 @@ export default function PostDetailClient({ post, currentUserId, currentProfile, 
           <div className="mb-8">
             <form onSubmit={handleComment} className="flex gap-3">
               <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--border-color)] flex-shrink-0">
-                {currentProfile?.avatarUrl ? <img src={currentProfile.avatarUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[var(--accent)] to-green-700 flex items-center justify-center"><span className="text-sm font-bold text-black">{currentProfile?.name?.[0]?.toUpperCase() || 'U'}</span></div>}
+                {/* Avatar Placeholder Biru */}
+                {currentProfile?.avatarUrl ? <img src={currentProfile.avatarUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center"><span className="text-sm font-bold text-white">{currentProfile?.name?.[0]?.toUpperCase() || 'U'}</span></div>}
               </div>
               <div className="flex-1 flex gap-2">
-                <input type="text" placeholder="Tulis komentar..." value={commentText} onChange={(e) => setCommentText(e.target.value)} className="flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent)] transition-colors" />
-                <button type="submit" disabled={!commentText.trim() || loading} className="px-5 py-2 bg-[var(--accent)] text-black text-sm font-bold rounded-full hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all">Kirim</button>
+                {/* Focus Border Biru */}
+                <input type="text" placeholder="Tulis komentar..." value={commentText} onChange={(e) => setCommentText(e.target.value)} className="flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[#3B82F6] transition-colors" />
+                {/* Tombol Kirim Biru */}
+                <button type="submit" disabled={!commentText.trim() || loading} className="px-5 py-2 bg-[#3B82F6] text-white text-sm font-bold rounded-full hover:bg-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed transition-all">Kirim</button>
               </div>
             </form>
           </div>
@@ -156,7 +164,7 @@ export default function PostDetailClient({ post, currentUserId, currentProfile, 
             <div className="space-y-4">
               {comments.map((comment) => {
                 const isOwner = comment.author.id === currentUserId;
-                const canDelete = isOwner || isAdmin; // Logic Admin
+                const canDelete = isOwner || isAdmin;
                 return (
                   <div key={comment.id} className="flex gap-3">
                     <Link href={`/user/${comment.author.username || comment.author.id}`}>
@@ -167,7 +175,8 @@ export default function PostDetailClient({ post, currentUserId, currentProfile, 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <Link href={`/user/${comment.author.username || comment.author.id}`} className="text-sm font-bold text-[var(--text-main)] hover:text-[var(--accent)] transition-colors">{comment.author.name || 'Anonymous'}</Link>
+                           {/* Hover Text Biru */}
+                          <Link href={`/user/${comment.author.username || comment.author.id}`} className="text-sm font-bold text-[var(--text-main)] hover:text-[#3B82F6] transition-colors">{comment.author.name || 'Anonymous'}</Link>
                           {comment.author.isVerified && <VerifiedBadge size="sm" />}
                           <span className="text-xs text-[var(--text-muted)]">• {formatDate(comment.createdAt)}</span>
                         </div>
