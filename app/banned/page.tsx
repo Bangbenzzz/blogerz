@@ -23,7 +23,7 @@ export default function BannedPage() {
       <div className="flex flex-col sm:flex-row gap-3">
         {/* Tombol WhatsApp Admin */}
         <a 
-          href="https://wa.me/6281234567890" // GANTI DENGAN NOMOR ADMIN ANDA
+          href="https://wa.me/6285932402797" // GANTI DENGAN NOMOR ADMIN ANDA
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-green-500 text-white py-3 px-6 font-bold rounded-full hover:bg-green-600 transition-all shadow-lg"
