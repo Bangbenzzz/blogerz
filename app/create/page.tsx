@@ -1,62 +1,219 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
-import prisma from '@/lib/prisma'
-import Link from 'next/link'
-import CreatePostClient from './CreatePostClient'
+'use client'
 
-export default async function CreatePostPage() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
+import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { createBrowserClient } from '@supabase/ssr'
+import { compressImage } from '@/lib/compressor' // Import helper kompres
+
+export default function CreatePostPage() {
+  const router = useRouter()
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  
+  // State untuk info kompresi
+  const [originalSize, setOriginalSize] = useState<string | null>(null)
+  const [compressedSize, setCompressedSize] = useState<string | null>(null)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll() { return cookieStore.getAll() } } }
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
+  // Fungsi Format Ukuran File
+  const formatBytes = (bytes: number, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
   }
 
-  const profile = await prisma.profile.findUnique({
-    where: { id: user.id }
-  })
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+    
+    const file = e.target.files[0]
+    
+    // 1. Tampilkan ukuran asli
+    setOriginalSize(formatBytes(file.size))
+    setCompressedSize(null) // Reset ukuran kompresi
+
+    setUploading(true)
+
+    try {
+      // 2. Kompres gambar
+      // Maksimal lebar 1920px, kualitas 80%
+      const compressedFile = await compressImage(file, {
+        maxWidth: 1920,
+        maxHeight: 1080,
+        quality: 0.8
+      })
+
+      // 3. Tampilkan ukuran setelah kompresi
+      setCompressedSize(formatBytes(compressedFile.size))
+
+      // 4. Upload ke Supabase
+      const fileExt = compressedFile.name.split('.').pop()
+      const fileName = `${Date.now()}.${fileExt}`
+      const filePath = `thumbnails/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars') // Pakai bucket yang sama atau buat baru
+        .upload(filePath, compressedFile, { cacheControl: '3600', upsert: false })
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath)
+
+      setImageUrl(publicUrl)
+      
+    } catch (error) {
+      console.error(error)
+      alert('Gagal mengunggah gambar.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!title.trim()) return alert('Judul wajib diisi!')
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, imageUrl })
+      })
+
+      if (res.ok) {
+        alert('Karya berhasil dipublikasikan!')
+        router.push('/')
+        router.refresh()
+      } else {
+        alert('Gagal mempublikasikan karya.')
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-transparent text-[var(--text-main)] pb-20">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
-        <div className="flex justify-between items-center px-4 md:px-[5%] py-3">
-          
-          {/* Logo - Ukuran Standar */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden">
-              <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
-            </div>
-            
-            {/* Teks CERMATI */}
-            <span className="font-extrabold text-lg md:text-xl">
-              <span className="text-white">CER</span>
-              <span className="text-[#3B82F6]">MATI</span>
-            </span>
-          </Link>
-
-          <Link 
-            href="/" 
-            className="text-xs font-mono text-[var(--text-muted)] hover:text-[#3B82F6] transition-colors flex items-center gap-1"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-            Batal
-          </Link>
+    <div className="min-h-screen bg-transparent py-10">
+      <div className="max-w-2xl mx-auto px-4">
+        
+        <div className="mb-8">
+          <h1 className="text-3xl font-black text-[var(--text-main)] uppercase">Buat Karya Baru</h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1">Bagikan ide kreatifmu kepada dunia.</p>
         </div>
-      </header>
 
-      {/* Content */}
-      <CreatePostClient userId={user.id} profile={profile} />
+        <form onSubmit={handleSubmit} className="space-y-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-6">
+          
+          {/* Input Judul */}
+          <div>
+            <label className="text-xs font-bold text-[var(--text-muted)] uppercase mb-2 block">Judul</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Judul yang menarik..."
+              className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg px-4 py-3 outline-none focus:border-[#3B82F6] transition-colors"
+              required
+            />
+          </div>
+
+          {/* Input Konten */}
+          <div>
+            <label className="text-xs font-bold text-[var(--text-muted)] uppercase mb-2 block">Konten</label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={8}
+              placeholder="Tuliskan ceritamu di sini..."
+              className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg px-4 py-3 outline-none focus:border-[#3B82F6] transition-colors resize-none"
+            />
+          </div>
+
+          {/* Upload Gambar */}
+          <div>
+            <label className="text-xs font-bold text-[var(--text-muted)] uppercase mb-2 block">Gambar (Opsional)</label>
+            
+            <div className="flex gap-3 items-center">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="px-4 py-2 border border-[var(--border-color)] text-[var(--text-muted)] text-sm font-bold rounded-lg hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors disabled:opacity-50"
+              >
+                {uploading ? 'Memproses...' : 'Pilih Gambar'}
+              </button>
+              
+              {/* Info Kompresi */}
+              {originalSize && (
+                <div className="text-xs text-[var(--text-muted)] flex items-center gap-2">
+                  <span className="line-through opacity-50">{originalSize}</span>
+                  <span>→</span>
+                  <span className="text-green-500 font-bold">{compressedSize || '...'}</span>
+                </div>
+              )}
+            </div>
+
+            <input 
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            {/* Preview Gambar */}
+            {imageUrl && (
+              <div className="mt-4 relative group">
+                <img 
+                  src={imageUrl} 
+                  alt="Preview" 
+                  className="w-full max-h-[400px] object-cover rounded-lg border border-[var(--border-color)]"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageUrl('')
+                    setOriginalSize(null)
+                    setCompressedSize(null)
+                  }}
+                  className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  Hapus
+                </button>
+              </div>
+            )}
+            
+            <p className="text-[10px] text-[var(--text-muted)] mt-2">
+              *Gambar akan otomatis dikecilkan (max 1920px) & diubah ke format WebP untuk performa terbaik.
+            </p>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading || uploading}
+            className="w-full bg-[#3B82F6] text-white py-3 rounded-lg font-bold hover:bg-[#2563EB] disabled:opacity-50 transition-colors"
+          >
+            {loading ? 'Menyimpan...' : 'Publikasikan'}
+          </button>
+
+        </form>
+      </div>
     </div>
   )
 }
