@@ -26,7 +26,7 @@ export default function PostDetailClient({ post, currentUserId, currentProfile, 
   const [isLiked, setIsLiked] = useState(post.likes.some(like => like.authorId === currentUserId))
   const [likeCount, setLikeCount] = useState(post.likes.length)
   const [commentText, setCommentText] = useState('')
-  const [comments, setComments] = useState(post.comments)
+  const [comments, setComments] = useState(post.comments || [])
   const [loading, setLoading] = useState(false)
   
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -82,7 +82,6 @@ export default function PostDetailClient({ post, currentUserId, currentProfile, 
     }
   }
 
-  // PERBAIKAN HYDRATION: Format tanggal manual UTC
   const formatDate = (date: Date) => {
     const d = new Date(date)
     const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
@@ -115,24 +114,105 @@ export default function PostDetailClient({ post, currentUserId, currentProfile, 
           {/* Author Info */}
           <div className="flex items-center gap-3 mb-6">
             <Link href={`/user/${post.author.username || post.author.id}`}>
-              {/* Hover Border Biru */}
               <div className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 border-[var(--border-color)] hover:border-[#3B82F6] transition-colors">
-                {post.author.avatarUrl ? <img src={post.author.avatarUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center"><span className="text-lg font-bold text-white">{post.author.name?.[0]?.toUpperCase() || '?'}</span></div>}
+                {post.author.avatarUrl ? (
+                  <img src={post.author.avatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                    <span className="text-lg font-bold text-white">{post.author.name?.[0]?.toUpperCase() || '?'}</span>
+                  </div>
+                )}
               </div>
             </Link>
             <div>
               <div className="flex items-center gap-1.5">
-                {/* Hover Text Biru */}
-                <Link href={`/user/${post.author.username || post.author.id}`} className="font-bold text-[var(--text-main)] hover:text-[#3B82F6] transition-colors">{post.author.name || 'Anonymous'}</Link>
+                <Link href={`/user/${post.author.username || post.author.id}`} className="font-bold text-[var(--text-main)] hover:text-[#3B82F6] transition-colors">
+                  {post.author.name || 'Anonymous'}
+                </Link>
                 {post.author.isVerified && <VerifiedBadge size="sm" />}
               </div>
               <p className="text-sm text-[var(--text-muted)]">@{post.author.username || 'user'} • {formatDate(post.createdAt)}</p>
             </div>
           </div>
 
-          {/* Title & Content */}
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[var(--text-main)] mb-6 leading-tight">{post.title}</h1>
-          <div className="text-base md:text-lg text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap mb-8">{post.content}</div>
+          {/* Title */}
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[var(--text-main)] mb-6 leading-tight">
+            {post.title}
+          </h1>
+          
+          {/* CONTENT - RENDER HTML */}
+          <div 
+            className="post-content mb-8"
+            dangerouslySetInnerHTML={{ __html: post.content || '' }}
+          />
+
+          {/* STYLE UNTUK KONTEN */}
+          <style jsx global>{`
+            .post-content {
+              color: var(--text-muted);
+              line-height: 1.8;
+              font-size: 1rem;
+            }
+            
+            @media (min-width: 768px) {
+              .post-content { font-size: 1.125rem; }
+            }
+            
+            .post-content p { margin-bottom: 1rem; }
+            .post-content h1 { font-size: 2rem; font-weight: 800; color: var(--text-main); margin-top: 2rem; margin-bottom: 1rem; }
+            .post-content h2 { font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-top: 1.75rem; margin-bottom: 0.75rem; }
+            .post-content h3 { font-size: 1.25rem; font-weight: 600; color: var(--text-main); margin-top: 1.5rem; margin-bottom: 0.5rem; }
+            
+            /* CSS UNTUK GAMBAR */
+            .post-content img {
+              max-width: 100%;
+              height: auto;
+              border-radius: 0.5rem;
+              margin: 1.5rem auto;
+              display: block;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            
+            .post-content a { color: #3B82F6; text-decoration: underline; }
+            .post-content a:hover { color: #2563EB; }
+            .post-content strong { color: var(--text-main); font-weight: 600; }
+            
+            .post-content blockquote {
+              border-left: 4px solid #3B82F6;
+              padding-left: 1rem;
+              margin: 1.5rem 0;
+              font-style: italic;
+              color: var(--text-muted);
+              background: var(--bg-card);
+              padding: 1rem;
+              border-radius: 0 0.5rem 0.5rem 0;
+            }
+            
+            .post-content ul { list-style-type: disc; padding-left: 1.5rem; margin: 1rem 0; }
+            .post-content ol { list-style-type: decimal; padding-left: 1.5rem; margin: 1rem 0; }
+            .post-content li { margin-bottom: 0.5rem; }
+            
+            .post-content code {
+              background: var(--bg-card);
+              color: #EC4899;
+              padding: 0.125rem 0.375rem;
+              border-radius: 0.25rem;
+              font-size: 0.875em;
+            }
+            
+            .post-content pre {
+              background: var(--bg-card);
+              border: 1px solid var(--border-color);
+              padding: 1rem;
+              border-radius: 0.5rem;
+              overflow-x: auto;
+              margin: 1.5rem 0;
+            }
+            
+            .post-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+            .post-content th { background: var(--bg-card); font-weight: 600; padding: 0.75rem; text-align: left; border: 1px solid var(--border-color); }
+            .post-content td { padding: 0.75rem; border: 1px solid var(--border-color); }
+          `}</style>
 
           {/* Actions */}
           <div className="flex items-center gap-4 py-4 border-y border-[var(--border-color)] mb-8">
@@ -147,13 +227,16 @@ export default function PostDetailClient({ post, currentUserId, currentProfile, 
           <div className="mb-8">
             <form onSubmit={handleComment} className="flex gap-3">
               <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--border-color)] flex-shrink-0">
-                {/* Avatar Placeholder Biru */}
-                {currentProfile?.avatarUrl ? <img src={currentProfile.avatarUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center"><span className="text-sm font-bold text-white">{currentProfile?.name?.[0]?.toUpperCase() || 'U'}</span></div>}
+                {currentProfile?.avatarUrl ? (
+                  <img src={currentProfile.avatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center">
+                    <span className="text-sm font-bold text-white">{currentProfile?.name?.[0]?.toUpperCase() || 'U'}</span>
+                  </div>
+                )}
               </div>
               <div className="flex-1 flex gap-2">
-                {/* Focus Border Biru */}
                 <input type="text" placeholder="Tulis komentar..." value={commentText} onChange={(e) => setCommentText(e.target.value)} className="flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full px-4 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[#3B82F6] transition-colors" />
-                {/* Tombol Kirim Biru */}
                 <button type="submit" disabled={!commentText.trim() || loading} className="px-5 py-2 bg-[#3B82F6] text-white text-sm font-bold rounded-full hover:bg-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed transition-all">Kirim</button>
               </div>
             </form>
@@ -169,22 +252,27 @@ export default function PostDetailClient({ post, currentUserId, currentProfile, 
                   <div key={comment.id} className="flex gap-3">
                     <Link href={`/user/${comment.author.username || comment.author.id}`}>
                       <div className="w-9 h-9 rounded-full overflow-hidden border border-[var(--border-color)] flex-shrink-0">
-                        {comment.author.avatarUrl ? <img src={comment.author.avatarUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center"><span className="text-xs font-bold text-white">{comment.author.name?.[0]?.toUpperCase() || '?'}</span></div>}
+                        {comment.author.avatarUrl ? (
+                          <img src={comment.author.avatarUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                            <span className="text-xs font-bold text-white">{comment.author.name?.[0]?.toUpperCase() || '?'}</span>
+                          </div>
+                        )}
                       </div>
                     </Link>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                           {/* Hover Text Biru */}
-                          <Link href={`/user/${comment.author.username || comment.author.id}`} className="text-sm font-bold text-[var(--text-main)] hover:text-[#3B82F6] transition-colors">{comment.author.name || 'Anonymous'}</Link>
+                          <Link href={`/user/${comment.author.username || comment.author.id}`} className="text-sm font-bold text-[var(--text-main)] hover:text-[#3B82F6] transition-colors">
+                            {comment.author.name || 'Anonymous'}
+                          </Link>
                           {comment.author.isVerified && <VerifiedBadge size="sm" />}
                           <span className="text-xs text-[var(--text-muted)]">• {formatDate(comment.createdAt)}</span>
                         </div>
-
-                        {/* TOMBOL HAPUS (ADMIN & OWNER) */}
                         {canDelete && (
-                          <button onClick={() => openDeleteModal(comment.id)} className="text-red-500 hover:text-red-400 transition-colors p-1 rounded" title="Hapus komentar">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                          <button onClick={() => openDeleteModal(comment.id)} className="text-red-500 hover:text-red-400 transition-colors p-1 rounded">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                           </button>
                         )}
                       </div>
