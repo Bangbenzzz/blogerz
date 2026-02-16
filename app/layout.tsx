@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HabibBlog",
+  title: "Cermati modern tech",
   description: "Platform kreatif untuk berbagi karya",
 };
 

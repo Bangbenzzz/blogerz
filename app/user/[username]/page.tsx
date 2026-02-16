@@ -10,11 +10,10 @@ import VerifiedBadge from '@/components/VerifiedBadge'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 interface Props {
-  params: Promise<{ username: string }> // Tipe diubah menjadi Promise
+  params: Promise<{ username: string }>
 }
 
 export default async function UserProfilePage({ params }: Props) {
-  // 1. Ambil cookies dan user (tetap sama)
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,11 +22,8 @@ export default async function UserProfilePage({ params }: Props) {
   )
   
   const { data: { user } } = await supabase.auth.getUser()
-
-  // 2. PERBAIKAN: Await params sebelum mengakses username
   const { username } = await params
 
-  // 3. Gunakan username yang sudah di-await
   const profile = await prisma.profile.findUnique({
     where: { username: username }
   })
@@ -58,12 +54,17 @@ export default async function UserProfilePage({ params }: Props) {
       {/* Header */}
       <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
         <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
+          
+          {/* Logo - Ukuran Standar */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--accent)] to-green-700 flex items-center justify-center">
-              <span className="text-black font-black text-lg">H</span>
+            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden">
+              <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="font-extrabold text-lg md:text-xl text-[var(--text-main)] hidden sm:block">
-              HABIB<span className="text-[var(--accent)]">BLOG</span>
+            
+            {/* Teks CERMATI */}
+            <span className="font-extrabold text-lg md:text-xl">
+              <span className="text-white">CER</span>
+              <span className="text-[#3B82F6]">MATI</span>
             </span>
           </Link>
 
@@ -81,7 +82,7 @@ export default async function UserProfilePage({ params }: Props) {
 
                 <Link
                   href="/create"
-                  className="flex items-center gap-1.5 bg-[var(--accent)] text-black py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-white transition-all"
+                  className="flex items-center gap-1.5 bg-[#3B82F6] text-white py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-[#2563EB] transition-all"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <line x1="12" y1="5" x2="12" y2="19"/>
@@ -103,7 +104,7 @@ export default async function UserProfilePage({ params }: Props) {
                 <ThemeToggle />
                 <Link 
                   href="/login" 
-                  className="bg-[var(--accent)] border border-[var(--accent)] text-black py-2 px-5 text-[11px] font-extrabold uppercase rounded-full hover:bg-white transition-all"
+                  className="bg-[#3B82F6] border border-[#3B82F6] text-white py-2 px-5 text-[11px] font-extrabold uppercase rounded-full hover:bg-[#2563EB] hover:border-[#2563EB] hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all"
                 >
                   Join Community
                 </Link>
@@ -116,7 +117,7 @@ export default async function UserProfilePage({ params }: Props) {
       {/* Content */}
       <main className="px-4 md:px-[5%] py-6 md:py-10">
         <div className="max-w-2xl mx-auto">
-          {/* Profile */}
+          {/* Profile Info */}
           <div className="text-center mb-8">
             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[var(--border-color)] mx-auto mb-4">
               {profile.avatarUrl ? (
@@ -168,7 +169,7 @@ export default async function UserProfilePage({ params }: Props) {
             </div>
           </div>
 
-          {/* Posts */}
+          {/* Posts List */}
           <h2 className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-wider mb-4">
             // Karya ({posts.length})
           </h2>

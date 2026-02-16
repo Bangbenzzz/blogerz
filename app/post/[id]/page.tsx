@@ -6,7 +6,6 @@ import Link from 'next/link'
 import PostDetailClient from './PostDetailClient'
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  // 1. Safe Params Fetching
   let id: string;
   try {
     const resolvedParams = await params;
@@ -16,7 +15,6 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
     return;
   }
 
-  // 2. Safe Cookies Fetching
   let user: any = null;
   try {
     const cookieStore = await cookies()
@@ -29,14 +27,12 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
     user = userData;
   } catch (error) {
     console.error("Auth error:", error)
-    // Biarkan user null jika error, tapi jangan crash
   }
 
   if (!user) {
     redirect('/login')
   }
 
-  // 3. Safe DB Fetching
   let post: any = null;
   try {
     post = await prisma.post.findUnique({
@@ -68,10 +64,9 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
     console.error("Profile fetch error")
   }
 
-  // 4. Sanitize Data untuk Client
   const safePost = {
     ...post,
-    content: post.content || '', // Pastikan content string
+    content: post.content || '',
   }
 
   return (
@@ -79,14 +74,20 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
         <div className="flex justify-between items-center px-4 md:px-[5%] py-3">
+          
+          {/* Logo - Ukuran Standar */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center">
-              <span className="text-white font-black">H</span>
+            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden">
+              <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="font-extrabold text-lg text-[var(--text-main)] hidden sm:block">
-              HABIB<span className="text-[#3B82F6]">BLOG</span>
+            
+            {/* Teks CERMATI */}
+            <span className="font-extrabold text-lg md:text-xl">
+              <span className="text-white">CER</span>
+              <span className="text-[#3B82F6]">MATI</span>
             </span>
           </Link>
+
           <Link 
             href="/" 
             className="text-xs font-mono text-[var(--text-muted)] hover:text-[#3B82F6] transition-colors flex items-center gap-1"

@@ -33,6 +33,7 @@ const defaultNavItems: NavItem[] = [
   { label: 'Posts', href: '/admin', icon: '📝' },
   { label: 'Users', href: '/admin/users', icon: '👥' },
   { label: 'Dashboard', href: '/admin/dashboard', icon: '🏠' },
+  { label: 'Partners', href: '/admin/partners', icon: '🏆' },
 ]
 
 export function AdminHeader({ 
@@ -56,7 +57,7 @@ export function AdminHeader({
   const inputRef = useRef<HTMLInputElement>(null)
   const prevPathnameRef = useRef(pathname)
 
-  // Debounced search
+  // 1. Debounced search
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (searchQuery.trim().length >= 1) {
@@ -76,48 +77,44 @@ export function AdminHeader({
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [searchQuery])
+  }, [searchQuery]) // Dependency tetap: [searchQuery]
 
-  // Close panel when clicking outside
+  // 2. Close panel when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        if (activePanel === 'menu') {
-          setActivePanel(false)
-        }
-      }
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        if (activePanel === 'search') {
-          setActivePanel(false)
-          setSearchQuery('')
-          setSearchResults([])
-        }
+      if (menuRef.current && menuRef.current.contains(event.target as Node)) return
+      if (searchRef.current && searchRef.current.contains(event.target as Node)) return
+      
+      if (activePanel) {
+        setActivePanel(false)
+        setSearchQuery('')
+        setSearchResults([])
       }
     }
+    
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [activePanel])
+  }, [activePanel]) // DIPERBAIKI: Dependency tetap: [activePanel]
 
-  // Close menu on route change
+  // 3. Close menu on route change
   useLayoutEffect(() => {
     if (prevPathnameRef.current !== pathname) {
       prevPathnameRef.current = pathname
-      if (activePanel === 'menu') {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setActivePanel(false)
-      }
+      setActivePanel(false)
+      setSearchQuery('')
     }
-  }, [pathname, activePanel])
+  }, [pathname]) // Dependency tetap: [pathname]
 
-  // Auto focus on search expand
+  // 4. Auto focus on search expand
   useEffect(() => {
     if (activePanel === 'search' && inputRef.current) {
       inputRef.current.focus()
     }
-  }, [activePanel])
+  }, [activePanel]) // Dependency tetap: [activePanel]
 
   const handleToggleMenu = useCallback(() => {
     setActivePanel(prev => prev === 'menu' ? false : 'menu')
+    setSearchQuery('')
   }, [])
 
   const handleOpenSearch = useCallback(() => {
@@ -148,7 +145,6 @@ export function AdminHeader({
       <div className="flex justify-between items-center py-3 px-4 md:px-[10%]">
         {/* LEFT: Title */}
         <div className="flex flex-col gap-0.5 flex-shrink-0">
-          {/* Warna Biru */}
           <span className="text-[#3B82F6] font-mono text-[10px] tracking-widest uppercase">
             {`// ADMIN PANEL`}
           </span>
@@ -164,6 +160,7 @@ export function AdminHeader({
 
         {/* RIGHT: Desktop Nav + Actions */}
         <div className="hidden md:flex items-center gap-3">
+          
           {/* Desktop Navigation */}
           <nav className="flex gap-2">
             {navItems.map((item) => {
@@ -174,9 +171,7 @@ export function AdminHeader({
                   href={item.href}
                   className={`py-1.5 px-3 text-[10px] font-mono font-bold uppercase tracking-wider border transition-all whitespace-nowrap ${
                     isActive
-                      // Active: Border Biru, Teks Biru
                       ? 'border-[#3B82F6] text-[#3B82F6] bg-[#3B82F6]/10'
-                      // Hover: Border Biru, Teks Biru
                       : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[#3B82F6] hover:text-[#3B82F6]'
                   }`}
                 >
@@ -186,20 +181,28 @@ export function AdminHeader({
             })}
           </nav>
 
-          {/* Notification Bell */}
           <NotificationBell initialCount={pendingCount} />
 
-          {/* Theme Toggle - Desktop */}
+          {/* Search Icon (Desktop) */}
+          <button
+            onClick={handleOpenSearch}
+            className="w-8 h-8 flex items-center justify-center text-[var(--text-muted)] hover:text-[#3B82F6] transition-colors rounded-full hover:bg-[var(--bg-card)]"
+            title="Cari User"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+
           <ThemeToggle />
 
-          {/* User Email */}
           {userEmail && (
             <span className="text-[10px] font-mono text-[var(--text-muted)]">
               {`// ${userEmail}`}
             </span>
           )}
 
-          {/* Sign Out */}
           <form action="/auth/signout" method="post">
             <button 
               type="submit" 
@@ -212,10 +215,7 @@ export function AdminHeader({
 
         {/* RIGHT: Mobile Actions */}
         <div className="flex md:hidden items-center gap-1">
-          {/* Notification Bell - Mobile */}
           <NotificationBell initialCount={pendingCount} />
-
-          {/* Search Icon Button */}
           <button
             onClick={handleOpenSearch}
             className="w-9 h-9 flex items-center justify-center text-[var(--text-main)] active:scale-95 transition-transform"
@@ -226,7 +226,6 @@ export function AdminHeader({
             </svg>
           </button>
 
-          {/* Toggle Menu Button */}
           <button
             onClick={handleToggleMenu}
             className="w-9 h-9 flex items-center justify-center text-[var(--text-main)] active:scale-95 transition-transform"
@@ -247,81 +246,90 @@ export function AdminHeader({
         </div>
       </div>
 
-      {/* Mobile Search Expanded */}
+      {/* ===== SEARCH PANEL ===== */}
       {isSearchExpanded && (
-        <div ref={searchRef} className="md:hidden fixed top-[10px] left-[10px] right-[10px] z-[999]">
-          {/* Search Input */}
-          {/* Border Biru */}
-          <div className="h-[45px] flex items-center bg-[var(--bg-main)] border border-[#3B82F6] rounded-full px-[12px] shadow-lg">
-            <div className="text-[var(--text-muted)] flex-shrink-0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
+        <div 
+          ref={searchRef} 
+          className="fixed md:absolute top-[60px] md:top-full left-0 right-0 md:left-auto md:right-[10%] z-[999] p-4 md:p-0"
+        >
+          <div className="bg-[var(--bg-main)] border border-[#3B82F6] md:rounded-xl shadow-2xl md:w-80 md:mt-2 md:mr-2">
+            
+            {/* Input Area */}
+            <div className="h-[45px] flex items-center px-4 border-b md:border-b-0 md:pb-0 border-[var(--border-color)]">
+              <div className="text-[var(--text-muted)] flex-shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="Cari user..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-none text-[var(--text-main)] text-sm pl-2 w-full h-full outline-none"
+                autoFocus
+              />
+              {isSearching && (
+                <div className="w-4 h-4 border-2 border-[#3B82F6] border-t-transparent rounded-full animate-spin mr-2" />
+              )}
+              {/* TOMBOL X */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCloseSearch();
+                }}
+                className="flex items-center justify-center w-6 h-6 text-[var(--text-muted)] hover:text-red-500 transition-colors"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </div>
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Cari user..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent border-none text-[var(--text-main)] text-[14px] pl-2 w-full h-full outline-none"
-              autoFocus
-            />
-            {isSearching && (
-              // Spinner Biru
-              <div className="w-4 h-4 border-2 border-[#3B82F6] border-t-transparent rounded-full animate-spin mr-2" />
-            )}
-            <button
-              onClick={handleCloseSearch}
-              className="flex items-center justify-center w-6 h-6 text-[var(--text-muted)]"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
 
-          {/* Search Results Dropdown */}
-          {searchResults.length > 0 && (
-            <div className="mt-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl shadow-lg overflow-hidden max-h-[300px] overflow-y-auto">
-              {searchResults.map((user) => (
-                <button
-                  key={user.id}
-                  onClick={() => handleUserClick(user)}
-                  className="w-full flex items-center gap-3 p-3 hover:bg-[var(--bg-card)] transition-colors text-left border-b border-[var(--border-color)] last:border-b-0"
-                >
-                  <div className="w-8 h-8 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    {user.avatarUrl ? (
-                      <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs font-bold text-[var(--text-muted)]">
-                        {user.name?.[0]?.toUpperCase() || '?'}
+            {/* Results Area */}
+            {searchQuery.trim().length > 0 && (
+              <div className="max-h-[300px] overflow-y-auto">
+                {searchResults.length > 0 ? (
+                  searchResults.map((user) => (
+                    <button
+                      key={user.id}
+                      onClick={() => handleUserClick(user)}
+                      className="w-full flex items-center gap-3 p-3 hover:bg-[var(--bg-card)] transition-colors text-left border-t border-[var(--border-color)]"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {user.avatarUrl ? (
+                          <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-xs font-bold text-[var(--text-muted)]">
+                            {user.name?.[0]?.toUpperCase() || '?'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-bold text-[var(--text-main)] truncate">
+                          {user.name || 'Unknown'}
+                        </span>
+                        <span className="text-xs text-[var(--text-muted)]">
+                          @{user.username || 'no-username'}
+                        </span>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  !isSearching && (
+                    <div className="p-4 text-center border-t border-[var(--border-color)]">
+                      <span className="text-sm text-[var(--text-muted)]">
+                        User tidak ditemukan
                       </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-bold text-[var(--text-main)] truncate">
-                      {user.name || 'Unknown'}
-                    </span>
-                    <span className="text-xs text-[var(--text-muted)]">
-                      @{user.username || 'no-username'}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* No Results */}
-          {searchQuery.trim() && !isSearching && searchResults.length === 0 && (
-            <div className="mt-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl shadow-lg p-4 text-center">
-              <span className="text-sm text-[var(--text-muted)]">
-                User &quot;{searchQuery}&quot; tidak ditemukan
-              </span>
-            </div>
-          )}
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -340,9 +348,7 @@ export function AdminHeader({
                   href={item.href}
                   className={`py-3 px-3 text-sm font-mono font-bold uppercase tracking-wider border-l-2 transition-all ${
                     isActive
-                      // Active: Border Biru, Teks Biru
                       ? 'border-[#3B82F6] text-[#3B82F6] bg-[#3B82F6]/10'
-                      // Hover: Border Biru, Teks Biru
                       : 'border-transparent text-[var(--text-muted)] hover:border-[#3B82F6] hover:text-[#3B82F6]'
                   }`}
                 >
@@ -351,8 +357,6 @@ export function AdminHeader({
               )
             })}
           </nav>
-
-          {/* Mobile Menu Footer */}
           <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-color)]">
             <div className="flex items-center gap-3">
               <ThemeToggle />

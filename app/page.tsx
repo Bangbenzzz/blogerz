@@ -1,7 +1,8 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation' // Import redirect
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/prisma' // Import prisma Anda
 import UserMenu from '@/components/UserMenu'
 import PostCard from '@/components/PostCard'
 import UserSearch from '@/components/UserSearch'
@@ -25,6 +26,12 @@ export default async function HomePage() {
     profile = await prisma.profile.findUnique({
       where: { id: user.id }
     })
+    
+    // --- LOGIKA BAN DI SINI ---
+    // Jika user login, tapi profile.isBanned = true -> Tendang ke /banned
+    if (profile?.isBanned) {
+      redirect('/banned')
+    }
   }
 
   const posts = await prisma.post.findMany({
@@ -37,6 +44,10 @@ export default async function HomePage() {
     orderBy: { createdAt: 'desc' }
   })
 
+  const partners = await prisma.partner.findMany({
+    orderBy: { order: 'asc' }
+  })
+
   return (
     <div className="min-h-screen bg-transparent">
       
@@ -44,23 +55,20 @@ export default async function HomePage() {
       <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
         <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
           
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            {/* Gradient Biru */}
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <span className="text-white font-black text-lg">H</span>
+            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden">
+              <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="font-extrabold text-lg md:text-xl text-[var(--text-main)] hidden sm:block">
-              HABIB<span className="text-[#3B82F6]">BLOG</span>
+            <span className="font-extrabold text-lg md:text-xl">
+              <span className="text-white">CER</span>
+              <span className="text-[#3B82F6]">MATI</span>
             </span>
           </Link>
 
-          {/* Right Side */}
           <div className="flex items-center gap-2 md:gap-3">
             
             {user ? (
               <>
-                {/* Admin Button */}
                 {user.email === process.env.ADMIN_EMAIL && (
                   <Link 
                     href="/admin" 
@@ -74,7 +82,6 @@ export default async function HomePage() {
                   </Link>
                 )}
 
-                {/* Create Post Button - Biru (FIXED) */}
                 <Link
                   href="/create"
                   className="flex items-center gap-1.5 bg-[#3B82F6] text-white py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-[#2563EB] transition-all"
@@ -96,7 +103,6 @@ export default async function HomePage() {
               </>
             ) : (
               <>
-                {/* Login Button (Untuk Guest) - Biru (FIXED) */}
                 <Link 
                   href="/login" 
                   className="bg-[#3B82F6] border border-[#3B82F6] text-white py-2 px-5 text-[11px] font-extrabold uppercase rounded-full hover:bg-[#2563EB] hover:border-[#2563EB] hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all"
@@ -115,7 +121,6 @@ export default async function HomePage() {
         <>
           <section className="px-4 md:px-[5%] py-16 md:py-24 lg:py-32">
             <div className="max-w-4xl">
-              {/* Badge Biru */}
               <div className="inline-flex items-center gap-2 bg-[#3B82F6]/10 border border-[#3B82F6]/30 rounded-full px-4 py-1.5 mb-6">
                 <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse"/>
                 <span className="text-xs font-mono text-[#3B82F6]">// Platform Kreatif</span>
@@ -131,14 +136,12 @@ export default async function HomePage() {
               </p>
 
               <div className="flex flex-wrap gap-3">
-                {/* Tombol Biru (FIXED) */}
                 <Link 
                   href="/login" 
                   className="bg-[#3B82F6] border border-[#3B82F6] text-white py-3 px-7 text-sm font-extrabold uppercase rounded-full hover:bg-[#2563EB] hover:border-[#2563EB] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] transition-all"
                 >
                   Mulai Menulis
                 </Link>
-                {/* Hover Border Biru */}
                 <Link 
                   href="#posts" 
                   className="bg-transparent border border-[var(--border-color)] text-[var(--text-main)] py-3 px-7 text-sm font-bold rounded-full hover:border-[#3B82F6] hover:text-[#3B82F6] transition-all"
@@ -148,6 +151,41 @@ export default async function HomePage() {
               </div>
             </div>
           </section>
+
+          {/* ===== LOGO SLIDER SECTION ===== */}
+          {partners.length > 0 && (
+            <section className="py-12 border-y border-[var(--border-color)] bg-[var(--bg-card)] mb-12">
+              <div className="px-4 md:px-[5%] mb-6 text-center">
+                <p className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-[0.3em] font-bold">
+                  SUPPORTED BY
+                </p>
+              </div>
+
+              <div 
+                className="relative overflow-hidden" 
+                style={{ 
+                  maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+                  WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
+                }}
+              >
+                <div className="animate-marquee-right hover:pause-animation">
+                  {[...partners, ...partners].map((partner, idx) => (
+                    <div 
+                      key={partner.id + idx} 
+                      className="inline-flex items-center justify-center px-8 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-pointer"
+                      title={partner.name}
+                    >
+                      <img 
+                        src={partner.logoUrl} 
+                        alt={partner.name} 
+                        className="h-10 md:h-14 w-auto object-contain max-w-[180px]"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
 
           <main id="posts" className="px-4 md:px-[5%] py-12 md:py-20">
             <h2 className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-wider mb-8">
@@ -183,7 +221,6 @@ export default async function HomePage() {
                   </div>
 
                   <div className="p-4">
-                    {/* Hover Title Biru */}
                     <h3 className="text-lg font-bold text-[var(--text-main)] mb-2 group-hover:text-[#3B82F6] transition-colors line-clamp-2">
                       {post.title}
                     </h3>
@@ -193,7 +230,6 @@ export default async function HomePage() {
                   </div>
 
                   <div className="px-4 pb-4">
-                    {/* Link Biru */}
                     <Link 
                       href="/login" 
                       className="text-xs font-bold text-[#3B82F6] hover:underline flex items-center gap-1"

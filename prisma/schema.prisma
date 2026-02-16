@@ -40,7 +40,7 @@ model Post {
   id        String   @id @default(uuid())
   title     String
   content   String?
-  imageUrl  String?  // <--- TAMBAHKAN BARIS INI
+  imageUrl  String?
   published Boolean  @default(false)
   authorId  String
   createdAt DateTime @default(now())
@@ -77,6 +77,18 @@ model Like {
   author    Profile  @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@unique([postId, authorId])
+}
+
+// ==================================================
+// TAMBAHAN: TABEL PARTNER/LOGO SUPPORT
+// ==================================================
+model Partner {
+  id        String   @id @default(uuid())
+  name      String   // Nama Brand/Channel
+  logoUrl   String   // URL Gambar Logo
+  order     Int      @default(0) // Urutan tampilan
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum Role {

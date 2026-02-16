@@ -28,15 +28,20 @@ export default async function CreatePostPage() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
         <div className="flex justify-between items-center px-4 md:px-[5%] py-3">
+          
+          {/* Logo - Ukuran Standar */}
           <Link href="/" className="flex items-center gap-2 group">
-            {/* Logo Biru */}
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center">
-              <span className="text-white font-black">H</span>
+            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden">
+              <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="font-extrabold text-lg text-[var(--text-main)] hidden sm:block">
-              HABIB<span className="text-[#3B82F6]">BLOG</span>
+            
+            {/* Teks CERMATI */}
+            <span className="font-extrabold text-lg md:text-xl">
+              <span className="text-white">CER</span>
+              <span className="text-[#3B82F6]">MATI</span>
             </span>
           </Link>
+
           <Link 
             href="/" 
             className="text-xs font-mono text-[var(--text-muted)] hover:text-[#3B82F6] transition-colors flex items-center gap-1"

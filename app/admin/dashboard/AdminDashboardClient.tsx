@@ -58,8 +58,6 @@ export default function AdminDashboardClient({
     router.refresh()
   }
 
-  // PERBAIKAN HYDRATION: Gunakan format tanggal manual UTC
-  // Ini mencegah perbedaan render antara Server (UTC) dan Client (Local)
   const formatDate = (date: Date) => {
     const d = new Date(date)
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
@@ -118,21 +116,21 @@ export default function AdminDashboardClient({
                   {post.title}
                 </h3>
 
+                {/* --- PERBAIKAN HTML DI SINI --- */}
                 {post.content && (
-                  <p className="text-sm text-[var(--text-muted)] whitespace-pre-wrap line-clamp-3">
-                    {post.content}
-                  </p>
+                  <div 
+                    className="text-sm text-[var(--text-muted)] line-clamp-3 mb-2"
+                    dangerouslySetInnerHTML={{ __html: post.content }} 
+                  />
                 )}
 
                 <div className="flex items-center gap-4 mt-3 text-xs text-[var(--text-muted)] flex-wrap">
-                  {/* Penyebab Error Hydration ada di baris ini, sekarang sudah aman */}
                   <span>📅 {formatDate(post.createdAt)}</span>
                   <span>💬 {post.comments.length} komentar</span>
                   <span>❤️ {post.likes.length} likes</span>
                   
                   <button
                     onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
-                    // Warna Biru
                     className="text-[#3B82F6] hover:underline font-bold flex items-center gap-1 group"
                   >
                     {expandedPost === post.id ? (
@@ -168,15 +166,19 @@ export default function AdminDashboardClient({
                     <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <div className="relative p-5 bg-[var(--bg-card)] rounded-xl border border-[var(--border-color)] shadow-sm">
                       <div className="flex items-center gap-2 mb-3">
-                        {/* Dot Biru */}
                         <div className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse"></div>
                         <h4 className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                           Isi Lengkap Postingan
                         </h4>
                       </div>
-                      <p className="text-sm text-[var(--text-main)] whitespace-pre-wrap leading-relaxed font-light">
-                        {post.content}
-                      </p>
+                      
+                      {/* --- PERBAIKAN HTML FULL CONTENT --- */}
+                      <div 
+                        className="text-sm text-[var(--text-main)] leading-relaxed break-words
+                                   [&>p]:mb-4 [&>p]:text-sm 
+                                   [&>img]:max-w-full [&>img]:h-auto [&>img]:rounded-lg [&>img]:mx-auto"
+                        dangerouslySetInnerHTML={{ __html: post.content }}
+                      />
                     </div>
                   </div>
                 )}
@@ -185,7 +187,6 @@ export default function AdminDashboardClient({
                 <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border-color)] overflow-hidden shadow-sm">
                   <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {/* Icon Biru */}
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#3B82F6]">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                       </svg>
@@ -200,7 +201,6 @@ export default function AdminDashboardClient({
                       <div className="space-y-4">
                         {post.comments.map((comment) => (
                           <div key={comment.id} className="flex gap-3 p-3 rounded-lg hover:bg-[var(--bg-main)]/50 transition-colors group relative">
-                            {/* Garis dekoratif kiri Biru */}
                             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-transparent group-hover:bg-[#3B82F6]/20 transition-colors rounded-full"></div>
                             
                             <div className="w-8 h-8 rounded-full overflow-hidden bg-[var(--bg-main)] border border-[var(--border-color)] flex-shrink-0 flex items-center justify-center shadow-sm">
@@ -222,7 +222,6 @@ export default function AdminDashboardClient({
                                   • {formatDate(comment.createdAt)}
                                 </span>
                                 {comment.author.id === adminId && (
-                                  // Badge Admin Biru
                                   <span className="text-[9px] bg-[#3B82F6]/20 text-[#3B82F6] px-2 py-0.5 rounded-full font-bold border border-[#3B82F6]/30">
                                     ADMIN
                                   </span>
@@ -274,13 +273,11 @@ export default function AdminDashboardClient({
                         placeholder="Tulis komentar atau peringatan..."
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
-                        // Focus ring Biru
                         className="flex-grow bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg px-4 py-2.5 text-sm text-[var(--text-main)] outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-all placeholder:text-[var(--text-muted)]"
                       />
                       <button
                         onClick={() => handleComment(post.id)}
                         disabled={!commentText.trim() || loading === post.id}
-                        // Tombol Biru
                         className="px-6 py-2.5 bg-[#3B82F6] text-white text-sm font-bold rounded-lg hover:bg-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-[#3B82F6]/20 hover:shadow-[#3B82F6]/40 flex items-center gap-2"
                       >
                         {loading === post.id ? (

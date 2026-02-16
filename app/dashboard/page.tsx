@@ -38,13 +38,17 @@ export default async function DashboardPage() {
       {/* Header */}
       <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
         <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
+          
+          {/* Logo - Ukuran Standar */}
           <Link href="/" className="flex items-center gap-2 group">
-            {/* Logo Biru */}
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <span className="text-white font-black text-lg">H</span>
+            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden">
+              <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="font-extrabold text-lg md:text-xl text-[var(--text-main)] hidden sm:block">
-              HABIB<span className="text-[#3B82F6]">BLOG</span>
+            
+            {/* Teks CERMATI */}
+            <span className="font-extrabold text-lg md:text-xl">
+              <span className="text-white">CER</span>
+              <span className="text-[#3B82F6]">MATI</span>
             </span>
           </Link>
 
@@ -52,7 +56,6 @@ export default async function DashboardPage() {
             {user.email === process.env.ADMIN_EMAIL && (
               <Link 
                 href="/admin" 
-                // Tombol Admin Biru
                 className="hidden sm:flex items-center gap-2 bg-[#3B82F6]/10 border border-[#3B82F6]/30 text-[#3B82F6] py-2 px-4 text-[11px] font-bold rounded-full hover:bg-[#3B82F6] hover:text-white transition-all"
               >
                 Admin
@@ -61,7 +64,6 @@ export default async function DashboardPage() {
 
             <Link
               href="/create"
-              // Tombol Buat Karya Biru
               className="flex items-center gap-1.5 bg-[#3B82F6] text-white py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-[#2563EB] transition-all"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -92,7 +94,6 @@ export default async function DashboardPage() {
                 {profile?.avatarUrl ? (
                   <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  // Avatar Placeholder Biru
                   <div className="w-full h-full bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center">
                     <span className="text-3xl font-black text-white">
                       {profile?.name?.[0]?.toUpperCase() || 'U'}
@@ -118,7 +119,6 @@ export default async function DashboardPage() {
 
             <Link
               href="/settings"
-              // Hover Border Biru
               className="inline-flex items-center gap-2 bg-[var(--bg-main)] border border-[var(--border-color)] py-2 px-4 text-sm font-bold rounded-full hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -159,7 +159,6 @@ export default async function DashboardPage() {
               <p className="text-[var(--text-muted)] mb-4">Belum ada karya.</p>
               <Link
                 href="/create"
-                // Tombol Biru
                 className="inline-flex items-center gap-2 bg-[#3B82F6] text-white py-2 px-5 text-sm font-bold rounded-full hover:bg-[#2563EB] transition-all"
               >
                 Buat Karya Pertama
@@ -170,7 +169,6 @@ export default async function DashboardPage() {
               {posts.map((post) => (
                 <div 
                   key={post.id}
-                  // Hover Border Biru
                   className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4 hover:border-[#3B82F6]/30 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-4">
