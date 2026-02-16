@@ -29,11 +29,13 @@ interface AdminHeaderProps {
   pendingCount?: number
 }
 
+// TAMBAHKAN SETTINGS DI SINI
 const defaultNavItems: NavItem[] = [
   { label: 'Posts', href: '/admin', icon: '📝' },
   { label: 'Users', href: '/admin/users', icon: '👥' },
   { label: 'Dashboard', href: '/admin/dashboard', icon: '🏠' },
   { label: 'Partners', href: '/admin/partners', icon: '🏆' },
+  { label: 'Settings', href: '/admin/settings', icon: '⚙️' },
 ]
 
 export function AdminHeader({ 
@@ -77,7 +79,7 @@ export function AdminHeader({
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [searchQuery]) // Dependency tetap: [searchQuery]
+  }, [searchQuery])
 
   // 2. Close panel when clicking outside
   useEffect(() => {
@@ -94,7 +96,7 @@ export function AdminHeader({
     
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [activePanel]) // DIPERBAIKI: Dependency tetap: [activePanel]
+  }, [activePanel])
 
   // 3. Close menu on route change
   useLayoutEffect(() => {
@@ -103,14 +105,14 @@ export function AdminHeader({
       setActivePanel(false)
       setSearchQuery('')
     }
-  }, [pathname]) // Dependency tetap: [pathname]
+  }, [pathname])
 
   // 4. Auto focus on search expand
   useEffect(() => {
     if (activePanel === 'search' && inputRef.current) {
       inputRef.current.focus()
     }
-  }, [activePanel]) // Dependency tetap: [activePanel]
+  }, [activePanel])
 
   const handleToggleMenu = useCallback(() => {
     setActivePanel(prev => prev === 'menu' ? false : 'menu')
@@ -183,7 +185,6 @@ export function AdminHeader({
 
           <NotificationBell initialCount={pendingCount} />
 
-          {/* Search Icon (Desktop) */}
           <button
             onClick={handleOpenSearch}
             className="w-8 h-8 flex items-center justify-center text-[var(--text-muted)] hover:text-[#3B82F6] transition-colors rounded-full hover:bg-[var(--bg-card)]"
@@ -246,15 +247,13 @@ export function AdminHeader({
         </div>
       </div>
 
-      {/* ===== SEARCH PANEL ===== */}
+      {/* SEARCH PANEL */}
       {isSearchExpanded && (
         <div 
           ref={searchRef} 
           className="fixed md:absolute top-[60px] md:top-full left-0 right-0 md:left-auto md:right-[10%] z-[999] p-4 md:p-0"
         >
           <div className="bg-[var(--bg-main)] border border-[#3B82F6] md:rounded-xl shadow-2xl md:w-80 md:mt-2 md:mr-2">
-            
-            {/* Input Area */}
             <div className="h-[45px] flex items-center px-4 border-b md:border-b-0 md:pb-0 border-[var(--border-color)]">
               <div className="text-[var(--text-muted)] flex-shrink-0">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -274,7 +273,6 @@ export function AdminHeader({
               {isSearching && (
                 <div className="w-4 h-4 border-2 border-[#3B82F6] border-t-transparent rounded-full animate-spin mr-2" />
               )}
-              {/* TOMBOL X */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -289,7 +287,6 @@ export function AdminHeader({
               </button>
             </div>
 
-            {/* Results Area */}
             {searchQuery.trim().length > 0 && (
               <div className="max-h-[300px] overflow-y-auto">
                 {searchResults.length > 0 ? (

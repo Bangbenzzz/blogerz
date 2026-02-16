@@ -19,17 +19,13 @@ model Profile {
   bio       String?
   avatarUrl String?
   
-  // -- FIELD UNTUK BAN USER --
   isBanned  Boolean  @default(false)
-  
-  // -- FIELD UNTUK VERIFIED BADGE (CENTANG BIRU) --
   isVerified Boolean @default(false)
   
   role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relasi ke tabel lain
   posts     Post[]
   comments  Comment[]
   likes     Like[]
@@ -79,14 +75,23 @@ model Like {
   @@unique([postId, authorId])
 }
 
-// ==================================================
-// TAMBAHAN: TABEL PARTNER/LOGO SUPPORT
-// ==================================================
+// TABEL PARTNER/LOGO SUPPORT
 model Partner {
   id        String   @id @default(uuid())
-  name      String   // Nama Brand/Channel
-  logoUrl   String   // URL Gambar Logo
-  order     Int      @default(0) // Urutan tampilan
+  name      String
+  logoUrl   String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==================================================
+// TAMBAHAN: TABEL PENGATURAN SITUS
+// ==================================================
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique // Contoh: "site_name", "site_logo"
+  value     String   // Isinya: "Cermati", "https://..."
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

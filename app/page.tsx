@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation' // Import redirect
+import { redirect } from 'next/navigation'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import prisma from '@/lib/prisma' // Import prisma Anda
+import prisma from '@/lib/prisma'
 import UserMenu from '@/components/UserMenu'
 import PostCard from '@/components/PostCard'
 import UserSearch from '@/components/UserSearch'
@@ -27,13 +27,13 @@ export default async function HomePage() {
       where: { id: user.id }
     })
     
-    // --- LOGIKA BAN DI SINI ---
-    // Jika user login, tapi profile.isBanned = true -> Tendang ke /banned
+    // Jika user dibanned, tendang ke halaman /banned
     if (profile?.isBanned) {
       redirect('/banned')
     }
   }
 
+  // Ambil Postingan
   const posts = await prisma.post.findMany({
     where: { published: true },
     include: { 
@@ -44,9 +44,19 @@ export default async function HomePage() {
     orderBy: { createdAt: 'desc' }
   })
 
+  // Ambil Partners
   const partners = await prisma.partner.findMany({
     orderBy: { order: 'asc' }
   })
+
+  // === AMBIL SETTINGS DARI DB ===
+  const settingsRaw = await prisma.setting.findMany()
+  const settings: Record<string, string> = {}
+  settingsRaw.forEach((s: any) => settings[s.key] = s.value)
+
+  // Tentukan nilai default jika belum ada di DB
+  const siteName = settings.site_name || 'CERMATI'
+  const siteLogo = settings.site_logo || '/logo.svg'
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -57,11 +67,15 @@ export default async function HomePage() {
           
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden">
-              <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
+              {/* Logo Dinamis */}
+              <img src={siteLogo} alt="Logo" className="w-full h-full object-contain" />
             </div>
             <span className="font-extrabold text-lg md:text-xl">
-              <span className="text-white">CER</span>
-              <span className="text-[#3B82F6]">MATI</span>
+              {/* Nama Website Dinamis */}
+              <span className="text-white">{siteName.split(' ')[0]}</span>
+              {siteName.split(' ')[1] && (
+                <span className="text-[#3B82F6]"> {siteName.split(' ')[1]}</span>
+              )}
             </span>
           </Link>
 
