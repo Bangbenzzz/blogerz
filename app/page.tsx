@@ -9,6 +9,7 @@ import VerifiedBadge from '@/components/VerifiedBadge'
 import TypewriterText from '@/components/TypewriterText'
 import PostCard from '@/components/PostCard'
 import DynamicLogo from '@/components/DynamicLogo'
+import Footer from '@/components/Footer'
 
 export const revalidate = 0
 
@@ -231,6 +232,7 @@ export default async function HomePage() {
           </div>
         </main>
       )}
+      <Footer />
     </div>
   )
 }
