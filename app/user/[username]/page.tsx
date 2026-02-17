@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import UserMenu from '@/components/UserMenu'
@@ -8,6 +8,8 @@ import UserSearch from '@/components/UserSearch'
 import PostCard from '@/components/PostCard'
 import VerifiedBadge from '@/components/VerifiedBadge'
 import { ThemeToggle } from '@/components/ThemeToggle'
+// IMPORT KOMPONEN LOGO DINAMIS
+import DynamicLogo from '@/components/DynamicLogo'
 
 interface Props {
   params: Promise<{ username: string }>
@@ -36,6 +38,11 @@ export default async function UserProfilePage({ params }: Props) {
     where: { id: user.id }
   }) : null
 
+  // Cek banned
+  if (currentUserProfile?.isBanned) {
+    redirect('/banned')
+  }
+
   const posts = await prisma.post.findMany({
     where: { 
       authorId: profile.id,
@@ -55,18 +62,8 @@ export default async function UserProfilePage({ params }: Props) {
       <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
         <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
           
-          {/* Logo - Ukuran Standar */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden">
-              <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
-            </div>
-            
-            {/* Teks CERMATI */}
-            <span className="font-extrabold text-lg md:text-xl">
-              <span className="text-white">CER</span>
-              <span className="text-[#3B82F6]">MATI</span>
-            </span>
-          </Link>
+          {/* GANTI DENGAN KOMPONEN LOGO DINAMIS */}
+          <DynamicLogo />
 
           <div className="flex items-center gap-2 md:gap-3">
             {user ? (
@@ -181,7 +178,7 @@ export default async function UserProfilePage({ params }: Props) {
           ) : (
             <div className="flex flex-col gap-4">
               {posts.map((post) => (
-                <PostCard key={post.id} post={post} currentUserId={user?.id} />
+                <PostCard key={post.id} post={post} currentUserId={user?.id} userEmail={user?.email} />
               ))}
             </div>
           )}
