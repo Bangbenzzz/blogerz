@@ -1,91 +1,60 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
-type ToastType = 'success' | 'error' | 'info'
-
-// --- FUNGSI GLOBAL UNTUK DIPANGGIL DARI MANA SAJA ---
-export const showToast = (message: string, type: ToastType = 'success') => {
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(
-      new CustomEvent('app-toast', {
-        detail: { message, type },
-      })
-    )
-  }
+interface ToastProps {
+  message: string
+  type?: 'success' | 'error' | 'info'
 }
 
-export default function Toast() {
-  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
-  const [isVisible, setIsVisible] = useState(false)
+let showToastFn: (msg: string, type?: 'success' | 'error' | 'info') => void
+
+export function ToastProvider() {
+  const [toast, setToast] = useState<ToastProps | null>(null)
 
   useEffect(() => {
-    const handleToastEvent = (e: CustomEvent) => {
-      const { message, type } = e.detail
-      
+    showToastFn = (message, type = 'success') => {
       setToast({ message, type })
-      setIsVisible(false)
-      
-      setTimeout(() => setIsVisible(true), 10)
-
-      setTimeout(() => {
-        setIsVisible(false)
-      }, 3000)
-      
-      setTimeout(() => {
-        setToast(null)
-      }, 3300)
-    }
-
-    window.addEventListener('app-toast', handleToastEvent as EventListener)
-
-    return () => {
-      window.removeEventListener('app-toast', handleToastEvent as EventListener)
+      setTimeout(() => setToast(null), 3000)
     }
   }, [])
 
   if (!toast) return null
 
-  // PERUBAHAN WARNA: Success sekarang Biru
-  let borderColor = '#3B82F6' // Biru (sebelumnya Hijau Neon)
-  let shadowColor = 'rgba(59, 130, 246, 0.4)' // Biru (sebelumnya Hijau Neon)
+  // Warna Border & Shadow
+  let borderColor = '#3B82F6' // Biru (Default Success)
+  let shadowColor = 'rgba(59, 130, 246, 0.4)'
 
   if (toast.type === 'error') {
-    borderColor = '#ff0033'
+    borderColor = '#ff0033' // Merah
     shadowColor = 'rgba(255, 0, 51, 0.4)'
   } else if (toast.type === 'info') {
-    borderColor = '#00d2ff'
+    borderColor = '#00d2ff' // Cyan
     shadowColor = 'rgba(0, 210, 255, 0.4)'
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: '25px',
-        left: '50%',
-        transform: isVisible ? 'translate(-50%, 0)' : 'translate(-50%, -150%)',
-        opacity: isVisible ? 1 : 0,
-        zIndex: 9999999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '12px',
-        background: '#000000',
-        border: `1px solid ${borderColor}`,
-        color: borderColor,
-        padding: '8px 16px', 
-        borderRadius: '999px',
-        boxShadow: `0 0 15px ${shadowColor}, 0 5px 10px rgba(0,0,0,0.5)`,
-        fontSize: '13px',
-        fontWeight: 'bold',
-        fontFamily: 'monospace, sans-serif',
-        transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
-        pointerEvents: 'none',
-        whiteSpace: 'nowrap'
-      }}
+    // POSISI DIUBAH KE ATAS TENGAH
+    <div 
+      className="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] animate-in slide-in-from-top fade-in duration-300"
     >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div 
+        style={{
+          background: '#000000',
+          border: `1px solid ${borderColor}`,
+          color: borderColor,
+          padding: '8px 16px',
+          borderRadius: '999px',
+          boxShadow: `0 0 15px ${shadowColor}, 0 5px 10px rgba(0,0,0,0.5)`,
+          fontSize: '13px',
+          fontWeight: 'bold',
+          fontFamily: 'monospace, sans-serif',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}
+      >
+        {/* Ikon */}
         {toast.type === 'success' && (
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12"></polyline>
@@ -104,8 +73,14 @@ export default function Toast() {
             <line x1="12" y1="8" x2="12.01" y2="8"></line>
           </svg>
         )}
+        
+        <span style={{ color: '#fff' }}>{toast.message}</span>
       </div>
-      <span style={{ color: '#fff' }}>{toast.message}</span>
     </div>
   )
+}
+
+export const showToast = (message: string, type?: 'success' | 'error' | 'info') => {
+  if (showToastFn) showToastFn(message, type)
+  else console.log('Toast:', message)
 }
