@@ -43,7 +43,6 @@ export default async function HomePage() {
   const settings: Record<string, string> = {}
   settingsRaw.forEach((s: any) => settings[s.key] = s.value)
   
-  // Tentukan deskripsi, jika kosong pakai default
   const siteDescription = settings.site_description || "Platform menulis untuk para developer dan kreatif. Bagikan cerita, tutorial, dan ide-ide brilianmu."
 
   const posts = await prisma.post.findMany({
@@ -61,39 +60,44 @@ export default async function HomePage() {
   })
 
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="min-h-screen bg-transparent flex flex-col overflow-x-hidden">
       
       {/* ========== HEADER ========== */}
       <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
-        <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
-          <DynamicLogo />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-3 md:py-4">
+            <DynamicLogo />
 
-          <div className="flex items-center gap-2 md:gap-3">
-            {user ? (
-              <>
-                {user.email === process.env.ADMIN_EMAIL && (
-                  <Link 
-                    href="/admin" 
-                    className="hidden sm:flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-500 py-2 px-4 text-[11px] font-bold rounded-full hover:bg-purple-500 hover:text-white transition-all"
-                  >
-                    Admin
+            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+              {user ? (
+                <>
+                  {user.email === process.env.ADMIN_EMAIL && (
+                    <Link 
+                      href="/admin" 
+                      className="hidden sm:flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-500 py-2 px-4 text-[11px] font-bold rounded-full hover:bg-purple-500 hover:text-white transition-all"
+                    >
+                      Admin
+                    </Link>
+                  )}
+                  <Link href="/create" className="flex items-center gap-1.5 bg-[#3B82F6] text-white py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-[#2563EB] transition-all">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="12" y1="5" x2="12" y2="19"/>
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    <span className="hidden md:inline">Buat Karya</span>
                   </Link>
-                )}
-                <Link href="/create" className="flex items-center gap-1.5 bg-[#3B82F6] text-white py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-[#2563EB] transition-all">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="12" y1="5" x2="12" y2="19"/>
-                    <line x1="5" y1="12" x2="19" y2="12"/>
-                  </svg>
-                  <span className="hidden md:inline">Buat Karya</span>
+                  <UserSearch />
+                  <UserMenu userEmail={user.email} avatarUrl={profile?.avatarUrl} username={profile?.username} name={profile?.name}/>
+                </>
+              ) : (
+                <Link 
+                  href="/login" 
+                  className="bg-[#3B82F6] border border-[#3B82F6] text-white py-2 px-5 text-[11px] font-extrabold uppercase rounded-full hover:bg-[#2563EB] hover:border-[#2563EB] hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all whitespace-nowrap"
+                >
+                  Join Community
                 </Link>
-                <UserSearch />
-                <UserMenu userEmail={user.email} avatarUrl={profile?.avatarUrl} username={profile?.username} name={profile?.name}/>
-              </>
-            ) : (
-              <Link href="/login" className="bg-[#3B82F6] border border-[#3B82F6] text-white py-2 px-5 text-[11px] font-extrabold uppercase rounded-full hover:bg-[#2563EB] hover:border-[#2563EB] hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all">
-                Join Community
-              </Link>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -101,21 +105,27 @@ export default async function HomePage() {
       {/* ========== CONTENT ========== */}
       {!user ? (
         // ===== GUEST VIEW =====
-        <>
-          <section className="px-4 md:px-[5%] py-16 md:py-24 lg:py-32">
-            <div className="max-w-4xl">
+        <div className="flex-grow w-full">
+          {/* HERO SECTION */}
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 lg:py-32">
+            <div className="max-w-4xl w-full">
               <div className="inline-flex items-center gap-2 bg-[#3B82F6]/10 border border-[#3B82F6]/30 rounded-full px-4 py-1.5 mb-6">
                 <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse"/>
                 <span className="text-xs font-mono text-[#3B82F6]">// Platform Kreatif</span>
               </div>
               
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-6 text-[var(--text-main)]">
+              {/* Judul: break-words mencegah layout hancur */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-6 text-[var(--text-main)] break-words">
                 UNLEASH YOUR<br/>
                 <TypewriterText />
               </h1>
               
-              {/* === BAGIAN YANG DIUBAH: TEKS DINAMIS === */}
-              <p className="text-base md:text-lg text-[var(--text-muted)] max-w-xl mb-8 leading-relaxed">
+              {/* DESKRIPSI:
+                  - 'break-words': Memenggal kata normal agar turun ke bawah.
+                  - 'break-all': Memenggal paksa string panjang tanpa spasi (CUTTUT...) agar tidak melebar.
+                  - 'max-w-lg': Membatasi lebar teks agar rapi di laptop.
+              */}
+              <p className="w-full max-w-lg text-base md:text-lg text-[var(--text-muted)] mb-8 leading-relaxed text-left break-words break-all">
                 {siteDescription}
               </p>
 
@@ -130,10 +140,10 @@ export default async function HomePage() {
             </div>
           </section>
 
-          {/* PARTNERS SLIDER */}
+          {/* PARTNERS SLIDER - TANPA BORDER */}
           {partners.length > 0 && (
-            <section className="py-12 bg-[var(--bg-card)] mb-12">
-              <div className="px-4 md:px-[5%] mb-6 text-center">
+            <section className="py-12 bg-[var(--bg-card)] mb-12 w-full">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 text-center">
                 <p className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-[0.3em] font-bold">
                   SUPPORTED BY
                 </p>
@@ -150,8 +160,8 @@ export default async function HomePage() {
             </section>
           )}
 
-          {/* POSTS PREVIEW */}
-          <main id="posts" className="px-4 md:px-[5%] py-12 md:py-20">
+          {/* POSTS PREVIEW (GUEST) */}
+          <main id="posts" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 w-full">
             <h2 className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-wider mb-8">
               // Preview Karya
             </h2>
@@ -179,7 +189,7 @@ export default async function HomePage() {
                     </div>
                     <div className="p-4">
                       <h3 className="text-lg font-bold text-[var(--text-main)] mb-2 group-hover:text-[#3B82F6] transition-colors line-clamp-2">{post.title}</h3>
-                      <p className="text-sm text-[var(--text-muted)] line-clamp-3 leading-relaxed">{cleanContent.slice(0, 120)}...</p>
+                      <p className="text-sm text-[var(--text-muted)] line-clamp-3 leading-relaxed break-words">{cleanContent.slice(0, 120)}...</p>
                     </div>
                     <div className="px-4 pb-4">
                       <Link href="/login" className="text-xs font-bold text-[#3B82F6] hover:underline flex items-center gap-1">
@@ -192,28 +202,32 @@ export default async function HomePage() {
               })}
             </div>
           </main>
-        </>
+        </div>
       ) : (
-        // ===== MEMBER VIEW =====
-        <main className="w-full pb-20 pt-4 md:pt-6">
-          <div className="px-4 md:px-[5%] mb-6">
-            <p className="text-sm text-[var(--text-muted)]">
-              Selamat datang kembali, <span className="text-[#3B82F6] font-bold">{profile?.name || 'User'}</span>
-            </p>
-          </div>
-          <div className="w-full px-4 md:px-[5%]">
-            {posts.length === 0 ? (
-              <div className="py-16 text-center">
-                <p className="text-[var(--text-muted)] mb-4">Belum ada update terbaru.</p>
-                <Link href="/create" className="inline-flex items-center gap-2 bg-[#3B82F6] text-white py-2 px-5 text-sm font-bold rounded-full hover:bg-[#2563EB] transition-all">Buat Karya Pertama</Link>
+        // ===== MEMBER VIEW (FEED) =====
+        <main className="flex-grow w-full pb-20 pt-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl mx-auto w-full">
+              
+              <div className="mb-6">
+                <p className="text-sm text-[var(--text-muted)]">
+                  Selamat datang kembali, <span className="text-[#3B82F6] font-bold">{profile?.name || 'User'}</span>
+                </p>
               </div>
-            ) : (
-              <div className="flex flex-col gap-4 md:gap-5 max-w-2xl mx-auto lg:max-w-3xl">
-                {posts.map((post) => (
-                  <PostCard key={post.id} post={post} currentUserId={user.id} userEmail={user.email} />
-                ))}
-              </div>
-            )}
+
+              {posts.length === 0 ? (
+                <div className="py-16 text-center border border-dashed border-[var(--border-color)] rounded-2xl bg-[var(--bg-card)]/50">
+                  <p className="text-[var(--text-muted)] mb-4">Belum ada update terbaru.</p>
+                  <Link href="/create" className="inline-flex items-center gap-2 bg-[#3B82F6] text-white py-2 px-5 text-sm font-bold rounded-full hover:bg-[#2563EB] transition-all">Buat Karya Pertama</Link>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-5">
+                  {posts.map((post) => (
+                    <PostCard key={post.id} post={post} currentUserId={user.id} userEmail={user.email} />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </main>
       )}
