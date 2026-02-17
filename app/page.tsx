@@ -167,39 +167,39 @@ export default async function HomePage() {
           </section>
 
           {/* ===== LOGO SLIDER SECTION ===== */}
-          {partners.length > 0 && (
-            <section className="py-12 border-y border-[var(--border-color)] bg-[var(--bg-card)] mb-12">
-              <div className="px-4 md:px-[5%] mb-6 text-center">
-                <p className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-[0.3em] font-bold">
-                  SUPPORTED BY
-                </p>
-              </div>
+{partners.length > 0 && (
+  <section className="py-12 bg-[var(--bg-card)] mb-12">
+    <div className="px-4 md:px-[5%] mb-6 text-center">
+      <p className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-[0.3em] font-bold">
+        SUPPORTED BY
+      </p>
+    </div>
 
-              <div 
-                className="relative overflow-hidden" 
-                style={{ 
-                  maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
-                  WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
-                }}
-              >
-                <div className="animate-marquee-right hover:pause-animation">
-                  {[...partners, ...partners].map((partner, idx) => (
-                    <div 
-                      key={partner.id + idx} 
-                      className="inline-flex items-center justify-center px-8 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-pointer"
-                      title={partner.name}
-                    >
-                      <img 
-                        src={partner.logoUrl} 
-                        alt={partner.name} 
-                        className="h-10 md:h-14 w-auto object-contain max-w-[180px]"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-          )}
+    <div 
+      className="relative overflow-hidden" 
+      style={{ 
+        maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
+      }}
+    >
+      <div className="animate-marquee-right hover:pause-animation">
+        {[...partners, ...partners].map((partner, idx) => (
+          <div 
+            key={partner.id + idx} 
+            className="inline-flex items-center justify-center px-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-pointer"
+            title={partner.name}
+          >
+            <img 
+              src={partner.logoUrl} 
+              alt={partner.name} 
+              className="h-10 md:h-14 w-auto object-contain max-w-[180px]"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
 
           <main id="posts" className="px-4 md:px-[5%] py-12 md:py-20">
             <h2 className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-wider mb-8">
