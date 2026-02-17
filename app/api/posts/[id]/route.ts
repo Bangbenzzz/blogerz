@@ -3,8 +3,8 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import prisma from '@/lib/prisma'
 
-// Helper untuk auth supaya tidak duplikasi kode
-async function getAuthUser() {
+// Helper untuk Auth
+async function getUser() {
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,13 +17,13 @@ async function getAuthUser() {
 // GET: Ambil detail post untuk diedit
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> } // PERUBAHAN: params sekarang Promise
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { data: { user } } = await getAuthUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
   try {
-    // PERUBAHAN: Await params dulu
+    const { data: { user } } = await getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // WAJIB: Await params di Next.js 15
     const { id } = await params
 
     const post = await prisma.post.findUnique({
@@ -36,20 +36,21 @@ export async function GET(
 
     return NextResponse.json(post)
   } catch (error) {
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    console.error("GET Error:", error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
 
-// PUT: Simpan perubahan post
+// PUT: Simpan perubahan
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> } // PERUBAHAN: params sekarang Promise
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { data: { user } } = await getAuthUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
   try {
-    // PERUBAHAN: Await params dulu
+    const { data: { user } } = await getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // WAJIB: Await params
     const { id } = await params
     
     const body = await request.json()
@@ -71,6 +72,7 @@ export async function PUT(
 
     return NextResponse.json(updatedPost)
   } catch (error) {
+    console.error("PUT Error:", error)
     return NextResponse.json({ error: 'Failed to update' }, { status: 500 })
   }
 }
@@ -78,13 +80,13 @@ export async function PUT(
 // DELETE: Hapus post
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> } // PERUBAHAN: params sekarang Promise
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { data: { user } } = await getAuthUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
   try {
-    // PERUBAHAN: Await params dulu
+    const { data: { user } } = await getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // WAJIB: Await params
     const { id } = await params
 
     const existingPost = await prisma.post.findUnique({
@@ -100,6 +102,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
+    console.error("DELETE Error:", error)
     return NextResponse.json({ error: 'Failed to delete' }, { status: 500 })
   }
 }

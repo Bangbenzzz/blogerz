@@ -352,7 +352,7 @@ export default function CreatePostPage() {
 
       if (res.ok) { 
         showToast(editId ? "Perubahan berhasil disimpan!" : "Berhasil dipublikasikan!", "success")
-        router.push('/my-posts') // Arahkan kembali ke daftar karya setelah simpan
+        router.push('/my-posts') 
         router.refresh()
       }
       else { 
@@ -375,7 +375,7 @@ export default function CreatePostPage() {
 
   const insertEmoji = (emoji: string) => { editor?.chain().focus().insertContent(emoji).run(); setShowEmojiPicker(false) }
 
-  // Loading State saat memuat data edit
+  // Loading State
   if (!editor || (isEditing && isFetching)) return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-900">
       <div className="flex flex-col items-center gap-4">
@@ -443,17 +443,25 @@ export default function CreatePostPage() {
         </div> 
       )}
 
-      {/* HEADER - TOMBOL BATAL DIHAPUS */}
+      {/* HEADER - DENGAN TOMBOL KEMBALI */}
       <header className="sticky top-0 z-[200] bg-neutral-800/95 backdrop-blur-xl border-b border-neutral-700">
-        <div className="flex items-center justify-end px-3 sm:px-4 py-2 sm:py-3">
-          {/* Tombol Kembali/Dikosongkan sesuai permintaan */}
-          {/* Jika ingin kembali, user bisa pakai browser back button atau klik logo di navbar utama */}
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
           
+          {/* TOMBOL KEMBALI - DITAMBAHKAN */}
+          <button 
+            onClick={() => router.back()} 
+            className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors p-2 hover:bg-neutral-700 rounded-lg"
+            title="Kembali"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span className="hidden sm:inline text-sm font-bold">Kembali</span>
+          </button>
+
           <button onClick={handleSubmit} disabled={loading || !title.trim()} className="px-4 sm:px-6 py-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-bold rounded-full disabled:opacity-50 transition-all flex items-center gap-2">
              {loading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2L11 13" /><path d="M22 2l-7 20-4-9-9-4 20-7z" /></svg>}
-             <span className="hidden sm:inline">
-               {loading ? 'Menyimpan...' : (isEditing ? 'Simpan Perubahan' : 'Publikasikan')}
-             </span>
+             <span className="hidden sm:inline">{loading ? 'Menyimpan...' : (isEditing ? 'Simpan Perubahan' : 'Publikasikan')}</span>
              <span className="sm:hidden">{loading ? '...' : 'Simpan'}</span>
           </button>
         </div>
