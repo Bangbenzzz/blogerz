@@ -10,7 +10,7 @@ export default function Footer() {
         {/* Disclaimer - Teks Lengkap, Rata Tengah */}
         <div className="space-y-2">
           <h3 className="font-bold text-xs uppercase tracking-wider mb-3">
-            Disclaimer & Privacy Policy
+            Disclaimer
           </h3>
           <p className="leading-relaxed max-w-2xl mx-auto">
             Platform ini disediakan sebagai <strong className="font-semibold">sarana ilmiah dan kreatif</strong> untuk berbagi karya tulis. 
