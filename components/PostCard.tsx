@@ -32,10 +32,14 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedCommentId, setSelectedCommentId] = useState<string | null>(null)
 
-  // Cek apakah user adalah pemilik post
   const isOwner = currentUserId === post.author.id
-  // Cek apakah user adalah admin
   const isAdmin = userEmail === process.env.NEXT_PUBLIC_ADMIN_EMAIL
+
+  // --- BAGIAN PENTING: LOGIKA LINK PENULIS ---
+  // Jika username ada -> /user/username. Jika tidak -> /dashboard (atau tetap di halaman ini)
+  const authorLink = post.author.username 
+    ? `/user/${post.author.username}` 
+    : `/dashboard`; 
 
   const handleLike = async () => {
     if (loading || !currentUserId) return
@@ -125,12 +129,11 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
 
       <article className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden transition-all hover:border-[#3B82F6]/30 relative group/card">
         
-        
-
         {/* Header */}
         <div className="p-4 md:p-5 border-b border-[var(--border-color)]">
           <div className="flex items-center gap-3">
-            <Link href={`/user/${post.author.username || post.author.id}`} className="flex-shrink-0">
+            {/* GUNAKAN VARIABEL authorLink DI SINI */}
+            <Link href={authorLink} className="flex-shrink-0">
               <div className="w-11 h-11 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-[var(--border-color)] hover:border-[#3B82F6] transition-colors">
                 {post.author.avatarUrl ? (
                   <img src={post.author.avatarUrl} alt="" className="w-full h-full object-cover" />
@@ -143,7 +146,8 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
             </Link>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <Link href={`/user/${post.author.username || post.author.id}`} className="font-bold text-[var(--text-main)] hover:text-[#3B82F6] transition-colors text-sm md:text-base truncate">
+                {/* GUNAKAN VARIABEL authorLink DI SINI */}
+                <Link href={authorLink} className="font-bold text-[var(--text-main)] hover:text-[#3B82F6] transition-colors text-sm md:text-base truncate">
                   {post.author.name || 'Anonymous'}
                 </Link>
                 {post.author.isVerified && <VerifiedBadge size="sm" />}
@@ -159,7 +163,6 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
         <div className="p-4 md:p-5">
           <h2 className="text-lg md:text-xl font-bold text-[var(--text-main)] mb-3">{post.title}</h2>
           
-          {/* === PERBAIKAN RENDER HTML === */}
           {post.content && (
             <div 
               className={`text-sm md:text-base text-[var(--text-muted)] leading-relaxed break-words
@@ -187,21 +190,30 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
                   {comments.map((comment) => {
                     const isCommentOwner = comment.author.id === currentUserId;
                     const canDelete = isCommentOwner || isAdmin;
+                    // Logika link untuk komentator
+                    const commentAuthorLink = comment.author.username 
+                      ? `/user/${comment.author.username}` 
+                      : `/dashboard`;
+
                     return (
                       <div key={comment.id} className="flex gap-2">
-                        <div className="w-7 h-7 rounded-full overflow-hidden border border-[var(--border-color)] flex-shrink-0">
-                          {comment.author.avatarUrl ? (
-                            <img src={comment.author.avatarUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full bg-[var(--bg-card)] flex items-center justify-center">
-                              <span className="text-[10px] font-bold text-[var(--text-muted)]">{comment.author.name?.[0]?.toUpperCase() || '?'}</span>
-                            </div>
-                          )}
-                        </div>
+                        <Link href={commentAuthorLink} className="flex-shrink-0">
+                          <div className="w-7 h-7 rounded-full overflow-hidden border border-[var(--border-color)]">
+                            {comment.author.avatarUrl ? (
+                              <img src={comment.author.avatarUrl} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full bg-[var(--bg-card)] flex items-center justify-center">
+                                <span className="text-[10px] font-bold text-[var(--text-muted)]">{comment.author.name?.[0]?.toUpperCase() || '?'}</span>
+                              </div>
+                            )}
+                          </div>
+                        </Link>
                         <div className="flex-1 min-w-0 bg-[var(--bg-card)] rounded-lg p-2">
                           <div className="flex items-center justify-between gap-2 mb-0.5">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-xs font-bold text-[var(--text-main)]">{comment.author.name || 'Anonymous'}</span>
+                              <Link href={commentAuthorLink} className="text-xs font-bold text-[var(--text-main)] hover:text-[#3B82F6]">
+                                {comment.author.name || 'Anonymous'}
+                              </Link>
                               {comment.author.isVerified && <VerifiedBadge size="sm" />}
                               <span className="text-[10px] text-[var(--text-muted)]">• {formatDate(comment.createdAt)}</span>
                             </div>

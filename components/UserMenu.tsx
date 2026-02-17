@@ -26,7 +26,8 @@ export default function UserMenu({ userEmail, avatarUrl, username, name }: UserM
   }, [])
 
   const displayName = name || 'User'
-  const displayHandle = username ? `@${username}` : userEmail || 'user'
+  // Tentukan link tujuan: jika username ada -> /user/username, jika tidak -> /dashboard
+  const profileLink = username ? `/user/${username}` : '/dashboard'
 
   return (
     <div ref={menuRef} className="relative">
@@ -35,12 +36,10 @@ export default function UserMenu({ userEmail, avatarUrl, username, name }: UserM
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 focus:outline-none group"
       >
-        {/* Hover Border Biru */}
         <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-[var(--border-color)] group-hover:border-[#3B82F6] transition-colors">
           {avatarUrl ? (
             <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
           ) : (
-            // Avatar Placeholder Biru
             <div className="w-full h-full bg-gradient-to-br from-[#3B82F6] to-blue-700 flex items-center justify-center">
               <span className="text-sm font-bold text-white">
                 {displayName?.[0]?.toUpperCase() || 'U'}
@@ -70,14 +69,15 @@ export default function UserMenu({ userEmail, avatarUrl, username, name }: UserM
               {displayName}
             </p>
             <p className="text-xs text-[var(--text-muted)] truncate">
-              {displayHandle}
+              {username ? `@${username}` : userEmail}
             </p>
           </div>
 
           {/* Menu Items */}
           <div className="py-2">
+            {/* Gunakan link dinamis di sini */}
             <Link
-              href="/dashboard"
+              href={profileLink}
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-card)] transition-colors"
             >

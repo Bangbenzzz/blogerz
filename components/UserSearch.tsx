@@ -14,7 +14,6 @@ export default function UserSearch() {
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Debounce Search
   useEffect(() => {
     const delaySearch = setTimeout(async () => {
       if (query.length >= 1) {
@@ -35,7 +34,6 @@ export default function UserSearch() {
     return () => clearTimeout(delaySearch)
   }, [query])
 
-  // Close on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -50,7 +48,6 @@ export default function UserSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [isExpanded])
 
-  // Auto focus on expand
   useEffect(() => {
     if (isExpanded && inputRef.current) {
       inputRef.current.focus()
@@ -58,6 +55,7 @@ export default function UserSearch() {
   }, [isExpanded])
 
   const handleUserClick = (user: any) => {
+    // PERBAIKAN: Jika username ada, push ke profil. Jika tidak, peringati.
     if (user.username) {
       router.push(`/user/${user.username}`)
       setQuery('')
@@ -70,7 +68,7 @@ export default function UserSearch() {
 
   return (
     <div ref={containerRef} className="relative">
-      {/* Desktop Search - Border Biru saat Focus/Hover */}
+      {/* Desktop Search */}
       <div className="hidden md:flex items-center bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full h-[36px] w-[220px] px-3 hover:border-[#3B82F6]/50 focus-within:border-[#3B82F6] transition-colors">
         <svg className="text-[var(--text-muted)] flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8"/>
@@ -84,12 +82,11 @@ export default function UserSearch() {
           className="bg-transparent border-none text-[var(--text-main)] text-[13px] pl-2 w-full h-full outline-none placeholder:text-[var(--text-muted)]"
         />
         {loading && (
-          // Spinner Biru
           <div className="w-4 h-4 border-2 border-[#3B82F6] border-t-transparent rounded-full animate-spin"/>
         )}
       </div>
 
-      {/* Mobile Search Icon - Hover Biru */}
+      {/* Mobile Search Icon */}
       {!isExpanded && (
         <button
           onClick={() => setIsExpanded(true)}
@@ -102,7 +99,7 @@ export default function UserSearch() {
         </button>
       )}
 
-      {/* Mobile Expanded Search - Border Biru */}
+      {/* Mobile Expanded Search */}
       {isExpanded && (
         <div className="fixed top-[10px] left-[10px] right-[10px] z-[999] md:hidden">
           <div className="h-[45px] flex items-center bg-[var(--bg-main)] border border-[#3B82F6] rounded-full px-3 shadow-lg">
@@ -120,7 +117,6 @@ export default function UserSearch() {
               autoFocus
             />
             {loading && (
-              // Spinner Biru
               <div className="w-4 h-4 border-2 border-[#3B82F6] border-t-transparent rounded-full animate-spin mr-2"/>
             )}
             <button

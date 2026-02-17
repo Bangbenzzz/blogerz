@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { ThemeToggle } from './ThemeToggle'
 import { NotificationBell } from './NotificationBell'
 import { searchUsers } from '@/app/actions'
+// IMPORT KOMPONEN LOGO DINAMIS (PENTING!)
+import DynamicLogo from './DynamicLogo'
 
 interface NavItem {
   label: string
@@ -29,7 +31,6 @@ interface AdminHeaderProps {
   pendingCount?: number
 }
 
-// TAMBAHKAN SETTINGS DI SINI
 const defaultNavItems: NavItem[] = [
   { label: 'Posts', href: '/admin', icon: '📝' },
   { label: 'Users', href: '/admin/users', icon: '👥' },
@@ -145,20 +146,8 @@ export function AdminHeader({
     <header className="sticky top-0 z-50 bg-[var(--bg-main)] backdrop-blur-xl border-b border-white/10">
       {/* Main Header Row */}
       <div className="flex justify-between items-center py-3 px-4 md:px-[10%]">
-        {/* LEFT: Title */}
-        <div className="flex flex-col gap-0.5 flex-shrink-0">
-          <span className="text-[#3B82F6] font-mono text-[10px] tracking-widest uppercase">
-            {`// ADMIN PANEL`}
-          </span>
-          <h1 className="text-base md:text-xl font-extrabold uppercase tracking-tight text-[var(--text-main)]">
-            {displayTitle}
-          </h1>
-          {subtitle && (
-            <span className="text-[10px] text-[var(--text-muted)] font-mono">
-              {subtitle}
-            </span>
-          )}
-        </div>
+        {/* LEFT: GANTI DENGAN LOGO DINAMIS */}
+        <DynamicLogo />
 
         {/* RIGHT: Desktop Nav + Actions */}
         <div className="hidden md:flex items-center gap-3">

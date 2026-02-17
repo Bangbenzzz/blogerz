@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import SettingsEditor from './SettingsEditor'
+// IMPORT KOMPONEN LOGO DINAMIS
+import DynamicLogo from '@/components/DynamicLogo'
 
 export default async function SettingsPage() {
   const cookieStore = await cookies()
@@ -29,18 +31,8 @@ export default async function SettingsPage() {
       <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
         <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
           
-          {/* Logo - Ukuran Standar */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden">
-              <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
-            </div>
-            
-            {/* Teks CERMATI */}
-            <span className="font-extrabold text-lg md:text-xl">
-              <span className="text-white">CER</span>
-              <span className="text-[#3B82F6]">MATI</span>
-            </span>
-          </Link>
+          {/* GANTI DENGAN KOMPONEN LOGO DINAMIS */}
+          <DynamicLogo />
 
           <Link 
             href="/dashboard" 
