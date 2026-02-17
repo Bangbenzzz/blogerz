@@ -13,6 +13,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  // STATE UNTUK TOGGLE PASSWORD
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,7 +62,6 @@ export default function LoginPage() {
       
       <div className="flex flex-col items-center text-center w-full max-w-md">
         
-        {/* Warna Biru Tidak Terang #3B82F6 */}
         <div className="text-[#3B82F6] font-mono text-[11px] tracking-widest mb-4 uppercase">
           // Welcome Back
         </div>
@@ -74,7 +75,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="flex flex-col gap-8 w-full">
           
-          {/* Border focus biru */}
+          {/* Input Email */}
           <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[#3B82F6] text-left">
             <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
               Email Address
@@ -89,24 +90,47 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Border focus biru */}
-          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[#3B82F6] text-left">
+          {/* Input Password dengan Icon Mata */}
+          <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[#3B82F6] text-left relative">
             <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
               Password
             </label>
-            <input 
-              type="password" 
-              className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center"
-              placeholder="••••••••" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"} // Ubah tipe berdasarkan state
+                className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center pr-10" // Tambah padding kanan untuk ikon
+                placeholder="••••••••" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+              />
+              
+              {/* Tombol Icon Mata */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors p-1"
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  // Icon Mata Terbuka (Visible)
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                ) : (
+                  // Icon Mata Tertutup (Hidden)
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           {errorMsg && <div className="text-red-500 text-[11px] font-mono -mt-4 text-center">[!] {errorMsg}</div>}
 
-          {/* Tombol Sign In Biru */}
           <button 
             type="submit" 
             className="bg-[#3B82F6] text-white py-3 px-10 font-bold text-xs uppercase transition-all tracking-widest w-full mt-2 hover:bg-[#2563EB] hover:shadow-[0_0_25px_rgba(59,130,246,0.3)] disabled:opacity-50"
@@ -124,7 +148,6 @@ export default function LoginPage() {
 
         <div className="flex justify-between items-center gap-4 w-full">
           
-          {/* Hover border biru */}
           <button 
             onClick={() => handleSocialLogin('google')} 
             className="flex-1 flex items-center justify-center gap-2 bg-transparent border border-[var(--border-color)] text-[var(--text-main)] py-3 text-xs font-bold transition-all font-mono hover:border-[#3B82F6] hover:text-[#3B82F6]"
@@ -138,7 +161,6 @@ export default function LoginPage() {
             GOOGLE
           </button>
           
-          {/* Hover border biru */}
           <button 
             onClick={() => handleSocialLogin('github')} 
             className="flex-1 flex items-center justify-center gap-2 bg-transparent border border-[var(--border-color)] text-[var(--text-main)] py-3 text-xs font-bold transition-all font-mono hover:border-[#3B82F6] hover:text-[#3B82F6]"
@@ -150,7 +172,6 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* Link warna biru */}
         <div className="mt-10 text-[11px] text-[var(--text-muted)] font-mono">
           New here? <Link href="/register" className="text-[#3B82F6] no-underline font-bold ml-1 hover:underline">Create an account</Link>
         </div>
