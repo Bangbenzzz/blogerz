@@ -4,12 +4,20 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import prisma from '@/lib/prisma'
 import UserMenu from '@/components/UserMenu'
-import PostCard from '@/components/PostCard'
 import UserSearch from '@/components/UserSearch'
 import VerifiedBadge from '@/components/VerifiedBadge'
 import TypewriterText from '@/components/TypewriterText'
+// IMPORT KOMPONEN YANG HILANG
+import PostCard from '@/components/PostCard'
+// IMPORT KOMPONEN LOGO DINAMIS
+import DynamicLogo from '@/components/DynamicLogo'
 
 export const revalidate = 0
+
+// Fungsi helper untuk membersihkan HTML (agar preview tidak rusak)
+function stripHtml(html: string) {
+  return html.replace(/<[^>]*>/g, '')
+}
 
 export default async function HomePage() {
   const cookieStore = await cookies()
@@ -27,13 +35,11 @@ export default async function HomePage() {
       where: { id: user.id }
     })
     
-    // Jika user dibanned, tendang ke halaman /banned
     if (profile?.isBanned) {
       redirect('/banned')
     }
   }
 
-  // Ambil Postingan
   const posts = await prisma.post.findMany({
     where: { published: true },
     include: { 
@@ -44,19 +50,9 @@ export default async function HomePage() {
     orderBy: { createdAt: 'desc' }
   })
 
-  // Ambil Partners
   const partners = await prisma.partner.findMany({
     orderBy: { order: 'asc' }
   })
-
-  // === AMBIL SETTINGS DARI DB ===
-  const settingsRaw = await prisma.setting.findMany()
-  const settings: Record<string, string> = {}
-  settingsRaw.forEach((s: any) => settings[s.key] = s.value)
-
-  // Tentukan nilai default jika belum ada di DB
-  const siteName = settings.site_name || 'CERMATI'
-  const siteLogo = settings.site_logo || '/logo.svg'
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -65,19 +61,8 @@ export default async function HomePage() {
       <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
         <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
           
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden">
-              {/* Logo Dinamis */}
-              <img src={siteLogo} alt="Logo" className="w-full h-full object-contain" />
-            </div>
-            <span className="font-extrabold text-lg md:text-xl">
-              {/* Nama Website Dinamis */}
-              <span className="text-white">{siteName.split(' ')[0]}</span>
-              {siteName.split(' ')[1] && (
-                <span className="text-[#3B82F6]"> {siteName.split(' ')[1]}</span>
-              )}
-            </span>
-          </Link>
+          {/* GANTI DENGAN KOMPONEN LOGO DINAMIS */}
+          <DynamicLogo />
 
           <div className="flex items-center gap-2 md:gap-3">
             
@@ -88,10 +73,6 @@ export default async function HomePage() {
                     href="/admin" 
                     className="hidden sm:flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-500 py-2 px-4 text-[11px] font-bold rounded-full hover:bg-purple-500 hover:text-white transition-all"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="3"/>
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    </svg>
                     Admin
                   </Link>
                 )}
@@ -100,7 +81,7 @@ export default async function HomePage() {
                   href="/create"
                   className="flex items-center gap-1.5 bg-[#3B82F6] text-white py-2 px-3 md:px-4 text-[11px] font-bold rounded-full hover:bg-[#2563EB] transition-all"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
                   </svg>
@@ -167,39 +148,39 @@ export default async function HomePage() {
           </section>
 
           {/* ===== LOGO SLIDER SECTION ===== */}
-{partners.length > 0 && (
-  <section className="py-12 bg-[var(--bg-card)] mb-12">
-    <div className="px-4 md:px-[5%] mb-6 text-center">
-      <p className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-[0.3em] font-bold">
-        SUPPORTED BY
-      </p>
-    </div>
+          {partners.length > 0 && (
+            <section className="py-12 bg-[var(--bg-card)] mb-12">
+              <div className="px-4 md:px-[5%] mb-6 text-center">
+                <p className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-[0.3em] font-bold">
+                  SUPPORTED BY
+                </p>
+              </div>
 
-    <div 
-      className="relative overflow-hidden" 
-      style={{ 
-        maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
-        WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
-      }}
-    >
-      <div className="animate-marquee-right hover:pause-animation">
-        {[...partners, ...partners].map((partner, idx) => (
-          <div 
-            key={partner.id + idx} 
-            className="inline-flex items-center justify-center px-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-pointer"
-            title={partner.name}
-          >
-            <img 
-              src={partner.logoUrl} 
-              alt={partner.name} 
-              className="h-10 md:h-14 w-auto object-contain max-w-[180px]"
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-)}
+              <div 
+                className="relative overflow-hidden" 
+                style={{ 
+                  maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+                  WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
+                }}
+              >
+                <div className="animate-marquee-right hover:pause-animation">
+                  {[...partners, ...partners].map((partner, idx) => (
+                    <div 
+                      key={partner.id + idx} 
+                      className="inline-flex items-center justify-center px-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-pointer"
+                      title={partner.name}
+                    >
+                      <img 
+                        src={partner.logoUrl} 
+                        alt={partner.name} 
+                        className="h-10 md:h-14 w-auto object-contain max-w-[180px]"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
 
           <main id="posts" className="px-4 md:px-[5%] py-12 md:py-20">
             <h2 className="font-mono text-xs text-[var(--text-muted)] uppercase tracking-wider mb-8">
@@ -207,56 +188,62 @@ export default async function HomePage() {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {posts.slice(0, 6).map((post) => (
-                <article 
-                  key={post.id} 
-                  className="group bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden transition-all hover:border-[#3B82F6]/50 hover:-translate-y-1"
-                >
-                  <div className="p-4 border-b border-[var(--border-color)]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full overflow-hidden border border-[var(--border-color)]">
-                        {post.author.avatarUrl ? (
-                          <img src={post.author.avatarUrl} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                            <span className="text-xs font-bold text-white">
-                              {post.author.name?.[0]?.toUpperCase() || '?'}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm font-bold text-[var(--text-main)]">
-                          {post.author.name || 'Member'}
-                        </span>
-                        {post.author.isVerified && <VerifiedBadge size="sm" />}
+              {posts.slice(0, 6).map((post) => {
+                // PERBAIKAN: Bersihkan HTML lalu potong
+                const cleanContent = post.content ? stripHtml(post.content) : ''
+                
+                return (
+                  <article 
+                    key={post.id} 
+                    className="group bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden transition-all hover:border-[#3B82F6]/50 hover:-translate-y-1"
+                  >
+                    <div className="p-4 border-b border-[var(--border-color)]">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full overflow-hidden border border-[var(--border-color)]">
+                          {post.author.avatarUrl ? (
+                            <img src={post.author.avatarUrl} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                              <span className="text-xs font-bold text-white">
+                                {post.author.name?.[0]?.toUpperCase() || '?'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm font-bold text-[var(--text-main)]">
+                            {post.author.name || 'Member'}
+                          </span>
+                          {post.author.isVerified && <VerifiedBadge size="sm" />}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="p-4">
-                    <h3 className="text-lg font-bold text-[var(--text-main)] mb-2 group-hover:text-[#3B82F6] transition-colors line-clamp-2">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-[var(--text-muted)] line-clamp-3 leading-relaxed">
-                      {post.content?.slice(0, 120)}...
-                    </p>
-                  </div>
+                    <div className="p-4">
+                      <h3 className="text-lg font-bold text-[var(--text-main)] mb-2 group-hover:text-[#3B82F6] transition-colors line-clamp-2">
+                        {post.title}
+                      </h3>
+                      {/* Gunakan konten yang sudah dibersihkan */}
+                      <p className="text-sm text-[var(--text-muted)] line-clamp-3 leading-relaxed">
+                        {cleanContent.slice(0, 120)}...
+                      </p>
+                    </div>
 
-                  <div className="px-4 pb-4">
-                    <Link 
-                      href="/login" 
-                      className="text-xs font-bold text-[#3B82F6] hover:underline flex items-center gap-1"
-                    >
-                      Login untuk baca
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                      </svg>
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                    <div className="px-4 pb-4">
+                      <Link 
+                        href="/login" 
+                        className="text-xs font-bold text-[#3B82F6] hover:underline flex items-center gap-1"
+                      >
+                        Login untuk baca
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12"/>
+                          <polyline points="12 5 19 12 12 19"/>
+                        </svg>
+                      </Link>
+                    </div>
+                  </article>
+                )
+              })}
             </div>
           </main>
         </>

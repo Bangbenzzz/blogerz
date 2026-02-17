@@ -136,7 +136,11 @@ export default function ClientPostList({ initialPosts }: { initialPosts: any[] }
             </div>
 
             <div className="flex gap-2">
-              <Link href={`/dashboard/write?id=${post.id}`} className="py-1.5 px-3 border border-[var(--border-color)] rounded-lg text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--text-main)] hover:text-[var(--bg-main)] transition-colors">
+              {/* PERUBAHAN: Tombol Edit mengarah ke /create?id=... */}
+              <Link 
+                href={`/create?id=${post.id}`} 
+                className="py-1.5 px-3 border border-[var(--border-color)] rounded-lg text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--text-main)] hover:text-[var(--bg-main)] transition-colors"
+              >
                 Edit
               </Link>
 

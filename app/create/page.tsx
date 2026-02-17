@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { showToast } from '@/components/Toast'
 import { compressImage } from '@/lib/compressor'
@@ -32,7 +32,7 @@ import 'react-image-crop/dist/ReactCrop.css'
 interface DropdownPortalProps {
   children: ReactNode
   isOpen: boolean
-  buttonRef: React.RefObject<HTMLButtonElement | null>  // Tambahkan | null
+  buttonRef: React.RefObject<HTMLButtonElement | null>
   align?: 'left' | 'right'
 }
 
@@ -199,6 +199,11 @@ export default function CreatePostPage() {
   const [completedCrop, setCompletedCrop] = useState<Crop>()
   const [currentFile, setCurrentFile] = useState<File | null>(null)
   
+  // State untuk Edit Mode
+  const [isEditing, setIsEditing] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
+  const searchParams = useSearchParams()
+  
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
@@ -222,6 +227,34 @@ export default function CreatePostPage() {
       handleDrop: (view, event, slice, moved) => { if (!moved && event.dataTransfer?.files?.[0]) { handleFileSelect(event.dataTransfer.files[0]); return true } return false },
     },
   })
+
+  // ==========================================
+  // LOGIKA EDIT: Fetch Data Post
+  // ==========================================
+  useEffect(() => {
+    const editId = searchParams.get('id')
+    if (editId && editor) {
+      setIsEditing(true)
+      setIsFetching(true)
+      
+      fetch(`/api/posts/${editId}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Gagal mengambil data')
+          return res.json()
+        })
+        .then(data => {
+          setTitle(data.title)
+          editor.commands.setContent(data.content)
+        })
+        .catch(err => {
+          console.error(err)
+          showToast("Gagal memuat data artikel", "error")
+        })
+        .finally(() => {
+          setIsFetching(false)
+        })
+    }
+  }, [searchParams, editor])
 
   const closeAllDropdowns = useCallback(() => { setShowHeadingMenu(false); setShowFontMenu(false); setShowColorPicker(false); setShowEmojiPicker(false) }, [])
 
@@ -296,6 +329,9 @@ export default function CreatePostPage() {
     }, 'image/jpeg', 0.95)
   }
 
+  // ==========================================
+  // LOGIKA SUBMIT (Buat Baru atau Update)
+  // ==========================================
   const handleSubmit = async () => {
     if (!title.trim()) return showToast("Judul wajib diisi!", "error")
     if (!editor) return
@@ -304,10 +340,30 @@ export default function CreatePostPage() {
     
     setLoading(true)
     try {
-      const res = await fetch('/api/posts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, content }) })
-      if (res.ok) { showToast("Berhasil dipublikasikan!", "success"); router.push('/') }
-      else { showToast("Gagal menyimpan", "error") }
-    } catch (err: any) { showToast(err.message || "Error", "error") } finally { setLoading(false) }
+      const editId = searchParams.get('id')
+      const url = editId ? `/api/posts/${editId}` : '/api/posts'
+      const method = editId ? 'PUT' : 'POST'
+      
+      const res = await fetch(url, { 
+        method, 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ title, content }) 
+      })
+
+      if (res.ok) { 
+        showToast(editId ? "Perubahan berhasil disimpan!" : "Berhasil dipublikasikan!", "success")
+        router.push('/my-posts') // Arahkan kembali ke daftar karya setelah simpan
+        router.refresh()
+      }
+      else { 
+        const errData = await res.json()
+        showToast(errData.error || "Gagal menyimpan", "error") 
+      }
+    } catch (err: any) { 
+      showToast(err.message || "Error", "error") 
+    } finally { 
+      setLoading(false) 
+    }
   }
 
   const setLink = useCallback(() => {
@@ -319,7 +375,15 @@ export default function CreatePostPage() {
 
   const insertEmoji = (emoji: string) => { editor?.chain().focus().insertContent(emoji).run(); setShowEmojiPicker(false) }
 
-  if (!editor) return <div className="min-h-screen flex items-center justify-center bg-neutral-900"><div className="w-8 h-8 border-4 border-neutral-400 border-t-transparent rounded-full animate-spin"></div></div>
+  // Loading State saat memuat data edit
+  if (!editor || (isEditing && isFetching)) return (
+    <div className="min-h-screen flex items-center justify-center bg-neutral-900">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-8 h-8 border-4 border-neutral-400 border-t-transparent rounded-full animate-spin"></div>
+        <span className="text-neutral-400 text-sm">Memuat artikel...</span>
+      </div>
+    </div>
+  )
 
   const TBtn = ({ onClick, active, disabled, children, title }: any) => (
     <button type="button" onClick={(e) => { e.stopPropagation(); onClick(e); }} disabled={disabled} title={title} 
@@ -332,13 +396,9 @@ export default function CreatePostPage() {
   return (
     <div className="min-h-screen bg-neutral-900 flex flex-col font-sans" onClick={closeAllDropdowns}>
       
-      {/* BACKDROP untuk menutup dropdown */}
+      {/* BACKDROP */}
       {anyDropdownOpen && (
-        <div 
-          className="fixed inset-0" 
-          style={{ zIndex: 99998 }}
-          onClick={closeAllDropdowns}
-        />
+        <div className="fixed inset-0" style={{ zIndex: 99998 }} onClick={closeAllDropdowns} />
       )}
 
       {/* MODAL CROP IMAGE */}
@@ -362,7 +422,7 @@ export default function CreatePostPage() {
               <button onClick={() => { setCropModalOpen(false); setOriginalImage(null) }} className="px-5 py-2.5 rounded-xl bg-neutral-700 text-neutral-200 text-sm font-semibold hover:bg-neutral-600 transition-colors">Batal</button>
               <button onClick={processAndUpload} disabled={loading} className="px-5 py-2.5 rounded-xl bg-neutral-200 text-neutral-900 text-sm font-semibold hover:bg-white disabled:opacity-50 transition-all flex items-center gap-2">
                 {loading && <div className="w-4 h-4 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin" />}
-                {loading ? 'Processing...' : 'Upload Hasil Crop'}
+                {loading ? 'Processing...' : 'Upload'}
               </button>
             </div>
           </div>
@@ -383,16 +443,18 @@ export default function CreatePostPage() {
         </div> 
       )}
 
-      {/* HEADER */}
+      {/* HEADER - TOMBOL BATAL DIHAPUS */}
       <header className="sticky top-0 z-[200] bg-neutral-800/95 backdrop-blur-xl border-b border-neutral-700">
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
-          <button onClick={() => router.back()} className="p-2 hover:bg-neutral-700 rounded-full text-neutral-400 hover:text-neutral-200 transition-colors">
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
-          </button>
-          <button onClick={handleSubmit} disabled={loading || !title.trim()} className="px-4 sm:px-6 py-2 bg-neutral-200 hover:bg-white text-neutral-900 text-sm font-semibold rounded-full disabled:opacity-50 transition-all flex items-center gap-2">
-             {loading ? <div className="w-4 h-4 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin"></div> : <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2L11 13" /><path d="M22 2l-7 20-4-9-9-4 20-7z" /></svg>}
-             <span className="hidden sm:inline">{loading ? 'Menyimpan...' : 'Publikasikan'}</span>
-             <span className="sm:hidden">{loading ? '...' : 'Post'}</span>
+        <div className="flex items-center justify-end px-3 sm:px-4 py-2 sm:py-3">
+          {/* Tombol Kembali/Dikosongkan sesuai permintaan */}
+          {/* Jika ingin kembali, user bisa pakai browser back button atau klik logo di navbar utama */}
+          
+          <button onClick={handleSubmit} disabled={loading || !title.trim()} className="px-4 sm:px-6 py-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-bold rounded-full disabled:opacity-50 transition-all flex items-center gap-2">
+             {loading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2L11 13" /><path d="M22 2l-7 20-4-9-9-4 20-7z" /></svg>}
+             <span className="hidden sm:inline">
+               {loading ? 'Menyimpan...' : (isEditing ? 'Simpan Perubahan' : 'Publikasikan')}
+             </span>
+             <span className="sm:hidden">{loading ? '...' : 'Simpan'}</span>
           </button>
         </div>
       </header>
@@ -477,26 +539,15 @@ export default function CreatePostPage() {
         </div>
       </div>
 
-      {/* ============ PORTAL DROPDOWNS ============ */}
-
-      {/* Font Dropdown Portal */}
+      {/* PORTAL DROPDOWNS */}
       <DropdownPortal isOpen={showFontMenu} buttonRef={fontBtnRef}>
         <div className="bg-neutral-800 border border-neutral-600 rounded-xl shadow-2xl shadow-black/50 py-1 min-w-[150px] max-h-60 overflow-y-auto custom-scrollbar">
           {fontList.map(font => (
-            <button 
-              key={font} 
-              onMouseDown={(e) => e.preventDefault()} 
-              onClick={() => { editor.chain().focus().setFontFamily(font).run(); setShowFontMenu(false) }} 
-              style={{ fontFamily: font }} 
-              className="w-full px-4 py-2.5 text-left hover:bg-neutral-700 text-sm text-neutral-200 transition-colors"
-            >
-              {font}
-            </button>
+            <button key={font} onMouseDown={(e) => e.preventDefault()} onClick={() => { editor.chain().focus().setFontFamily(font).run(); setShowFontMenu(false) }} style={{ fontFamily: font }} className="w-full px-4 py-2.5 text-left hover:bg-neutral-700 text-sm text-neutral-200 transition-colors">{font}</button>
           ))}
         </div>
       </DropdownPortal>
 
-      {/* Heading Dropdown Portal */}
       <DropdownPortal isOpen={showHeadingMenu} buttonRef={headingBtnRef}>
         <div className="bg-neutral-800 border border-neutral-600 rounded-xl shadow-2xl shadow-black/50 py-1 min-w-[140px]">
           <button onMouseDown={(e) => e.preventDefault()} onClick={() => { editor.chain().focus().setParagraph().run(); setShowHeadingMenu(false) }} className="w-full px-4 py-2.5 text-left hover:bg-neutral-700 text-sm text-neutral-200 transition-colors">Normal</button>
@@ -505,39 +556,23 @@ export default function CreatePostPage() {
         </div>
       </DropdownPortal>
 
-      {/* Color Picker Portal */}
       <DropdownPortal isOpen={showColorPicker} buttonRef={colorBtnRef}>
         <div className="bg-neutral-800 border border-neutral-600 rounded-xl shadow-2xl shadow-black/50 p-3">
           <div className="text-xs text-neutral-400 mb-2 font-medium">Pilih Warna</div>
           <div className="grid grid-cols-5 gap-2 w-40">
             {['#fafafa', '#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#60a5fa', '#a78bfa', '#f472b6', '#94a3b8'].map(c => (
-              <button 
-                key={c} 
-                onMouseDown={(e) => e.preventDefault()} 
-                onClick={() => { editor.chain().focus().setColor(c).run(); setShowColorPicker(false) }} 
-                className="w-7 h-7 rounded-full border-2 border-neutral-600 hover:scale-110 hover:border-white transition-all shadow-lg" 
-                style={{ backgroundColor: c }} 
-                title={c}
-              />
+              <button key={c} onMouseDown={(e) => e.preventDefault()} onClick={() => { editor.chain().focus().setColor(c).run(); setShowColorPicker(false) }} className="w-7 h-7 rounded-full border-2 border-neutral-600 hover:scale-110 hover:border-white transition-all shadow-lg" style={{ backgroundColor: c }} title={c} />
             ))}
           </div>
         </div>
       </DropdownPortal>
 
-      {/* Emoji Picker Portal */}
       <DropdownPortal isOpen={showEmojiPicker} buttonRef={emojiBtnRef} align="right">
         <div className="p-3 bg-neutral-800 border border-neutral-600 rounded-xl shadow-2xl shadow-black/50 w-72">
           <div className="text-xs text-neutral-400 mb-2 px-1 font-medium">Pilih Emoji</div>
           <div className="grid grid-cols-7 gap-1 h-56 overflow-y-auto custom-scrollbar pr-1">
             {emojis.map((emoji, i) => (
-              <button 
-                key={i} 
-                onMouseDown={(e) => e.preventDefault()} 
-                onClick={() => insertEmoji(emoji)} 
-                className="w-8 h-8 flex items-center justify-center hover:bg-neutral-700 rounded-lg text-lg transition-colors"
-              >
-                {emoji}
-              </button>
+              <button key={i} onMouseDown={(e) => e.preventDefault()} onClick={() => insertEmoji(emoji)} className="w-8 h-8 flex items-center justify-center hover:bg-neutral-700 rounded-lg text-lg transition-colors">{emoji}</button>
             ))}
           </div>
         </div>

@@ -9,7 +9,6 @@ export default function DynamicLogo() {
   const [siteLogo, setSiteLogo] = useState('/logo.svg')
 
   useEffect(() => {
-    // Ambil data saat komponen dimuat
     getSiteSettings().then((settings) => {
       setSiteName(settings.siteName)
       setSiteLogo(settings.siteLogo)
@@ -23,7 +22,10 @@ export default function DynamicLogo() {
       </div>
       
       <span className="font-extrabold text-lg md:text-xl">
-        <span className="text-white">{siteName.split(' ')[0]}</span>
+        {/* UBAH INI: text-white -> text-[var(--text-main)] */}
+        <span className="text-[var(--text-main)]">{siteName.split(' ')[0]}</span>
+        
+        {/* Bagian kedua tetap biru (warna aksen) */}
         {siteName.split(' ')[1] && (
           <span className="text-[#3B82F6]"> {siteName.split(' ')[1]}</span>
         )}
