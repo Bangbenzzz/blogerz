@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { showToast } from '@/components/Toast' // Import Toast
 
 export default function AdminSettingsPage() {
   const router = useRouter()
@@ -26,7 +27,10 @@ export default function AdminSettingsPage() {
         if (data.site_logo) setFormData(prev => ({ ...prev, site_logo: data.site_logo }))
         if (data.site_description) setFormData(prev => ({ ...prev, site_description: data.site_description }))
       })
-      .catch(console.error)
+      .catch(err => {
+        console.error(err)
+        showToast("Gagal memuat data", "error")
+      })
   }, [])
 
   // Handle Upload Logo
@@ -48,11 +52,13 @@ export default function AdminSettingsPage() {
       
       const { url } = await res.json()
       setFormData({ ...formData, site_logo: url })
-      alert('Logo berhasil diupload! Klik "Simpan Perubahan" untuk menyimpan.')
+      
+      // GANTI Alert dengan Toast
+      showToast("Logo berhasil diupload! Jangan lupa simpan.", "success")
 
     } catch (error) {
       console.error(error)
-      alert('Gagal upload gambar.')
+      showToast("Gagal upload gambar", "error")
     } finally {
       setUploading(false)
     }
@@ -70,13 +76,15 @@ export default function AdminSettingsPage() {
       })
 
       if (res.ok) {
-        alert('Pengaturan berhasil disimpan!')
+        // Ganti Alert dengan Toast
+        showToast("Pengaturan berhasil disimpan!", "success")
         router.refresh() // Refresh server components
       } else {
-        alert('Gagal menyimpan pengaturan.')
+        showToast("Gagal menyimpan pengaturan", "error")
       }
     } catch (error) {
       console.error(error)
+      showToast("Terjadi kesalahan", "error")
     } finally {
       setLoading(false)
     }

@@ -152,7 +152,8 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
                 </Link>
                 {post.author.isVerified && <VerifiedBadge size="sm" />}
               </div>
-              <p className="text-xs text-[var(--text-muted)] truncate">
+              {/* PERBAIKAN: Tambahkan suppressHydrationWarning */}
+              <p className="text-xs text-[var(--text-muted)] truncate" suppressHydrationWarning>
                 @{post.author.username || 'user'} • {formatDate(post.createdAt)}
               </p>
             </div>
@@ -215,7 +216,8 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
                                 {comment.author.name || 'Anonymous'}
                               </Link>
                               {comment.author.isVerified && <VerifiedBadge size="sm" />}
-                              <span className="text-[10px] text-[var(--text-muted)]">• {formatDate(comment.createdAt)}</span>
+                              {/* PERBAIKAN: Tambahkan suppressHydrationWarning */}
+                              <span className="text-[10px] text-[var(--text-muted)]" suppressHydrationWarning>• {formatDate(comment.createdAt)}</span>
                             </div>
                             {canDelete && (
                               <button onClick={() => openDeleteModal(comment.id)} className="text-red-500 hover:text-red-400 transition-colors p-1 rounded" title="Hapus komentar">
