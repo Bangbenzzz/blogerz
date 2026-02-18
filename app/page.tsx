@@ -18,7 +18,12 @@ function stripHtml(html: string) {
   return html.replace(/<[^>]*>/g, '')
 }
 
-export default async function HomePage() {
+// 1. Definisikan Props untuk menangkap parameter URL (page)
+interface HomeProps {
+  searchParams: Promise<{ page?: string }>
+}
+
+export default async function HomePage({ searchParams }: HomeProps) {
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,6 +32,12 @@ export default async function HomePage() {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
+
+  // === 2. SETUP LOGIKA PAGINASI ===
+  // Ambil nomor halaman dari URL, default ke 1 jika tidak ada
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
+  const postsPerPage = 10; // Batasi 10 postingan per halaman agar ringan
 
   let profile: any = null
   if (user) {
@@ -48,6 +59,7 @@ export default async function HomePage() {
     settings.site_description ||
     'Platform menulis untuk para developer dan kreatif. Bagikan cerita, tutorial, dan ide-ide brilianmu.'
 
+  // === 3. QUERY DATABASE DENGAN LIMIT (PAGINATION) ===
   const posts = await prisma.post.findMany({
     where: { published: true },
     include: {
@@ -55,8 +67,15 @@ export default async function HomePage() {
       likes: true,
       comments: { include: { author: true }, orderBy: { createdAt: 'asc' } }
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    // 👇 INI PERUBAHAN UTAMANYA:
+    take: postsPerPage,                // Ambil cuma 10
+    skip: (currentPage - 1) * postsPerPage, // Lewati postingan sebelumnya
   })
+
+  // Hitung total postingan untuk menentukan apakah tombol "Next" perlu muncul
+  const totalPosts = await prisma.post.count({ where: { published: true } });
+  const hasNextPage = totalPosts > currentPage * postsPerPage;
 
   const partners = await prisma.partner.findMany({
     orderBy: { order: 'asc' }
@@ -116,7 +135,6 @@ export default async function HomePage() {
         </div>
       </header>
       
-
 
       {/* ========== CONTENT ========== */}
       {!user ? (
@@ -253,9 +271,7 @@ export default async function HomePage() {
         </div>
       ) : (
         // ===== MEMBER VIEW (FEED) =====
-        // 🔴 PERUBAHAN DI SINI:
-        // Ganti 'pt-6' menjadi 'pt-24 md:pt-28'
-        // Ini memberi jarak padding atas yang cukup agar kartu turun melewati fixed header
+        // Menggunakan padding top yang lebih besar agar tidak tertutup header fixed
         <main className="flex-grow w-full pb-20 pt-24 md:pt-28">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-2xl mx-auto w-full">
@@ -268,13 +284,25 @@ export default async function HomePage() {
 
               {posts.length === 0 ? (
                 <div className="py-16 text-center border border-dashed border-[var(--border-color)] rounded-2xl bg-[var(--bg-card)]/50">
-                  <p className="text-[var(--text-muted)] mb-4">Belum ada update terbaru.</p>
-                  <Link
-                    href="/create"
-                    className="inline-flex items-center gap-2 bg-[#3B82F6] text-white py-2 px-5 text-sm font-bold rounded-full hover:bg-[#2563EB] transition-all"
-                  >
-                    Buat Karya Pertama
-                  </Link>
+                  <p className="text-[var(--text-muted)] mb-4">
+                    {currentPage > 1 ? "Sudah tidak ada postingan lagi." : "Belum ada update terbaru."}
+                  </p>
+                  
+                  {currentPage === 1 ? (
+                    <Link
+                      href="/create"
+                      className="inline-flex items-center gap-2 bg-[#3B82F6] text-white py-2 px-5 text-sm font-bold rounded-full hover:bg-[#2563EB] transition-all"
+                    >
+                      Buat Karya Pertama
+                    </Link>
+                  ) : (
+                    <Link
+                      href={`/?page=${currentPage - 1}`}
+                      className="text-[#3B82F6] font-bold hover:underline"
+                    >
+                      Kembali ke halaman sebelumnya
+                    </Link>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col gap-5">
@@ -283,6 +311,38 @@ export default async function HomePage() {
                   ))}
                 </div>
               )}
+
+              {/* 4. TOMBOL NAVIGASI HALAMAN (NEXT / PREV) */}
+              <div className="flex justify-between items-center mt-10 pt-6 border-t border-[var(--border-color)]">
+                {/* Tombol Sebelumnya */}
+                {currentPage > 1 ? (
+                  <Link
+                    href={`/?page=${currentPage - 1}`}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full text-sm font-bold hover:bg-[#3B82F6] hover:text-white hover:border-[#3B82F6] transition-all"
+                  >
+                    ← Sebelumnya
+                  </Link>
+                ) : (
+                  <div className="w-24"></div> // Spacer agar layout seimbang
+                )}
+
+                <span className="text-xs font-mono text-[var(--text-muted)]">
+                  Halaman {currentPage}
+                </span>
+
+                {/* Tombol Selanjutnya */}
+                {hasNextPage ? (
+                  <Link
+                    href={`/?page=${currentPage + 1}`}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full text-sm font-bold hover:bg-[#3B82F6] hover:text-white hover:border-[#3B82F6] transition-all"
+                  >
+                    Selanjutnya →
+                  </Link>
+                ) : (
+                   <div className="w-24"></div> // Spacer
+                )}
+              </div>
+
             </div>
           </div>
         </main>
