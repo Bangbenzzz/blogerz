@@ -9,21 +9,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing id or email' }, { status: 400 })
     }
 
-    // Cek apakah admin
     const isAdmin = email === process.env.ADMIN_EMAIL
 
-    // Upsert profile
+    // --- LOGIKA AUTO USERNAME ---
+    // Jika user baru, kita buat username default dari ID (dipotong 8 karakter pertama)
+    // Ini memastikan user TIDAK PERNAH null username -> TIDAK ADA 404
+    const defaultUsername = `user_${id.substring(0, 8)}`
+
     const profile = await prisma.profile.upsert({
       where: { id },
       update: {
         name,
         role: isAdmin ? 'ADMIN' : undefined,
         isVerified: isAdmin ? true : undefined,
+        // Jangan update username jika sudah ada
       },
       create: {
         id,
         email,
         name,
+        username: defaultUsername, // <--- INI KUNCI NYA
         role: isAdmin ? 'ADMIN' : 'USER',
         isVerified: isAdmin ? true : false,
       }

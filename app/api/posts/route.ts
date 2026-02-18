@@ -1,4 +1,3 @@
-// app/api/posts/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
@@ -23,7 +22,17 @@ export async function POST(request: NextRequest) {
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 7)
 
     const post = await prisma.post.create({
-      data: { title, content: content || '', slug, authorId: user.id, published: false }
+      data: { title, content: content || '', slug, authorId: user.id, published: false },
+      // --- PERBAIKAN: Include data author untuk redirect ---
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
+      }
+      // ---------------------------------------------------
     })
 
     return NextResponse.json(post)

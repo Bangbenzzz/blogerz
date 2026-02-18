@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import SettingsEditor from './SettingsEditor'
-// IMPORT KOMPONEN LOGO DINAMIS
 import DynamicLogo from '@/components/DynamicLogo'
 
 export default async function SettingsPage() {
@@ -21,6 +20,7 @@ export default async function SettingsPage() {
     redirect('/login')
   }
 
+  // Ambil data profile terbaru dari DB
   const profile = await prisma.profile.findUnique({
     where: { id: user.id }
   })
@@ -29,33 +29,34 @@ export default async function SettingsPage() {
     <div className="min-h-screen bg-transparent text-[var(--text-main)] pb-20">
       {/* Header */}
       <header className="sticky top-0 z-[1000] bg-[var(--bg-main)]/95 backdrop-blur-xl border-b border-[var(--border-color)]">
-        <div className="flex justify-between items-center px-4 md:px-[5%] py-3 md:py-4">
-          
-          {/* GANTI DENGAN KOMPONEN LOGO DINAMIS */}
-          <DynamicLogo />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-3 md:py-4">
+            
+            <DynamicLogo />
 
-          <Link 
-            href="/dashboard" 
-            className="text-xs font-mono text-[var(--text-muted)] hover:text-[#3B82F6] transition-colors flex items-center gap-1"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12"/>
-              <polyline points="12 19 5 12 12 5"/>
-            </svg>
-            Kembali
-          </Link>
+            <Link 
+              href="/dashboard" 
+              className="text-xs font-mono text-[var(--text-muted)] hover:text-[#3B82F6] transition-colors flex items-center gap-1"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+              </svg>
+              Kembali
+            </Link>
+          </div>
         </div>
       </header>
 
       {/* Content */}
-      <main className="px-4 md:px-[5%] py-6 md:py-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <div className="max-w-2xl mx-auto">
-          <div className="mb-6">
-            <h1 className="text-xl md:text-2xl font-black text-[var(--text-main)]">
+          <div className="mb-8">
+            <h1 className="text-2xl md:text-3xl font-black text-[var(--text-main)] mb-2">
               Pengaturan Profil
             </h1>
-            <p className="text-sm text-[var(--text-muted)] mt-1">
-              Ubah foto profil, nama, dan bio kamu.
+            <p className="text-sm text-[var(--text-muted)]">
+              Sesuaikan identitas dan informasi akademik kamu di sini.
             </p>
           </div>
 

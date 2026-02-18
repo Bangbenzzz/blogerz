@@ -303,7 +303,7 @@ export default function CreatePostPage() {
     }, 'image/jpeg', 0.95)
   }
 
-  // ==========================================
+      // ==========================================
   // LOGIKA SUBMIT (Buat Baru atau Update)
   // ==========================================
   const handleSubmit = async () => {
@@ -325,8 +325,21 @@ export default function CreatePostPage() {
       })
 
       if (res.ok) { 
-        showToast(editId ? "Perubahan berhasil disimpan!" : "Berhasil dipublikasikan!", "success")
-        router.push('/my-posts') 
+        const data = await res.json()
+        showToast(editId ? "Perubahan berhasil disimpan!" : "Karya berhasil dikirim!", "success")
+
+        // --- PERBAIKAN REDIRECT LANGSUNG KE PROFIL ---
+        // Asumsi API mengembalikan data author { username: '...' } atau kita pakai userId
+        if (data && data.author) {
+           const targetPath = data.author.username 
+             ? `/user/${data.author.username}` 
+             : `/user/${data.author.id}`;
+           router.push(targetPath);
+        } else {
+           // Fallback jika data tidak ada
+           router.push('/dashboard')
+        }
+        
         router.refresh()
       }
       else { 
@@ -339,7 +352,6 @@ export default function CreatePostPage() {
       setLoading(false) 
     }
   }
-
   const setLink = useCallback(() => {
     if (!editor) return
     if (linkUrl === '') editor.chain().focus().extendMarkRange('link').unsetLink().run()

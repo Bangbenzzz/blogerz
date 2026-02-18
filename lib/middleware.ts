@@ -19,11 +19,8 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          // Update cookie di request
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          // Buat response baru
           response = NextResponse.next({ request })
-          // Set cookie di response
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           )
@@ -35,26 +32,53 @@ export async function middleware(request: NextRequest) {
   // 3. Ambil User (Refresh session jika perlu)
   const { data: { user } } = await supabase.auth.getUser()
 
+  const pathname = request.nextUrl.pathname
+
+  // =========================
+  // ✅ CEK BANNED (tanpa Prisma)
+  // =========================
+  const bypassBannedCheck =
+    pathname.startsWith('/banned') ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/auth') ||
+    pathname.startsWith('/_next') ||
+    pathname === '/favicon.ico'
+
+  if (user && !bypassBannedCheck) {
+    try {
+      const bannedRes = await fetch(new URL('/api/auth/banned', request.url), {
+        headers: {
+          cookie: request.headers.get('cookie') ?? '',
+        },
+        cache: 'no-store',
+      })
+
+      const bannedData = await bannedRes.json()
+
+      if (bannedData?.isBanned) {
+        return NextResponse.redirect(new URL('/banned', request.url))
+      }
+    } catch (e) {
+      console.error('middleware banned fetch error:', e)
+      // fail-safe: kalau error jangan salah ban
+    }
+  }
+
   // 4. PROTEKSI HALAMAN ADMIN
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    // Hanya boleh diakses jika login DAN email sesuai ADMIN_EMAIL
+  if (pathname.startsWith('/admin')) {
     if (!user || user.email !== process.env.ADMIN_EMAIL) {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }
 
   // 5. PROTEKSI HALAMAN MEMBER (Create, Settings, dll)
-  // Daftar path yang wajib login
-  const protectedPaths = ['/create', '/settings', '/profile/edit']
-  const isProtectedPath = protectedPaths.some(path => request.nextUrl.pathname.startsWith(path))
+  const protectedPaths = ['/create', '/settings', '/profile/edit', '/dashboard']
+  const isProtectedPath = protectedPaths.some((p) => pathname.startsWith(p))
 
   if (isProtectedPath) {
     if (!user) {
-      // Jika belum login, tendang ke /login
       return NextResponse.redirect(new URL('/login', request.url))
     }
-    // Catatan: Cek Banned dilakukan di Server Component (page.tsx) 
-    // untuk menghindari error Prisma di Edge Runtime.
   }
 
   return response
@@ -62,7 +86,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match semua path kecuali static files, api, dll
     '/((?!_next/static|_next/image|favicon.ico|auth|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

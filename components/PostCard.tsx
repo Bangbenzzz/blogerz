@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { toggleLike, postComment, deleteComment } from '@/app/actions'
 import VerifiedBadge from './VerifiedBadge'
+import ClientHTML from '@/components/ClientHTML'
+
 
 interface Post {
   id: string
@@ -35,11 +37,11 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
   const isOwner = currentUserId === post.author.id
   const isAdmin = userEmail === process.env.NEXT_PUBLIC_ADMIN_EMAIL
 
-  // --- BAGIAN PENTING: LOGIKA LINK PENULIS ---
-  // Jika username ada -> /user/username. Jika tidak -> /dashboard (atau tetap di halaman ini)
+  // --- PERBAIKAN LOGIKA LINK PENULIS ---
+  // Prioritaskan username, jika tidak ada gunakan ID agar tidak 404
   const authorLink = post.author.username 
     ? `/user/${post.author.username}` 
-    : `/dashboard`; 
+    : `/user/${post.author.id}`; 
 
   const handleLike = async () => {
     if (loading || !currentUserId) return
@@ -132,7 +134,6 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
         {/* Header */}
         <div className="p-4 md:p-5 border-b border-[var(--border-color)]">
           <div className="flex items-center gap-3">
-            {/* GUNAKAN VARIABEL authorLink DI SINI */}
             <Link href={authorLink} className="flex-shrink-0">
               <div className="w-11 h-11 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-[var(--border-color)] hover:border-[#3B82F6] transition-colors">
                 {post.author.avatarUrl ? (
@@ -146,13 +147,11 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
             </Link>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                {/* GUNAKAN VARIABEL authorLink DI SINI */}
                 <Link href={authorLink} className="font-bold text-[var(--text-main)] hover:text-[#3B82F6] transition-colors text-sm md:text-base truncate">
                   {post.author.name || 'Anonymous'}
                 </Link>
                 {post.author.isVerified && <VerifiedBadge size="sm" />}
               </div>
-              {/* PERBAIKAN: Tambahkan suppressHydrationWarning */}
               <p className="text-xs text-[var(--text-muted)] truncate" suppressHydrationWarning>
                 @{post.author.username || 'user'} • {formatDate(post.createdAt)}
               </p>
@@ -165,14 +164,17 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
           <h2 className="text-lg md:text-xl font-bold text-[var(--text-main)] mb-3">{post.title}</h2>
           
           {post.content && (
-            <div 
-              className={`text-sm md:text-base text-[var(--text-muted)] leading-relaxed break-words
-                          [&>p]:mb-4 [&>p]:text-[var(--text-muted)] 
-                          [&>img]:max-w-full [&>img]:h-auto [&>img]:rounded-lg [&>img]:mx-auto [&>img]:my-4
-                          ${!showFull ? 'line-clamp-3' : ''}`}
-              dangerouslySetInnerHTML={{ __html: post.content }} 
-            />
-          )}
+  <div
+    className={`text-sm md:text-base text-[var(--text-muted)] leading-relaxed break-words
+                [&>p]:mb-4 [&>p]:text-[var(--text-muted)] 
+                [&>img]:max-w-full [&>img]:h-auto [&>img]:rounded-lg 
+                [&>img]:mx-auto [&>img]:my-4
+                ${!showFull ? 'line-clamp-3' : ''}`}
+  >
+    <ClientHTML html={post.content} />
+  </div>
+)}
+
         </div>
 
         {/* Expanded Section (Komentar) */}
@@ -191,10 +193,10 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
                   {comments.map((comment) => {
                     const isCommentOwner = comment.author.id === currentUserId;
                     const canDelete = isCommentOwner || isAdmin;
-                    // Logika link untuk komentator
+                    // PERBAIKAN: Link komentator juga menggunakan fallback ID
                     const commentAuthorLink = comment.author.username 
                       ? `/user/${comment.author.username}` 
-                      : `/dashboard`;
+                      : `/user/${comment.author.id}`;
 
                     return (
                       <div key={comment.id} className="flex gap-2">
@@ -216,7 +218,6 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
                                 {comment.author.name || 'Anonymous'}
                               </Link>
                               {comment.author.isVerified && <VerifiedBadge size="sm" />}
-                              {/* PERBAIKAN: Tambahkan suppressHydrationWarning */}
                               <span className="text-[10px] text-[var(--text-muted)]" suppressHydrationWarning>• {formatDate(comment.createdAt)}</span>
                             </div>
                             {canDelete && (

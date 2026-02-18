@@ -21,16 +21,41 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { name, username, bio, avatarUrl } = body
+    
+    // Ambil data dari Body (termasuk kolom baru)
+    const { 
+      name, 
+      username, 
+      bio, 
+      avatarUrl, 
+      status, 
+      institution, 
+      major, 
+      address, 
+      phone 
+    } = body
 
-    // Update ke database
+    // Logika Pembersihan Data:
+    // Jika status adalah "Warga", paksa field akademik menjadi null 
+    // agar database tidak menyimpan data sampah bekas pilihan sebelumnya.
+    const isWarga = status === 'Warga'
+
+    // Update atau Buat data profil baru
     await prisma.profile.upsert({
       where: { id: user.id },
       update: { 
         name, 
         username, 
-        bio, 
-        ...(avatarUrl && { avatarUrl }) // Hanya update avatar jika ada
+        bio,
+        // Update kolom baru
+        status,
+        institution: isWarga ? null : institution,
+        major: isWarga ? null : major,
+        address: isWarga ? null : address,
+        phone: isWarga ? null : phone,
+        
+        // Hanya update avatar jika field avatarUrl dikirim (tidak undefined)
+        ...(avatarUrl !== undefined && { avatarUrl }) 
       },
       create: {
         id: user.id,
@@ -39,7 +64,14 @@ export async function POST(request: NextRequest) {
         username,
         bio,
         avatarUrl,
-        role: 'USER', // Default role
+        // Isi kolom baru saat create
+        status,
+        institution: isWarga ? null : institution,
+        major: isWarga ? null : major,
+        address: isWarga ? null : address,
+        phone: isWarga ? null : phone,
+        
+        role: 'USER',
         isVerified: false
       }
     })

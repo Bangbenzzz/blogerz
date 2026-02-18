@@ -19,8 +19,16 @@ model Profile {
   bio       String?
   avatarUrl String?
   
-  isBanned  Boolean  @default(false)
-  isVerified Boolean @default(false)
+  // === KOLOM BARU (TAMBAHAN) ===
+  status      String?  @default("Warga") // "Warga", "Pelajar", "Mahasiswa"
+  institution String?  // Nama Sekolah / Kampus
+  major       String?  // Jurusan / Prodi
+  address     String?  // Alamat Domisili
+  phone       String?  // No WhatsApp
+  // ============================
+  
+  isBanned   Boolean  @default(false)
+  isVerified Boolean  @default(false)
   
   role      Role     @default(USER)
   createdAt DateTime @default(now())
@@ -31,7 +39,7 @@ model Profile {
   likes     Like[]
 }
 
-// TABEL POSTINGAN ARTIKEL
+// ... (Model Post, Comment, Like, Partner, Setting biarkan tetap sama)
 model Post {
   id        String   @id @default(uuid())
   title     String
@@ -48,34 +56,26 @@ model Post {
   likes     Like[]
 }
 
-// TABEL KOMENTAR
 model Comment {
   id        String   @id @default(uuid())
   content   String
   createdAt DateTime @default(now())
-  
   postId    String
   authorId  String
-  
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   author    Profile  @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
-// TABEL LIKE
 model Like {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-
   postId    String
   authorId  String
-
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   author    Profile  @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
   @@unique([postId, authorId])
 }
 
-// TABEL PARTNER/LOGO SUPPORT
 model Partner {
   id        String   @id @default(uuid())
   name      String
@@ -85,13 +85,10 @@ model Partner {
   updatedAt DateTime @updatedAt
 }
 
-// ==================================================
-// TAMBAHAN: TABEL PENGATURAN SITUS
-// ==================================================
 model Setting {
   id        String   @id @default(uuid())
-  key       String   @unique // Contoh: "site_name", "site_logo"
-  value     String   // Isinya: "Cermati", "https://..."
+  key       String   @unique
+  value     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

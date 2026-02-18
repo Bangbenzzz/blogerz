@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import { ThemeToggle } from './ThemeToggle'
 import { NotificationBell } from './NotificationBell'
 import { searchUsers } from '@/app/actions'
-// IMPORT KOMPONEN LOGO DINAMIS (PENTING!)
 import DynamicLogo from './DynamicLogo'
 
 interface NavItem {
@@ -60,7 +59,6 @@ export function AdminHeader({
   const inputRef = useRef<HTMLInputElement>(null)
   const prevPathnameRef = useRef(pathname)
 
-  // 1. Debounced search
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (searchQuery.trim().length >= 1) {
@@ -82,7 +80,6 @@ export function AdminHeader({
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  // 2. Close panel when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && menuRef.current.contains(event.target as Node)) return
@@ -99,7 +96,6 @@ export function AdminHeader({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [activePanel])
 
-  // 3. Close menu on route change
   useLayoutEffect(() => {
     if (prevPathnameRef.current !== pathname) {
       prevPathnameRef.current = pathname
@@ -108,7 +104,6 @@ export function AdminHeader({
     }
   }, [pathname])
 
-  // 4. Auto focus on search expand
   useEffect(() => {
     if (activePanel === 'search' && inputRef.current) {
       inputRef.current.focus()
@@ -130,13 +125,15 @@ export function AdminHeader({
     setActivePanel(false)
   }, [])
 
+  // --- PERBAIKAN: Handle klik user di hasil pencarian ---
   const handleUserClick = useCallback((user: UserResult) => {
-    if (user.username) {
-      router.push(`/user/${user.username}`)
-      handleCloseSearch()
-    } else {
-      alert(`User "${user.name}" belum mengatur username.`)
-    }
+    // Gunakan username jika ada, jika tidak gunakan ID
+    const targetPath = user.username 
+      ? `/user/${user.username}` 
+      : `/user/${user.id}`;
+    
+    router.push(targetPath)
+    handleCloseSearch()
   }, [router, handleCloseSearch])
 
   const isMenuOpen = activePanel === 'menu'
@@ -144,15 +141,10 @@ export function AdminHeader({
 
   return (
     <header className="sticky top-0 z-50 bg-[var(--bg-main)] backdrop-blur-xl border-b border-white/10">
-      {/* Main Header Row */}
       <div className="flex justify-between items-center py-3 px-4 md:px-[10%]">
-        {/* LEFT: GANTI DENGAN LOGO DINAMIS */}
         <DynamicLogo />
 
-        {/* RIGHT: Desktop Nav + Actions */}
         <div className="hidden md:flex items-center gap-3">
-          
-          {/* Desktop Navigation */}
           <nav className="flex gap-2">
             {navItems.map((item) => {
               const isActive = pathname === item.href
@@ -203,7 +195,6 @@ export function AdminHeader({
           </form>
         </div>
 
-        {/* RIGHT: Mobile Actions */}
         <div className="flex md:hidden items-center gap-1">
           <NotificationBell initialCount={pendingCount} />
           <button
@@ -236,7 +227,6 @@ export function AdminHeader({
         </div>
       </div>
 
-      {/* SEARCH PANEL */}
       {isSearchExpanded && (
         <div 
           ref={searchRef} 
@@ -319,7 +309,6 @@ export function AdminHeader({
         </div>
       )}
 
-      {/* Mobile Menu Dropdown */}
       {isMenuOpen && (
         <div 
           ref={menuRef}

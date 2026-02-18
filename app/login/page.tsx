@@ -13,7 +13,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  // STATE UNTUK TOGGLE PASSWORD
   const [showPassword, setShowPassword] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -25,9 +24,9 @@ export default function LoginPage() {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
 
-      // SYNC USER KE PRISMA
       if (data.user) {
-        await fetch('/api/sync-profile', {
+        // 1. Sync Profile
+        const res = await fetch('/api/sync-profile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -36,12 +35,18 @@ export default function LoginPage() {
             name: data.user.user_metadata?.full_name || data.user.user_metadata?.name || email.split('@')[0]
           })
         })
-      }
+        
+        const syncData = await res.json()
+        const userProfile = syncData.profile
 
-      if (data.user?.email === 'admin@bloger.com') {
-        router.push('/admin')
-      } else {
-        router.push('/')  // User ke home
+        // 2. Logika Redirect
+        if (data.user.email === 'admin@bloger.com') { // Ganti dengan process.env jika perlu
+          router.push('/admin')
+        } else {
+          // Prioritaskan username, jika tidak ada pakai ID
+          const redirectId = userProfile?.username || userProfile?.id || data.user.id
+          router.push(`/user/${redirectId}`)
+        }
       }
     } catch (error: any) {
       setErrorMsg(error.message.toUpperCase())
@@ -90,22 +95,21 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Input Password dengan Icon Mata */}
+          {/* Input Password */}
           <div className="w-full border-b border-[var(--border-color)] py-2 transition-colors focus-within:border-[#3B82F6] text-left relative">
             <label className="block text-xs text-[var(--text-muted)] uppercase mb-2 font-mono tracking-wider">
               Password
             </label>
             <div className="relative">
               <input 
-                type={showPassword ? "text" : "password"} // Ubah tipe berdasarkan state
-                className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center pr-10" // Tambah padding kanan untuk ikon
+                type={showPassword ? "text" : "password"}
+                className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center pr-10"
                 placeholder="••••••••" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 required 
               />
               
-              {/* Tombol Icon Mata */}
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -113,13 +117,11 @@ export default function LoginPage() {
                 tabIndex={-1}
               >
                 {showPassword ? (
-                  // Icon Mata Terbuka (Visible)
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                   </svg>
                 ) : (
-                  // Icon Mata Tertutup (Hidden)
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                     <line x1="1" y1="1" x2="23" y2="23"></line>
