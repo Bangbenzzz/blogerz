@@ -155,9 +155,16 @@ export async function deleteComment(commentId: string) {
       return { success: false, error: 'Comment not found' }
     }
 
-    const isAdmin = user.email === process.env.ADMIN_EMAIL
+    // ✅ PERBAIKAN: Deteksi admin yang lebih kuat & anti-gagal
+    const userEmail = user.email?.trim().toLowerCase()
+    const isAdmin = 
+      userEmail === 'admin@bloger.com' || 
+      userEmail === process.env.ADMIN_EMAIL?.trim().toLowerCase() ||
+      userEmail === process.env.NEXT_PUBLIC_ADMIN_EMAIL?.trim().toLowerCase();
+
+    // Jika yang mau hapus BUKAN pemilik komentar dan BUKAN admin, maka tolak!
     if (comment.authorId !== user.id && !isAdmin) {
-      return { success: false, error: 'Not authorized' }
+      return { success: false, error: 'Ditolak: Anda bukan Admin atau Pemilik Komentar' }
     }
 
     await prisma.comment.delete({

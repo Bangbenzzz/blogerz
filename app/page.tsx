@@ -9,7 +9,6 @@ import VerifiedBadge from '@/components/VerifiedBadge'
 import TypewriterText from '@/components/TypewriterText'
 import PostCard from '@/components/PostCard'
 import DynamicLogo from '@/components/DynamicLogo'
-import Footer from '@/components/Footer'
 
 export const revalidate = 0
 
@@ -31,27 +30,48 @@ export default async function HomePage({ searchParams }: HomeProps) {
     { cookies: { getAll() { return cookieStore.getAll() } } }
   )
 
+  // 1. Ambil data User terlebih dahulu (Syarat utama)
   const { data: { user } } = await supabase.auth.getUser()
 
-  // === 2. SETUP LOGIKA PAGINASI ===
-  // Ambil nomor halaman dari URL, default ke 1 jika tidak ada
+  // 2. Setup Logika Paginasi
   const params = await searchParams;
   const currentPage = Number(params.page) || 1;
-  const postsPerPage = 10; // Batasi 10 postingan per halaman agar ringan
+  const postsPerPage = 10; 
 
-  let profile: any = null
-  if (user) {
-    profile = await prisma.profile.findUnique({
-      where: { id: user.id }
-    })
+  // ✅ PERBAIKAN SUPER CEPAT: Jalankan semua query database secara BERSAMAAN (Paralel)
+  const [profile, settingsRaw, posts, totalPosts, partners] = await Promise.all([
+    // Ambil profile jika login, jika tidak lewati
+    user ? prisma.profile.findUnique({ where: { id: user.id } }) : Promise.resolve(null),
+    
+    // Ambil Pengaturan Situs
+    prisma.setting.findMany(),
+    
+    // Ambil Karya (Berdasarkan Halaman)
+    prisma.post.findMany({
+      where: { published: true },
+      include: {
+        author: true,
+        likes: true,
+        comments: { include: { author: true }, orderBy: { createdAt: 'asc' } }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: postsPerPage,
+      skip: (currentPage - 1) * postsPerPage,
+    }),
 
-    if (profile?.isBanned) {
-      redirect('/banned')
-    }
+    // Hitung Total Karya (Untuk Paginasi)
+    prisma.post.count({ where: { published: true } }),
+
+    // Ambil Partners
+    prisma.partner.findMany({ orderBy: { order: 'asc' } })
+  ]);
+
+  // Cek jika user dibanned
+  if (profile?.isBanned) {
+    redirect('/banned')
   }
 
-  // === AMBIL SETTINGS DARI DB UNTUK DESKRIPSI ===
-  const settingsRaw = await prisma.setting.findMany()
+  // === SETUP DESKRIPSI SITUS ===
   const settings: Record<string, string> = {}
   settingsRaw.forEach((s: any) => (settings[s.key] = s.value))
 
@@ -59,30 +79,9 @@ export default async function HomePage({ searchParams }: HomeProps) {
     settings.site_description ||
     'Platform menulis untuk para developer dan kreatif. Bagikan cerita, tutorial, dan ide-ide brilianmu.'
 
-  // === 3. QUERY DATABASE DENGAN LIMIT (PAGINATION) ===
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    include: {
-      author: true,
-      likes: true,
-      comments: { include: { author: true }, orderBy: { createdAt: 'asc' } }
-    },
-    orderBy: { createdAt: 'desc' },
-    // 👇 INI PERUBAHAN UTAMANYA:
-    take: postsPerPage,                // Ambil cuma 10
-    skip: (currentPage - 1) * postsPerPage, // Lewati postingan sebelumnya
-  })
-
-  // Hitung total postingan untuk menentukan apakah tombol "Next" perlu muncul
-  const totalPosts = await prisma.post.count({ where: { published: true } });
   const hasNextPage = totalPosts > currentPage * postsPerPage;
 
-  const partners = await prisma.partner.findMany({
-    orderBy: { order: 'asc' }
-  })
-
   return (
-    // ✅ FIX: HAPUS overflow-x-hidden dari sini
     <div className="min-h-screen bg-transparent flex flex-col">
 
       {/* ========== HEADER ========== */}
@@ -271,7 +270,6 @@ export default async function HomePage({ searchParams }: HomeProps) {
         </div>
       ) : (
         // ===== MEMBER VIEW (FEED) =====
-        // Menggunakan padding top yang lebih besar agar tidak tertutup header fixed
         <main className="flex-grow w-full pb-20 pt-24 md:pt-28">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-2xl mx-auto w-full">
@@ -318,12 +316,13 @@ export default async function HomePage({ searchParams }: HomeProps) {
                 {currentPage > 1 ? (
                   <Link
                     href={`/?page=${currentPage - 1}`}
+                    prefetch={true} // ✅ FITUR PREFETCH AGAR SAT-SET
                     className="flex items-center gap-2 px-5 py-2.5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full text-sm font-bold hover:bg-[#3B82F6] hover:text-white hover:border-[#3B82F6] transition-all"
                   >
                     ← Sebelumnya
                   </Link>
                 ) : (
-                  <div className="w-24"></div> // Spacer agar layout seimbang
+                  <div className="w-24"></div> 
                 )}
 
                 <span className="text-xs font-mono text-[var(--text-muted)]">
@@ -334,12 +333,13 @@ export default async function HomePage({ searchParams }: HomeProps) {
                 {hasNextPage ? (
                   <Link
                     href={`/?page=${currentPage + 1}`}
+                    prefetch={true} // ✅ FITUR PREFETCH AGAR SAT-SET
                     className="flex items-center gap-2 px-5 py-2.5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full text-sm font-bold hover:bg-[#3B82F6] hover:text-white hover:border-[#3B82F6] transition-all"
                   >
                     Selanjutnya →
                   </Link>
                 ) : (
-                   <div className="w-24"></div> // Spacer
+                   <div className="w-24"></div> 
                 )}
               </div>
 
@@ -347,8 +347,6 @@ export default async function HomePage({ searchParams }: HomeProps) {
           </div>
         </main>
       )}
-
-      <Footer />
     </div>
   )
 }

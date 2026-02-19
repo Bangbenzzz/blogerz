@@ -6,7 +6,6 @@ import { toggleLike, postComment, deleteComment } from '@/app/actions'
 import VerifiedBadge from './VerifiedBadge'
 import ClientHTML from '@/components/ClientHTML'
 
-
 interface Post {
   id: string
   title: string
@@ -35,23 +34,40 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
   const [selectedCommentId, setSelectedCommentId] = useState<string | null>(null)
 
   const isOwner = currentUserId === post.author.id
-  const isAdmin = userEmail === process.env.NEXT_PUBLIC_ADMIN_EMAIL
+  // Cek admin untuk memunculkan tombol hapus komentar
+  const isAdmin = 
+    userEmail === 'admin@bloger.com' || 
+    userEmail === process.env.NEXT_PUBLIC_ADMIN_EMAIL
 
-  // --- PERBAIKAN LOGIKA LINK PENULIS ---
   // Prioritaskan username, jika tidak ada gunakan ID agar tidak 404
   const authorLink = post.author.username 
     ? `/user/${post.author.username}` 
     : `/user/${post.author.id}`; 
 
+  // ✅ INI FUNGSI LIKE YANG SUDAH JADI SECEPAT KILAT (SAT-SET)
   const handleLike = async () => {
-    if (loading || !currentUserId) return
-    setLoading(true)
-    const result = await toggleLike(post.id)
-    if (result.success) {
-      setIsLiked(!isLiked)
-      setLikeCount(prev => isLiked ? prev - 1 : prev + 1)
+    if (!currentUserId) return; // Kalau belum login, cuekin aja
+
+    // Simpan data lama buat jaga-jaga kalau server error
+    const prevIsLiked = isLiked;
+    const prevCount = likeCount;
+
+    // LANGSUNG ubah warna hati detik itu juga (Optimistic Update)
+    setIsLiked(!isLiked);
+    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+
+    try {
+      // Proses nembak ke database berjalan diam-diam di belakang layar
+      const result = await toggleLike(post.id);
+      if (!result.success) {
+        // Kalau ternyata gagal, kembalikan warnanya
+        setIsLiked(prevIsLiked);
+        setLikeCount(prevCount);
+      }
+    } catch (err) {
+      setIsLiked(prevIsLiked);
+      setLikeCount(prevCount);
     }
-    setLoading(false)
   }
 
   const handleComment = async (e: React.FormEvent) => {
@@ -164,17 +180,16 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
           <h2 className="text-lg md:text-xl font-bold text-[var(--text-main)] mb-3">{post.title}</h2>
           
           {post.content && (
-  <div
-    className={`text-sm md:text-base text-[var(--text-muted)] leading-relaxed break-words
-                [&>p]:mb-4 [&>p]:text-[var(--text-muted)] 
-                [&>img]:max-w-full [&>img]:h-auto [&>img]:rounded-lg 
-                [&>img]:mx-auto [&>img]:my-4
-                ${!showFull ? 'line-clamp-3' : ''}`}
-  >
-    <ClientHTML html={post.content} />
-  </div>
-)}
-
+            <div
+              className={`text-sm md:text-base text-[var(--text-muted)] leading-relaxed break-words
+                          [&>p]:mb-4 [&>p]:text-[var(--text-muted)] 
+                          [&>img]:max-w-full [&>img]:h-auto [&>img]:rounded-lg 
+                          [&>img]:mx-auto [&>img]:my-4
+                          ${!showFull ? 'line-clamp-3' : ''}`}
+            >
+              <ClientHTML html={post.content} />
+            </div>
+          )}
         </div>
 
         {/* Expanded Section (Komentar) */}
@@ -193,7 +208,7 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
                   {comments.map((comment) => {
                     const isCommentOwner = comment.author.id === currentUserId;
                     const canDelete = isCommentOwner || isAdmin;
-                    // PERBAIKAN: Link komentator juga menggunakan fallback ID
+                    
                     const commentAuthorLink = comment.author.username 
                       ? `/user/${comment.author.username}` 
                       : `/user/${comment.author.id}`;
@@ -258,14 +273,17 @@ export default function PostCard({ post, currentUserId, userEmail }: PostCardPro
 
         {/* Actions Footer */}
         <div className="px-4 md:px-5 py-3 border-t border-[var(--border-color)] flex items-center gap-4">
+          
+          {/* ✅ TOMBOL LIKE SEKARANG ADA EFEK MANTUL DAN TIDAK ADA LOADING LAGI */}
           <button 
             onClick={handleLike} 
-            disabled={loading || !currentUserId} 
-            className={`flex items-center gap-2 text-sm transition-all ${isLiked ? 'text-red-500' : 'text-[var(--text-muted)] hover:text-red-500'}`}
+            disabled={!currentUserId} 
+            className={`flex items-center gap-2 text-sm transition-all active:scale-90 ${isLiked ? 'text-red-500' : 'text-[var(--text-muted)] hover:text-red-500'}`}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             <span className="font-medium">{likeCount}</span>
           </button>
+
           <button 
              onClick={() => setShowFull(!showFull)} 
              className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"

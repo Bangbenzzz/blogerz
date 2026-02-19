@@ -56,10 +56,25 @@ export default function LoginPage() {
   }
 
   const handleSocialLogin = async (provider: 'google' | 'github') => {
-    await supabase.auth.signInWithOAuth({
+    setLoading(true); // ⚡ Langsung aktifkan loading agar user tahu proses dimulai
+    setErrorMsg(null);
+
+    const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` }
+      options: { 
+        redirectTo: `${window.location.origin}/auth/callback`,
+        // Tambahkan ini agar Google selalu meminta akun (opsional, tapi lebih pasti)
+        queryParams: {
+          prompt: 'select_account',
+        },
+      }
     })
+
+    if (error) {
+      setLoading(false);
+      setErrorMsg(error.message.toUpperCase());
+    }
+    // Jika sukses, browser akan otomatis pindah halaman, jadi biarkan loading tetap true
   }
 
   return (

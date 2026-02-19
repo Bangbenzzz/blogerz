@@ -4,11 +4,12 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/Toast";
 
-// 👇 1. IMPORT TAMBAHAN YANG WAJIB ADA
+// 👇 IMPORT FOOTER DISINI
+import Footer from "@/components/Footer";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
-import BannedView from "@/components/BannedView"; // Pastikan file ini sudah dibuat seperti langkah sebelumnya
+import BannedView from "@/components/BannedView";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -18,13 +19,10 @@ export const metadata: Metadata = {
   description: "Platform kreatif untuk berbagi karya",
 };
 
-// 👇 2. WAJIB: Revalidate 0 agar status banned selalu dicek fresh (tidak dicache)
 export const revalidate = 0;
 
-// 👇 3. Ubah function menjadi ASYNC
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   
-  // === LOGIC PENGECEKAN BANNED ===
   const cookieStore = await cookies();
   
   const supabase = createServerClient(
@@ -39,33 +37,27 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     }
   );
 
-  // Ambil user dari session Supabase
   const { data: { user } } = await supabase.auth.getUser();
 
   let isBanned = false;
 
-  // Jika user login, cek status banned di database Prisma
   if (user) {
     const profile = await prisma.profile.findUnique({
       where: { id: user.id },
       select: { isBanned: true },
     });
-    // Konversi ke boolean (jaga-jaga kalau null)
     isBanned = Boolean(profile?.isBanned);
   }
-  // ================================
 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ✅ Anti “flash light”: jalan sebelum React */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
 (function () {
   try {
     var theme = localStorage.getItem('theme');
-    // default: DARK
     if (!theme) theme = 'dark';
     if (theme === 'dark') document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
@@ -76,22 +68,27 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
 
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >
-          {/* 👇 4. LOGIKA RENDERING UTAMA */}
-          {/* Jika Banned = Tampilkan Layar Merah. Jika Tidak = Tampilkan Website */}
           {isBanned ? (
             <BannedView />
           ) : (
-            <>
-              {children}
+            /* 👇 TAMBAHKAN STRUKTUR FLEX DISINI 
+               Agar footer selalu berada di dasar halaman (bottom)
+            */
+            <div className="flex flex-col min-h-screen">
+              <main className="flex-grow">
+                {children}
+              </main>
+              
+              <Footer />
               <ToastProvider />
-            </>
+            </div>
           )}
         </ThemeProvider>
       </body>
