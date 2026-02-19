@@ -25,7 +25,6 @@ export default function Footer() {
 
         {/* Contact Us */}
         <div>
-          <p className="font-semibold mb-1">Hubungi Kami:</p>
           <a 
             href="https://wa.me/6285932402797"
             target="_blank" 
