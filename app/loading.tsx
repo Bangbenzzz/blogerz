@@ -1,11 +1,10 @@
 export default function Loading() {
   return (
-    <div className="flex h-[100dvh] w-full items-center justify-center bg-neutral-900">
+    // Menggunakan var(--bg-main) agar background otomatis berubah sesuai tema
+    <div className="flex h-[100dvh] w-full items-center justify-center bg-[var(--bg-main)]">
       
-      {/* Ini adalah Spinner pengganti Geist! 
-        - width & height = 40 (ukuran persis 40px seperti yang Anda mau)
-        - text-white = membuatnya berwarna putih bersih
-        - animate-spin = animasi berputar bawaan Tailwind
+      {/* Menggunakan warna biru utama Anda (#3B82F6) agar spinner terlihat jelas 
+        baik di background gelap maupun terang.
       */}
       <svg
         width="40"
@@ -13,9 +12,8 @@ export default function Loading() {
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="animate-spin text-white"
+        className="animate-spin text-[#3B82F6]" 
       >
-        {/* Lingkaran transparan di belakang */}
         <circle 
           cx="12" 
           cy="12" 
@@ -24,7 +22,6 @@ export default function Loading() {
           strokeWidth="3" 
           className="opacity-20" 
         />
-        {/* Garis putih solid yang berputar */}
         <path 
           d="M12 2a10 10 0 0 1 10 10" 
           stroke="currentColor" 
