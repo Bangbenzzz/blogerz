@@ -135,10 +135,17 @@ export default function LoginPage() {
 
           <button 
             type="submit" 
-            className="bg-[#3B82F6] text-white py-3 px-10 font-bold text-xs uppercase transition-all tracking-widest w-full mt-2 hover:bg-[#2563EB] hover:shadow-[0_0_25px_rgba(59,130,246,0.3)] disabled:opacity-50"
+            className="flex items-center justify-center gap-2 bg-[#3B82F6] text-white py-3 px-10 font-bold text-xs uppercase transition-all tracking-widest w-full mt-2 hover:bg-[#2563EB] hover:shadow-[0_0_25px_rgba(59,130,246,0.3)] disabled:opacity-50"
             disabled={loading}
           >
-            {loading ? 'Processing...' : 'Sign In'}
+            {loading ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                <span>Processing...</span>
+              </>
+            ) : (
+              <span>Sign In</span>
+            )}
           </button>
         </form>
 
