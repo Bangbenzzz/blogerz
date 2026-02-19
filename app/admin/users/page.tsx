@@ -31,7 +31,7 @@ export default async function AdminUsersPage() {
   })
 
   return (
-    <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pb-10">
+    <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pt-20 pb-10">
       <AdminHeader 
         currentPage="Users"
         userEmail={user.email}

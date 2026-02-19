@@ -140,8 +140,8 @@ export function AdminHeader({
   const isSearchExpanded = activePanel === 'search'
 
   return (
-    <header className="sticky top-0 z-50 bg-[var(--bg-main)] backdrop-blur-xl border-b border-white/10">
-      <div className="flex justify-between items-center py-3 px-4 md:px-[10%]">
+    <header className="fixed top-0 left-0 w-full z-[100] bg-[var(--bg-main)] border-b border-[var(--border-color)]">
+      <div className="flex justify-between items-center py-1.5 px-4 md:px-[10%]">
         <DynamicLogo />
 
         <div className="hidden md:flex items-center gap-3">

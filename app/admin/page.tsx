@@ -43,7 +43,7 @@ export default async function AdminPage() {
   })
 
   return (
-    <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pb-10">
+    <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pt-20 pb-10">
       
       <AdminHeader 
         currentPage="Posts"

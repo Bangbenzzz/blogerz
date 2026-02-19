@@ -26,10 +26,10 @@ export async function GET() {
       where: { published: false },
     })
 
-    // ✅ NORMALIZE AUTHOR agar nama tidak pernah "kosong"
+    // ✅ NORMALIZE AUTHOR agar nama tidak pernah kosong
     const posts = pendingPosts.map((p) => {
       const rawName = (p.author?.name ?? '').trim()
-      const rawUsername = (p.author?.username ?? '').trim().replace(/^@+/, '') // buang @ depan kalau ada
+      const rawUsername = (p.author?.username ?? '').trim().replace(/^@+/, '')
 
       const displayName = rawName || rawUsername || 'User'
 
@@ -38,9 +38,7 @@ export async function GET() {
         author: p.author
           ? {
               ...p.author,
-              // paksa username tanpa "@"
               username: rawUsername || null,
-              // paksa name tidak kosong (kalau kosong fallback ke username)
               name: displayName,
             }
           : {

@@ -28,7 +28,7 @@ export default async function AdminProfilePage() {
   })
 
   return (
-    <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pb-10">
+    <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pt-20 pb-10">
       
       {/* Header */}
       <header className="sticky top-0 z-50 flex flex-col md:flex-row justify-between items-start md:items-center py-4 px-4 md:px-[10%] bg-[var(--bg-main)] backdrop-blur-xl border-b border-white/10 mb-8 gap-4">

@@ -38,7 +38,6 @@ export function NotificationBell({ initialCount = 0, initialPosts = [] }: Notifi
   useEffect(() => {
     const fetchPending = async () => {
       try {
-        // penting: biar ga ke-cache random
         const response = await fetch('/api/admin/pending-posts', { cache: 'no-store' })
         const data = await response.json()
         setPendingCount(data.count || 0)
@@ -48,11 +47,14 @@ export function NotificationBell({ initialCount = 0, initialPosts = [] }: Notifi
       }
     }
 
-    if (initialCount === 0 && initialPosts.length === 0) fetchPending()
+    // ✅ KUNCI 1: Paksa fetch saat pertama kali load!
+    // Ini memastikan kita langsung mendapat data lengkap dari API jika seandainya
+    // data initialPosts dari server component tidak men-join tabel author dengan benar.
+    fetchPending()
 
     const interval = setInterval(fetchPending, 30000)
     return () => clearInterval(interval)
-  }, [initialCount, initialPosts])
+  }, []) // ✅ Hapus dependensi array agar tidak terjadi re-render looping tak berujung
 
   const formatDate = (date: string | Date) => {
     const d = new Date(date)
@@ -64,13 +66,13 @@ export function NotificationBell({ initialCount = 0, initialPosts = [] }: Notifi
     return `${day} ${month}, ${hour}:${minute}`
   }
 
-  // ✅ INI KUNCINYA: fallback nama aman
+  // ✅ Proteksi tambahan jika datanya adalah string harfiah "null" dari database
   const getAuthorDisplayName = (author: PendingPost['author']) => {
-    if (!author) return 'Unknown'
-    const name = (author.name || '').trim()
-    if (name) return name
-    const uname = (author.username || '').replace(/^@+/, '').trim()
-    if (uname) return uname
+    if (!author) return 'User'
+    const name = String(author.name || '').trim()
+    if (name && name !== 'null') return name
+    const uname = String(author.username || '').replace(/^@+/, '').trim()
+    if (uname && uname !== 'null') return uname
     return 'User'
   }
 
@@ -129,11 +131,16 @@ export function NotificationBell({ initialCount = 0, initialPosts = [] }: Notifi
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <span className="text-xs font-bold text-[#3B82F6] truncate">
+                    {/* ✅ KUNCI 2: Perbaikan Layout CSS Flexbox
+                        Tambahkan min-w-0 di parent, ubah text truncate jadi block, 
+                        dan kunci text "mengajukan karya" dengan flex-shrink-0 agar tidak mendesak nama hingga hilang. */}
+                    <div className="flex items-center gap-1.5 mb-0.5 min-w-0">
+                      <span className="text-xs font-bold text-[#3B82F6] truncate block">
                         {getAuthorDisplayName(post.author)}
                       </span>
-                      <span className="text-[10px] text-[var(--text-muted)]">mengajukan karya</span>
+                      <span className="text-[10px] text-[var(--text-muted)] flex-shrink-0 whitespace-nowrap">
+                        mengajukan karya
+                      </span>
                     </div>
 
                     <p className="text-sm font-semibold text-[var(--text-main)] truncate mb-1">

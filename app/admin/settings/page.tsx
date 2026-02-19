@@ -91,10 +91,10 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pb-10">
+    <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pt-20 pb-10">
       
       {/* Header */}
-      <header className="sticky top-0 z-50 flex justify-between items-center py-4 px-4 md:px-[10%] bg-[var(--bg-main)] border-b border-[var(--border-color)] mb-8">
+      <header className="fixed top-0 left-0 w-full z-[100] flex flex-col md:flex-row justify-between items-start md:items-center py-2 px-4 md:px-[10%] bg-[var(--bg-main)] border-b border-[var(--border-color)] mb-8 gap-4">
         <div>
           <span className="text-[#3B82F6] font-mono text-[10px] tracking-widest uppercase">// ADMIN_SETTINGS</span>
           <h1 className="text-xl font-extrabold uppercase">⚙️ Pengaturan Situs</h1>
