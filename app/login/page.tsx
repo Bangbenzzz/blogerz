@@ -103,7 +103,7 @@ export default function LoginPage() {
             <input 
               type="email" 
               className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center"
-              placeholder="name@email.com" 
+              placeholder="Masukan Email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
               required 
@@ -119,7 +119,7 @@ export default function LoginPage() {
               <input 
                 type={showPassword ? "text" : "password"}
                 className="w-full bg-transparent border-none text-[var(--text-main)] text-base outline-none font-mono text-center pr-10"
-                placeholder="••••••••" 
+                placeholder="Masukan Password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 required 

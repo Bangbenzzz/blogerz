@@ -70,7 +70,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="pt-2">
           <p className="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em]">
-            &copy; {currentYear} CERMATI • Dev - <span className="text-[var(--text-main)] font-bold">Benzzz</span>
+            &copy; {currentYear} CERMATI  All Rights Reserved • Dev - <span className="text-[var(--text-main)] font-bold">Benzzz</span>
           </p>
         </div>
       </div>
