@@ -10,9 +10,10 @@ interface UserMenuProps {
   username?: string | null
   name?: string | null
   userId?: string | null
+  isAdmin?: boolean 
 }
 
-export default function UserMenu({ userEmail, avatarUrl, username, name, userId }: UserMenuProps) {
+export default function UserMenu({ userEmail, avatarUrl, username, name, userId, isAdmin }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -28,12 +29,17 @@ export default function UserMenu({ userEmail, avatarUrl, username, name, userId 
 
   const displayName = name || 'User'
   
-  // Logika link: Prioritaskan username, jika tidak ada pakai ID
   const profileLink = username 
     ? `/user/${username}` 
     : userId 
       ? `/user/${userId}` 
       : '/settings';
+
+  // ✅ PERBAIKAN: Cek langsung email admin di sini agar anti-gagal!
+  const isActuallyAdmin = 
+    isAdmin || 
+    userEmail === 'admin@bloger.com' || 
+    userEmail === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
   return (
     <div ref={menuRef} className="relative">
@@ -81,7 +87,22 @@ export default function UserMenu({ userEmail, avatarUrl, username, name, userId 
 
           {/* Menu Items */}
           <div className="py-2">
-            {/* MENU: PROFIL SAYA (Kembali ke semula) */}
+            
+            {/* ✅ MENU KHUSUS ADMIN (Akan muncul jika emailnya admin@bloger.com) */}
+            {isActuallyAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-purple-500 hover:bg-purple-500/10 transition-colors"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Admin Dashboard
+              </Link>
+            )}
+
+            {/* Profil Saya */}
             <Link
               href={profileLink}
               onClick={() => setIsOpen(false)}
@@ -94,6 +115,7 @@ export default function UserMenu({ userEmail, avatarUrl, username, name, userId 
               Profil Saya
             </Link>
             
+            {/* Buat Karya */}
             <Link
               href="/create"
               onClick={() => setIsOpen(false)}
