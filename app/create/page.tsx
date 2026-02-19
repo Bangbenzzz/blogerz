@@ -380,7 +380,7 @@ export default function CreatePostPage() {
   const anyDropdownOpen = showFontMenu || showHeadingMenu || showColorPicker || showEmojiPicker
 
   return (
-    <div className="min-h-screen bg-neutral-900 flex flex-col font-sans" onClick={closeAllDropdowns}>
+    <div className="h-[100dvh] overflow-hidden bg-neutral-900 flex flex-col font-sans" onClick={closeAllDropdowns}>
       
       {/* BACKDROP */}
       {anyDropdownOpen && (
@@ -430,7 +430,7 @@ export default function CreatePostPage() {
       )}
 
       {/* HEADER - DENGAN TOMBOL KEMBALI */}
-      <header className="sticky top-0 z-[200] bg-neutral-800/95 backdrop-blur-xl border-b border-neutral-700">
+      <header className="flex-shrink-0 z-[200] bg-neutral-800/95 backdrop-blur-xl border-b border-neutral-700">
         <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
           
           {/* TOMBOL KEMBALI */}
@@ -454,7 +454,7 @@ export default function CreatePostPage() {
       </header>
 
       {/* TOOLBAR */}
-      <div className="sticky top-[53px] sm:top-[58px] z-[100] bg-neutral-800/95 backdrop-blur-xl border-b border-neutral-700">
+      <div className="flex-shrink-0 z-[100] bg-neutral-800/95 backdrop-blur-xl border-b border-neutral-700">
         <div className="flex flex-nowrap items-center gap-1 px-2 py-2 overflow-x-auto scrollbar-hide">
           
           <TBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Undo"><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7v6h6" /><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" /></svg></TBtn>
