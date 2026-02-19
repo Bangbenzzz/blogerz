@@ -53,7 +53,6 @@ export default function AdminSettingsPage() {
       const { url } = await res.json()
       setFormData({ ...formData, site_logo: url })
       
-      // GANTI Alert dengan Toast
       showToast("Logo berhasil diupload! Jangan lupa simpan.", "success")
 
     } catch (error) {
@@ -76,9 +75,8 @@ export default function AdminSettingsPage() {
       })
 
       if (res.ok) {
-        // Ganti Alert dengan Toast
         showToast("Pengaturan berhasil disimpan!", "success")
-        router.refresh() // Refresh server components
+        router.refresh() 
       } else {
         showToast("Gagal menyimpan pengaturan", "error")
       }
@@ -91,21 +89,22 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pt-20 pb-10">
+    <div className="min-h-screen bg-transparent text-[var(--text-main)] font-sans pb-10">
       
-      {/* Header */}
-      <header className="fixed top-0 left-0 w-full z-[100] flex flex-col md:flex-row justify-between items-start md:items-center py-2 px-4 md:px-[10%] bg-[var(--bg-main)] border-b border-[var(--border-color)] mb-8 gap-4">
+      {/* HEADER TERKUNCI (FIXED) */}
+      <header className="fixed top-0 left-0 w-full z-[100] flex flex-col md:flex-row justify-between items-start md:items-center py-3 px-4 md:px-[10%] bg-[var(--bg-main)] border-b border-[var(--border-color)] gap-4 shadow-sm">
         <div>
           <span className="text-[#3B82F6] font-mono text-[10px] tracking-widest uppercase">// ADMIN_SETTINGS</span>
           <h1 className="text-xl font-extrabold uppercase">⚙️ Pengaturan Situs</h1>
         </div>
-        <Link href="/admin" className="text-xs text-[var(--text-muted)] hover:text-[#3B82F6] transition-colors">
-          ← Dashboard
+        <Link href="/admin" className="text-xs font-bold text-[#3B82F6] hover:underline transition-colors">
+          ← Kembali ke Dashboard
         </Link>
       </header>
 
-      <div className="px-4 md:px-[10%] max-w-3xl">
-        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-6">
+      {/* ✅ PERBAIKAN: pt-28 diubah jadi pt-36 (di HP) dan md:pt-40 (di Desktop) agar turunnya lebih mantap! */}
+      <div className="px-4 md:px-[10%] max-w-3xl pt-36 md:pt-32">
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
           <h2 className="text-sm font-bold mb-6 uppercase">Konfigurasi Umum</h2>
           
           <form onSubmit={handleSubmit} className="space-y-6">
